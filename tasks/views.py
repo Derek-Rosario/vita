@@ -14,6 +14,7 @@ from django.urls import reverse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
 
+from core.services import add_toast
 from core.views import HttpRequest
 from tasks.models import Task
 from tasks.models import Comment, Project, Routine, RoutineStep, Tag
@@ -139,8 +140,14 @@ def create_task(request: HttpRequest):
         template = (
             "tasks/partials/add_task_form.html" if request.htmx else "tasks/board.html"
         )
-        return render(request, template, context, status=201)
+        response = render(request, template, context, status=201)
+        add_toast(
+            response,
+            type="success",
+            message="Added task.",
+        )
 
+        return response
     context = {
         **_fetch_board_context(),
         "form": form,

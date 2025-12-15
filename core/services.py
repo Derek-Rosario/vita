@@ -1,6 +1,26 @@
+import json
 import os
+from typing import Literal
 from django.conf import settings
 from django.core.mail import EmailMessage, get_connection
+from django.http import HttpResponse
+
+from core.views import HttpRequest
+
+
+def add_toast(
+    response: HttpResponse,
+    type: Literal["success"] | Literal["error"] | Literal["info"],
+    message: str,
+):
+    response["HX-Trigger"] = json.dumps(
+        {
+            "toastMessage": {
+                "type": type,
+                "message": message,
+            }
+        }
+    )
 
 
 def send_email(to_address, subject, body):
