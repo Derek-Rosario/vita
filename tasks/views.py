@@ -5,6 +5,7 @@ from datetime import datetime
 from django import forms
 from django.forms import inlineformset_factory
 from django.db import models
+from django.http import HttpResponse
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
@@ -107,15 +108,8 @@ def move_task(request: HttpRequest):
         )
 
     task = get_object_or_404(Task, pk=task_id)
-    max_order = (
-        Task.objects.filter(status=status).aggregate(max_order=models.Max("order"))[
-            "max_order"
-        ]
-        or 0
-    )
     task.status = status
-    task.order = max_order + 1
-    update_fields = ["status", "order", "updated_at"]
+    update_fields = ["status", "updated_at"]
     if status == Task.Status.DONE and task.completed_at is None:
         task.completed_at = timezone.now()
         update_fields.append("completed_at")
@@ -133,13 +127,6 @@ def create_task(request: HttpRequest):
     form = TaskForm(request.POST)
     if form.is_valid():
         task = form.save(commit=False)
-        max_order = (
-            Task.objects.filter(status=task.status).aggregate(
-                max_order=models.Max("order")
-            )["max_order"]
-            or 0
-        )
-        task.order = max_order + 1
         task.save()
         form.save_m2m()
         context = {
@@ -352,6 +339,7 @@ RoutineStepFormSet = inlineformset_factory(
 
 def edit_task(request: HttpRequest, task_id: int):
     task = get_object_or_404(Task, pk=task_id)
+    is_autosave = request.headers.get("HX-Target") == "task-autosave-status"
     comment_form = CommentForm()
 
     if request.method == "POST":
@@ -374,7 +362,9 @@ def edit_task(request: HttpRequest, task_id: int):
             form = TaskForm(request.POST, instance=task)
             if form.is_valid():
                 form.save()
-                if request.htmx:
+                if request.htmx and is_autosave:
+                    return HttpResponse(status=204)
+                elif request.htmx:
                     return render(
                         request,
                         "tasks/partials/task_form_card.html",
@@ -386,6 +376,8 @@ def edit_task(request: HttpRequest, task_id: int):
                         },
                     )
                 return redirect("task_board")
+            elif request.htmx and is_autosave:
+                return HttpResponse("Failed validation.", status=400)
     else:
         form = TaskForm(instance=task)
 

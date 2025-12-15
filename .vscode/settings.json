@@ -1,6 +1,6 @@
 {
   "djlint.useVenv": false,
-  "djlint.pythonPath": "/home/frank/snap/code/211/.local/share/uv/tools/djlint/bin/python3.14",
+  "djlint.pythonPath": "/home/frank/.local/share/uv/tools/djlint/bin/python3.14",
   "[html]": {
     "editor.defaultFormatter": "monosans.djlint"
   }
