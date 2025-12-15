@@ -284,6 +284,30 @@ class Routine(TimestampedModel):
     def __str__(self):
         return self.name
 
+    @property
+    def schedule_display(self) -> str:
+        day_labels = [
+            "Sunday",
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+        ]
+        if self.days_of_week:
+            selected = [
+                day_labels[idx]
+                for idx in self.days_of_week
+                if 0 <= idx < len(day_labels)
+            ]
+            return f"Weekly: {', '.join(selected)}"
+        if self.day_of_month:
+            return f"Day {self.day_of_month} each month"
+        interval = self.interval or 1
+        suffix = "day" if interval == 1 else "days"
+        return f"Every {interval} {suffix}"
+
 
 class RoutineStep(TimestampedModel):
     routine = models.ForeignKey(

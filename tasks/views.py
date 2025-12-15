@@ -1,17 +1,21 @@
 from typing import Dict, List
 from datetime import timedelta
+from datetime import datetime
 
 from django import forms
+from django.forms import inlineformset_factory
 from django.db import models
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 from django.urls import reverse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.contrib import messages
 
 from core.views import HttpRequest
 from tasks.models import Task
-from tasks.models import Comment, Project, Tag
+from tasks.models import Comment, Project, Routine, RoutineStep, Tag
+from tasks.services import generate_tasks_for_date
 
 BOARD_STATUSES = [
     (Task.Status.TODO, "To do"),
@@ -177,7 +181,7 @@ def _fetch_board_context():
         )
         .select_related("parent", "project")
         .prefetch_related("tags")
-        .order_by("order", "-priority", "due_at", "-created_at")
+        .order_by("-priority", "due_at", "-created_at")
     )
     grouped: Dict[Task.Status | str, List[Task]] = {
         code: [] for code, _ in BOARD_STATUSES
@@ -237,6 +241,113 @@ class CommentForm(forms.ModelForm):
                 }
             )
         }
+
+
+DAY_OF_WEEK_CHOICES = [
+    (0, "Sunday"),
+    (1, "Monday"),
+    (2, "Tuesday"),
+    (3, "Wednesday"),
+    (4, "Thursday"),
+    (5, "Friday"),
+    (6, "Saturday"),
+]
+
+
+class RoutineForm(forms.ModelForm):
+    days_of_week = forms.TypedMultipleChoiceField(
+        required=False,
+        coerce=int,
+        choices=DAY_OF_WEEK_CHOICES,
+        widget=forms.CheckboxSelectMultiple,
+        help_text="Select days for weekly cadence (optional).",
+    )
+
+    class Meta:
+        model = Routine
+        fields = [
+            "name",
+            "description",
+            "tags",
+            "is_active",
+            "interval",
+            "days_of_week",
+            "day_of_month",
+            "anchor_time",
+        ]
+        widgets = {
+            "name": forms.TextInput(attrs={"class": "form-control"}),
+            "description": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 3,
+                    "placeholder": "Describe the routine",
+                }
+            ),
+            "day_of_month": forms.NumberInput(
+                attrs={"class": "form-control", "min": 1, "max": 31}
+            ),
+            "interval": forms.NumberInput(attrs={"class": "form-control", "min": 1}),
+            "anchor_time": forms.TimeInput(
+                attrs={"class": "form-control", "type": "time"}
+            ),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        widget = self.fields["tags"].widget
+        css = widget.attrs.get("class", "")
+        widget.attrs["class"] = f"{css} form-select".strip()
+        if self.instance and self.instance.pk and self.instance.days_of_week:
+            self.initial["days_of_week"] = self.instance.days_of_week
+
+    def clean_days_of_week(self):
+        days = self.cleaned_data.get("days_of_week") or []
+        return sorted(set(days))
+
+
+class RoutineStepForm(forms.ModelForm):
+    class Meta:
+        model = RoutineStep
+        fields = [
+            "title",
+            "description",
+            "sort_order",
+            "default_priority",
+            "default_energy",
+            "default_estimate_minutes",
+            "default_tags",
+        ]
+        widgets = {
+            "title": forms.TextInput(attrs={"class": "form-control"}),
+            "description": forms.Textarea(
+                attrs={
+                    "class": "form-control",
+                    "rows": 2,
+                    "placeholder": "What happens in this step?",
+                }
+            ),
+            "sort_order": forms.NumberInput(attrs={"class": "form-control"}),
+            "default_estimate_minutes": forms.NumberInput(
+                attrs={"class": "form-control"}
+            ),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for name in ["default_priority", "default_energy", "default_tags"]:
+            widget = self.fields[name].widget
+            css = widget.attrs.get("class", "")
+            widget.attrs["class"] = f"{css} form-select".strip()
+
+
+RoutineStepFormSet = inlineformset_factory(
+    Routine,
+    RoutineStep,
+    form=RoutineStepForm,
+    extra=2,
+    can_delete=True,
+)
 
 
 def edit_task(request: HttpRequest, task_id: int):
@@ -344,7 +455,9 @@ def create_project(request: HttpRequest):
         form.save()
         if not request.htmx:
             return redirect(f"{reverse('task_board')}?show_projects=1")
-        projects = Project.objects.order_by("-is_active", "name").prefetch_related("tags")
+        projects = Project.objects.order_by("-is_active", "name").prefetch_related(
+            "tags"
+        )
         return render(
             request,
             "tasks/partials/project_offcanvas_list.html",
@@ -367,7 +480,9 @@ def project_detail(request: HttpRequest, project_id: int):
         Project.objects.prefetch_related("tags").prefetch_related(
             models.Prefetch(
                 "tasks",
-                queryset=Task.objects.select_related("project").prefetch_related("tags"),
+                queryset=Task.objects.select_related("project").prefetch_related(
+                    "tags"
+                ),
             )
         ),
         pk=project_id,
@@ -519,3 +634,112 @@ def tag_detail(request: HttpRequest, tag_id: int):
         },
         status=400 if form.errors else 200,
     )
+
+
+def routine_list(request: HttpRequest):
+    routines = (
+        Routine.objects.prefetch_related("tags")
+        .annotate(step_count=models.Count("steps"))
+        .order_by("name")
+    )
+    return render(
+        request,
+        "tasks/routine_list.html",
+        {
+            "routines": routines,
+            "today": timezone.localdate(),
+        },
+    )
+
+
+def routine_create(request: HttpRequest):
+    routine = Routine()
+    if request.method == "POST":
+        form = RoutineForm(request.POST, instance=routine)
+        formset = RoutineStepFormSet(request.POST, instance=routine)
+        if form.is_valid() and formset.is_valid():
+            routine = form.save()
+            formset.instance = routine
+            formset.save()
+            messages.success(request, "Routine created.")
+            return redirect("routine_list")
+    else:
+        form = RoutineForm()
+        formset = RoutineStepFormSet(instance=routine)
+
+    return render(
+        request,
+        "tasks/routine_form.html",
+        {
+            "form": form,
+            "formset": formset,
+            "routine": routine,
+            "is_create": True,
+        },
+        status=400
+        if request.method == "POST" and (form.errors or formset.errors)
+        else 200,
+    )
+
+
+def routine_edit(request: HttpRequest, routine_id: int):
+    routine = get_object_or_404(
+        Routine.objects.prefetch_related("steps"), pk=routine_id
+    )
+    if request.method == "POST":
+        form = RoutineForm(request.POST, instance=routine)
+        formset = RoutineStepFormSet(request.POST, instance=routine)
+        if form.is_valid() and formset.is_valid():
+            routine = form.save()
+            formset.instance = routine
+            formset.save()
+            messages.success(request, "Routine updated.")
+            return redirect("routine_list")
+    else:
+        form = RoutineForm(instance=routine)
+        formset = RoutineStepFormSet(instance=routine)
+
+    return render(
+        request,
+        "tasks/routine_form.html",
+        {
+            "form": form,
+            "formset": formset,
+            "routine": routine,
+            "is_create": False,
+        },
+        status=400
+        if request.method == "POST" and (form.errors or formset.errors)
+        else 200,
+    )
+
+
+@require_POST
+def routine_delete(request: HttpRequest, routine_id: int):
+    routine = get_object_or_404(Routine, pk=routine_id)
+    routine.delete()
+    messages.success(request, "Routine deleted.")
+    return redirect("routine_list")
+
+
+@require_POST
+def routine_run(request: HttpRequest, routine_id: int | None = None):
+    date_str = request.POST.get("date")
+    target_date = timezone.localdate()
+    if date_str:
+        try:
+            target_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+        except ValueError:
+            messages.error(request, "Invalid date format. Use YYYY-MM-DD.")
+            return redirect("routine_list")
+
+    routines = None
+    if routine_id:
+        routines = Routine.objects.filter(pk=routine_id)
+
+    created = generate_tasks_for_date(target_date=target_date, routines=routines)
+    messages.success(
+        request,
+        f"Created {len(created)} task(s) for {target_date.isoformat()}.",
+    )
+    return redirect("routine_list")

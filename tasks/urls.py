@@ -14,4 +14,14 @@ urlpatterns = [
     path("tags/add/", views.create_tag, name="tag_add"),
     path("tags/<int:tag_id>/", views.tag_detail, name="tag_detail"),
     path("task/<int:task_id>/edit/", views.edit_task, name="edit_task"),
+    path("routines/", views.routine_list, name="routine_list"),
+    path("routines/add/", views.routine_create, name="routine_add"),
+    path("routines/<int:routine_id>/", views.routine_edit, name="routine_edit"),
+    path("routines/<int:routine_id>/delete/", views.routine_delete, name="routine_delete"),
+    path("routines/run/", views.routine_run, name="routine_run"),
+    path(
+        "routines/<int:routine_id>/run/",
+        views.routine_run,
+        name="routine_run_single",
+    ),
 ]

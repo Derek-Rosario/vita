@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% load django_bootstrap5 %}
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <p class="text-uppercase text-muted small mb-1">Tasks</p>
+      <h1 class="h4 mb-0">Routines</h1>
+    </div>
+    <div class="d-flex gap-2">
+      <form method="post" action="{% url 'routine_run' %}">
+        {% csrf_token %}
+        <input type="hidden" name="date" value="{{ today|default_if_none:'' }}">
+        <button type="submit" class="btn btn-outline-secondary">Run for today</button>
+      </form>
+      <a href="{% url 'routine_add' %}" class="btn btn-primary">New routine</a>
+    </div>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  {% if routines %}
+  <div class="table-responsive bg-white shadow-sm rounded">
+    <table class="table align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Name</th>
+          <th>Schedule</th>
+          <th>Steps</th>
+          <th>Tags</th>
+          <th>Status</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for routine in routines %}
+          <tr>
+            <td class="fw-semibold">{{ routine.name }}</td>
+            <td>
+              {{ routine.schedule_display }}
+              {% if routine.anchor_time %}<div class="text-muted small">At {{ routine.anchor_time }}</div>{% endif %}
+            </td>
+            <td>{{ routine.step_count }}</td>
+            <td>
+              {% for tag in routine.tags.all %}
+                <span class="badge bg-light text-dark border">{{ tag.name }}</span>
+              {% empty %}
+                <span class="text-muted">—</span>
+              {% endfor %}
+            </td>
+            <td>
+              {% if routine.is_active %}
+                <span class="badge bg-success">Active</span>
+              {% else %}
+                <span class="badge bg-secondary">Paused</span>
+              {% endif %}
+            </td>
+            <td class="text-end">
+              <form method="post" action="{% url 'routine_run_single' routine.pk %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-success">Run</button>
+              </form>
+              <a href="{% url 'routine_edit' routine.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+              <form method="post" action="{% url 'routine_delete' routine.pk %}" class="d-inline" onsubmit="return confirm('Delete this routine?');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <div class="text-center text-muted py-5">
+      <p class="mb-2">No routines yet.</p>
+      <a href="{% url 'routine_add' %}" class="btn btn-primary">Create your first routine</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
