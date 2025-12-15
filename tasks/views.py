@@ -1,3 +1,4 @@
+import json
 from typing import Dict, List
 from datetime import timedelta
 from datetime import datetime
@@ -363,7 +364,19 @@ def edit_task(request: HttpRequest, task_id: int):
             if form.is_valid():
                 form.save()
                 if request.htmx and is_autosave:
-                    return HttpResponse(status=204)
+                    return HttpResponse(
+                        status=204,
+                        headers={
+                            "HX-Trigger": json.dumps(
+                                {
+                                    "toastMessage": {
+                                        "type": "success",
+                                        "message": "Saved task.",
+                                    }
+                                }
+                            )
+                        },
+                    )
                 elif request.htmx:
                     return render(
                         request,

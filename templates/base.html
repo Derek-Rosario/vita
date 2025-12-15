@@ -2,43 +2,103 @@
 {% load django_htmx %}
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="description" content="Vita - Frank OS" />
-        <meta name="author" content="Frank Matranga" />
-        <title>Vita - Frank OS</title>
-        {% bootstrap_css %}
-        {% bootstrap_javascript %}
-        {% htmx_script minified=False %}
-        <script>
-      const perfEntries = performance.getEntriesByType("navigation");
 
-      if (perfEntries[0].type === "back_forward") {
-        location.reload(true);
-      }
-        </script>
-    </head>
-    <body class="bg-light" hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="#">Vita - Frank OS</a>
-                <div class="navbar-nav me-auto">
-                    <a class="nav-link" href="{% url 'task_board' %}">Tasks</a>
-                    <a class="nav-link" href="{% url 'routine_list' %}">Routines</a>
-                    <a class="nav-link" href="#">Inbox</a>
-                </div>
-                <div class="navbar-nav">
-                    <form method="post" action="{% url 'logout' %}">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-link nav-link text-white">Logout</button>
-                    </form>
-                </div>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Vita - Frank OS" />
+    <meta name="author" content="Frank Matranga" />
+    <title>Vita - Frank OS</title>
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+    {% htmx_script minified=False %}
+    <script>
+        const perfEntries = performance.getEntriesByType("navigation");
+
+        if (perfEntries[0].type === "back_forward") {
+            location.reload(true);
+        }
+    </script>
+</head>
+
+<body class="bg-light" hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Vita - Frank OS</a>
+            <div class="navbar-nav me-auto">
+                <a class="nav-link" href="{% url 'task_board' %}">Tasks</a>
+                <a class="nav-link" href="{% url 'routine_list' %}">Routines</a>
+                <a class="nav-link" href="#">Inbox</a>
             </div>
-        </nav>
-        <main>
-            {% block content %}
-            {% endblock content %}
-        </main>
-    </body>
+            <div class="navbar-nav">
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-link nav-link text-white">Logout</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+    <main>
+        {% block content %}
+        {% endblock content %}
+    </main>
+
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <template id="task-toast-template">
+            <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-header">
+                    <strong class="me-auto toast-title"></strong>
+                </div>
+                <div class="toast-body"></div>
+            </div>
+        </template>
+    </div>
+
+    <script>
+        const toastContainer = document.querySelector('.toast-container');
+        const toastTemplate = document.getElementById('task-toast-template');
+
+        function toast({
+            type = 'info',
+            header,
+            message = '',
+        }) {
+            const toastClone = toastTemplate.content.cloneNode(true);
+            const toastElement = toastClone.querySelector('.toast');
+            const toastBody = toastClone.querySelector('.toast-body');
+            const toastTitle = toastClone.querySelector('.toast-header .toast-title');
+
+            toastBody.textContent = message;
+            if (header) {
+                toastTitle.textContent = header;
+            } else {
+                // remove header if not provided
+                toastClone.querySelector('.toast-header').remove();
+            }
+
+            if (type === 'success') {
+                toastElement.classList.add('bg-success', 'text-white');
+            } else if (type === 'error') {
+                toastElement.classList.add('bg-danger', 'text-white');
+            } else if (type === 'warning') {
+                toastElement.classList.add('bg-warning', 'text-dark');
+            } else {
+                toastElement.classList.add('bg-info', 'text-white');
+            }
+
+            toastContainer.appendChild(toastClone);
+            const bsToast = new bootstrap.Toast(toastElement);
+            bsToast.show();
+
+            toastElement.addEventListener('hidden.bs.toast', () => {
+                toastElement.remove();
+            });
+        }
+
+        document.addEventListener('toastMessage', function (event) {
+            toast(event.detail)
+        });
+    </script>
+</body>
+
 </html>
