@@ -29,7 +29,7 @@ class TaskAdmin(admin.ModelAdmin):
     search_fields = ("title", "description")
     autocomplete_fields = ("parent", "tags", "routine", "routine_step")
     inlines = (CommentInline,)
-    ordering = ("status", "-priority", "due_at", "order", "-created_at")
+    ordering = ("status", "-priority", "due_at", "-created_at")
 
 
 @admin.register(Project)

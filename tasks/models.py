@@ -137,10 +137,6 @@ class Task(TimestampedModel):
         blank=True,
         help_text="Labels attached to this task.",
     )
-    order = models.PositiveIntegerField(
-        default=0,
-        help_text="Manual ordering within a list.",
-    )
 
     # Routine association
     routine = models.ForeignKey(
@@ -170,7 +166,7 @@ class Task(TimestampedModel):
     )  # if you explicitly "keep" it
 
     class Meta:
-        ordering = ["status", "-priority", "due_at", "order", "-created_at"]
+        ordering = ["status", "-priority", "due_at", "-created_at"]
         indexes = [
             models.Index(fields=["status"]),
             models.Index(fields=["due_at"]),
