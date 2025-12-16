@@ -72,8 +72,7 @@ class Task(TimestampedModel):
         HIGH = "HIGH", "High"
 
     title = models.CharField(
-        max_length=255,
-        help_text="Short task title.",
+        max_length=255, help_text="Short task title.", default="New task"
     )
     description = models.TextField(
         blank=True,

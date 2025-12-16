@@ -2,59 +2,56 @@
 {% load django_htmx %}
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="Vita - Frank OS" />
-    <meta name="author" content="Frank Matranga" />
-    <title>Vita - Frank OS</title>
-    {% bootstrap_css %}
-    {% bootstrap_javascript %}
-    {% htmx_script minified=False %}
-    <script>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="description" content="Vita - Frank OS" />
+        <meta name="author" content="Frank Matranga" />
+        <title>Vita - Frank OS</title>
+        {% bootstrap_css %}
+        {% bootstrap_javascript %}
+        {% htmx_script minified=False %}
+        <script>
         const perfEntries = performance.getEntriesByType("navigation");
 
         if (perfEntries[0].type === "back_forward") {
             location.reload(true);
         }
-    </script>
-</head>
-
-<body class="bg-light" hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">Vita - Frank OS</a>
-            <div class="navbar-nav me-auto">
-                <a class="nav-link" href="{% url 'task_board' %}">Tasks</a>
-                <a class="nav-link" href="{% url 'routine_list' %}">Routines</a>
-                <a class="nav-link" href="#">Inbox</a>
-            </div>
-            <div class="navbar-nav">
-                <form method="post" action="{% url 'logout' %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-link nav-link text-white">Logout</button>
-                </form>
-            </div>
-        </div>
-    </nav>
-    <main>
-        {% block content %}
-        {% endblock content %}
-    </main>
-
-    <div class="toast-container position-fixed bottom-0 end-0 p-3">
-        <template id="task-toast-template">
-            <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="toast-header">
-                    <strong class="me-auto toast-title"></strong>
+        </script>
+    </head>
+    <body class="bg-light d-flex flex-column vh-100"
+          hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">Vita - Frank OS</a>
+                <div class="navbar-nav me-auto">
+                    <a class="nav-link" href="{% url 'task_board' %}">Tasks</a>
+                    <a class="nav-link" href="{% url 'routine_list' %}">Routines</a>
+                    <a class="nav-link" href="#">Inbox</a>
                 </div>
-                <div class="toast-body"></div>
+                <div class="navbar-nav">
+                    <form method="post" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-link nav-link text-white">Logout</button>
+                    </form>
+                </div>
             </div>
-        </template>
-    </div>
-
-    <script>
+        </nav>
+        <main class="flex-1 flex-grow-1">
+            {% block content %}
+            {% endblock content %}
+        </main>
+        <div class="toast-container position-fixed bottom-0 end-0 p-3">
+            <template id="task-toast-template">
+                <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header">
+                        <strong class="me-auto toast-title"></strong>
+                    </div>
+                    <div class="toast-body"></div>
+                </div>
+            </template>
+        </div>
+        <script>
         const toastContainer = document.querySelector('.toast-container');
         const toastTemplate = document.getElementById('task-toast-template');
 
@@ -98,7 +95,6 @@
         document.addEventListener('toastMessage', function (event) {
             toast(event.detail)
         });
-    </script>
-</body>
-
+        </script>
+    </body>
 </html>

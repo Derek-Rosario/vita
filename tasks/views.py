@@ -112,16 +112,26 @@ def move_task(request: HttpRequest):
     task = get_object_or_404(Task, pk=task_id)
     task.status = status
     update_fields = ["status", "updated_at"]
-    if status == Task.Status.DONE and task.completed_at is None:
+    just_completed = status == Task.Status.DONE and task.completed_at is None
+    if just_completed:
         task.completed_at = timezone.now()
         update_fields.append("completed_at")
     task.save(update_fields=update_fields)
 
-    return render(
+    response = render(
         request,
         "tasks/partials/board.html",
         {**_fetch_board_context(), "dropped_task_pk": task.pk},
     )
+
+    if just_completed:
+        add_toast(
+            response,
+            type="success",
+            message="Nice job buddy.",
+        )
+
+    return response
 
 
 @require_POST
