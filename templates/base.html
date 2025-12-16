@@ -23,17 +23,25 @@
           hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'>
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <div class="container-fluid">
-                <a class="navbar-brand" href="#">Vita - Frank OS</a>
-                <div class="navbar-nav me-auto">
-                    <a class="nav-link" href="{% url 'task_board' %}">Tasks</a>
-                    <a class="nav-link" href="{% url 'routine_list' %}">Routines</a>
-                    <a class="nav-link" href="#">Inbox</a>
-                </div>
-                <div class="navbar-nav">
-                    <form method="post" action="{% url 'logout' %}">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-link nav-link text-white">Logout</button>
-                    </form>
+                <a class="navbar-brand" href="#">Vita</a>
+                <button class="navbar-toggler"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbar-collapse">
+                    <div class="navbar-nav me-auto">
+                        <a class="nav-link" href="{% url 'task_board' %}">Tasks</a>
+                        <a class="nav-link" href="{% url 'routine_list' %}">Routines</a>
+                        <a class="nav-link" href="#">Inbox</a>
+                    </div>
+                    <div class="navbar-nav">
+                        <form method="post" action="{% url 'logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-link nav-link text-white">Logout</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </nav>
@@ -94,6 +102,11 @@
 
         document.addEventListener('toastMessage', function (event) {
             toast(event.detail)
+        });
+
+        document.addEventListener('speak', function (event) {
+            const utterance = new SpeechSynthesisUtterance(event.detail.message);
+            speechSynthesis.speak(utterance);
         });
         </script>
     </body>
