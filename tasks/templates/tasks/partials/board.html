@@ -32,7 +32,11 @@
                             <div class="card-body py-2 {% if task.status == 'done' %}opacity-75{% endif %}">
                                 <div class="d-flex justify-content-between align-items-start gap-2">
                                     <div>
-                                        <div class="fw-semibold">{{ task.title }}</div>
+                                        <div class="fw-semibold"
+                                             style="overflow: hidden;
+                                                    white-space: nowrap;
+                                                    text-overflow: ellipsis;
+                                                    max-width: calc(318px - 90px)">{{ task.title }}</div>
                                         {% if task.description %}<div class="text-muted small">{{ task.description|truncatechars:100 }}</div>{% endif %}
                                     </div>
                                     <span class="priority-chip priority-{{ task.priority }} d-inline-flex align-items-center gap-1 px-2 py-1 rounded-pill small"
@@ -122,7 +126,8 @@
                                 <a href="{% url 'edit_task' task.id %}"
                                    class="stretched-link"
                                    tabindex="-1"
-                                   aria-hidden="true"></a>
+                                   aria-hidden="true"
+                                   title="{{ task.title }}"></a>
                             </div>
                         </div>
                     {% empty %}

@@ -6,6 +6,7 @@ urlpatterns = [
     path("board/fragment/", views.board_fragment, name="task_board_fragment"),
     path("board/move/", views.move_task, name="task_move"),
     path("add/", views.create_task, name="task_add"),
+    path("quick-add/", views.quick_add_task, name="task_quick_add"),
     path("tasks/", views.task_list, name="task_list"),
     path("projects/", views.project_list, name="project_list"),
     path("projects/add/", views.create_project, name="project_add"),
@@ -17,7 +18,9 @@ urlpatterns = [
     path("routines/", views.routine_list, name="routine_list"),
     path("routines/add/", views.routine_create, name="routine_add"),
     path("routines/<int:routine_id>/", views.routine_edit, name="routine_edit"),
-    path("routines/<int:routine_id>/delete/", views.routine_delete, name="routine_delete"),
+    path(
+        "routines/<int:routine_id>/delete/", views.routine_delete, name="routine_delete"
+    ),
     path("routines/run/", views.routine_run, name="routine_run"),
     path(
         "routines/<int:routine_id>/run/",

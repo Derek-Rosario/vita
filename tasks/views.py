@@ -135,6 +135,33 @@ def move_task(request: HttpRequest):
 
 
 @require_POST
+def quick_add_task(request: HttpRequest):
+    title = request.POST.get("title", "").strip()
+    if not title:
+        return render(
+            request,
+            "tasks/partials/board.html",
+            {**_fetch_board_context(), "error": "Task title cannot be empty."},
+            status=400,
+        )
+
+    task = Task(title=title)
+    task.save()
+
+    response = render(
+        request,
+        "tasks/partials/quick_add_task_form.html",
+        {**_fetch_board_context(), "swap_board": True, "dropped_task_pk": task.pk},
+    )
+    add_toast(
+        response,
+        type="success",
+        message="Added task.",
+    )
+    return response
+
+
+@require_POST
 def create_task(request: HttpRequest):
     form = TaskForm(request.POST)
     if form.is_valid():

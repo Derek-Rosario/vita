@@ -2,11 +2,12 @@
 {% load django_bootstrap5 %}
 {% block content %}
   <div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3 mb-3">
       <div>
         <p class="text-uppercase text-muted small mb-1">Tasks</p>
         <h1 class="h3 mb-0">Kanban Board</h1>
       </div>
+      <div class="d-flex">{% include "tasks/partials/quick_add_task_form.html" %}</div>
       <div class="d-flex gap-2">
         <a href="{% url 'task_list' %}" class="btn btn-outline-secondary">All tasks</a>
         <button type="button"
@@ -16,9 +17,7 @@
                 aria-controls="projectOffcanvas"
                 hx-get="{% url 'project_list' %}"
                 hx-target="#project-offcanvas-body"
-                hx-swap="innerHTML">
-          Projects
-        </button>
+                hx-swap="innerHTML">Projects</button>
         <button type="button"
                 class="btn btn-outline-secondary"
                 data-bs-toggle="offcanvas"
@@ -26,9 +25,7 @@
                 aria-controls="tagOffcanvas"
                 hx-get="{% url 'tag_list' %}"
                 hx-target="#tag-offcanvas-body"
-                hx-swap="innerHTML">
-          Tags
-        </button>
+                hx-swap="innerHTML">Tags</button>
         <button type="button"
                 class="btn btn-primary"
                 data-bs-toggle="modal"
@@ -50,37 +47,45 @@
                     data-bs-dismiss="modal"
                     aria-label="Close"></button>
           </div>
-          <div class="modal-body">
-            {% include "tasks/partials/add_task_form.html" with swap_board=False %}
-          </div>
+          <div class="modal-body">{% include "tasks/partials/add_task_form.html" with swap_board=False %}</div>
         </div>
       </div>
     </div>
-  {% include "tasks/partials/board.html" %}
-</div>
-
-<!-- Tag offcanvas -->
-<div class="offcanvas offcanvas-end" tabindex="-1" id="tagOffcanvas" aria-labelledby="tagOffcanvasLabel">
-  <div class="offcanvas-header">
-    <h5 class="offcanvas-title" id="tagOffcanvasLabel">Tags</h5>
-    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    {% include "tasks/partials/board.html" %}
   </div>
-  <div class="offcanvas-body p-0" id="tag-offcanvas-body">
-    <div class="p-3 text-muted small">Loading tags...</div>
+  <!-- Tag offcanvas -->
+  <div class="offcanvas offcanvas-end"
+       tabindex="-1"
+       id="tagOffcanvas"
+       aria-labelledby="tagOffcanvasLabel">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title" id="tagOffcanvasLabel">Tags</h5>
+      <button type="button"
+              class="btn-close text-reset"
+              data-bs-dismiss="offcanvas"
+              aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body p-0" id="tag-offcanvas-body">
+      <div class="p-3 text-muted small">Loading tags...</div>
+    </div>
   </div>
-</div>
-
-<!-- Project offcanvas -->
-<div class="offcanvas offcanvas-end" tabindex="-1" id="projectOffcanvas" aria-labelledby="projectOffcanvasLabel">
-  <div class="offcanvas-header">
-    <h5 class="offcanvas-title" id="projectOffcanvasLabel">Projects</h5>
-    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  <!-- Project offcanvas -->
+  <div class="offcanvas offcanvas-end"
+       tabindex="-1"
+       id="projectOffcanvas"
+       aria-labelledby="projectOffcanvasLabel">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title" id="projectOffcanvasLabel">Projects</h5>
+      <button type="button"
+              class="btn-close text-reset"
+              data-bs-dismiss="offcanvas"
+              aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body p-0" id="project-offcanvas-body">
+      <div class="p-3 text-muted small">Loading projects...</div>
+    </div>
   </div>
-  <div class="offcanvas-body p-0" id="project-offcanvas-body">
-    <div class="p-3 text-muted small">Loading projects...</div>
-  </div>
-</div>
-<script>
+  <script>
     let boardScrollLeft = 0;
 
     const initKanbanDragAndDrop = () => {
@@ -216,8 +221,8 @@
       }
     });
     {% endif %}
-</script>
-<style>
+  </script>
+  <style>
     @keyframes popIn {
       0% {
         transform: scale(0.95);
@@ -289,5 +294,5 @@
       background: #fdecea;
       color: #c92a2a;
     }
-</style>
+  </style>
 {% endblock content %}

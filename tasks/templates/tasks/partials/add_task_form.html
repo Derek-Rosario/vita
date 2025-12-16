@@ -1,16 +1,10 @@
 {% load django_bootstrap5 %}
-
 <div id="add-task-form">
-  {% if saved %}
-    <div class="alert alert-success py-2 px-3 mb-3">Task added.</div>
-  {% endif %}
-  <form
-    method="post"
-    hx-post="{% url 'task_add' %}"
-    hx-target="#add-task-form"
-    hx-swap="outerHTML"
-    class="d-flex flex-column gap-3"
-  >
+  <form method="post"
+        hx-post="{% url 'task_add' %}"
+        hx-target="#add-task-form"
+        hx-swap="outerHTML"
+        class="d-flex flex-column gap-3">
     {% csrf_token %}
     {% bootstrap_form form %}
     <div class="text-end">
@@ -18,7 +12,6 @@
     </div>
   </form>
 </div>
-
 {% if swap_board %}
   {% include "tasks/partials/board.html" with swap_oob=True %}
 {% endif %}

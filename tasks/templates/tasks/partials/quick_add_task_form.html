@@ -1,0 +1,20 @@
+<form id="quick-add-form"
+      method="post"
+      hx-post="{% url 'task_quick_add' %}"
+      hx-swap="outerHTML"
+      class="d-flex flex-column gap-3">
+    <div class="input-group">
+        <input type="text"
+               name="title"
+               id="title"
+               class="form-control"
+               placeholder="Quick add"
+               required>
+        <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="submit">Quick add</button>
+        </div>
+    </div>
+</form>
+{% if swap_board %}
+    {% include "tasks/partials/board.html" with swap_oob=True %}
+{% endif %}
