@@ -5,20 +5,28 @@
       <p class="text-uppercase text-muted small mb-0">Task</p>
       <h2 class="h5 mb-0">{{ task.title }}</h2>
     </div>
-    <div id="task-save-indicator" class="spinner-border htmx-indicator" role="status">
+    <div id="task-save-indicator"
+         class="spinner-border htmx-indicator"
+         role="status">
       <span class="visually-hidden">Loading...</span>
     </div>
   </div>
   <div class="card-body">
     <div id="task-autosave-status" class="small text-muted" aria-live="polite"></div>
-    <form id="task-form" method="post" action="{% url 'edit_task' task.id %}" hx-indicator="#task-save-indicator"
-      hx-post="{% url 'edit_task' task.id %}" hx-trigger="change delay:500ms" hx-target="#task-autosave-status"
-      hx-swap="innerHTML" hx-include="#task-form" hx-push-url="false" class="d-flex flex-column gap-3">
+    <form id="task-form"
+          method="post"
+          action="{% url 'edit_task' task.id %}"
+          hx-indicator="#task-save-indicator"
+          hx-post="{% url 'edit_task' task.id %}"
+          hx-trigger="change"
+          hx-target="#task-autosave-status"
+          hx-swap="innerHTML"
+          hx-include="#task-form"
+          hx-push-url="false"
+          class="d-flex flex-column gap-3">
       {% bootstrap_form form layout="horizontal" %}
       <div class="d-flex justify-content-end gap-2">
-        <a class="btn btn-outline-secondary" href="{% url 'task_board' %}">Cancel</a>
-        <button type="submit" class="btn btn-primary" hx-post="{% url 'edit_task' task.id %}"
-          hx-target="#task-form-card" hx-swap="outerHTML" hx-sync="closest form:queue">Save</button>
+        <a class="btn btn-outline-secondary" href="{% url 'task_board' %}">Back to Board</a>
       </div>
     </form>
   </div>
