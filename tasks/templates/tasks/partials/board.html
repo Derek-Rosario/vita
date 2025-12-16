@@ -29,7 +29,7 @@
                              role="button"
                              aria-label="Edit {{ task.title }}"
                              {% if dropped_task_pk == task.id %}data-dropped{% endif %}>
-                            <div class="card-body py-2">
+                            <div class="card-body py-2 {% if task.status == 'done' %}opacity-75{% endif %}">
                                 <div class="d-flex justify-content-between align-items-start gap-2">
                                     <div>
                                         <div class="fw-semibold">{{ task.title }}</div>
@@ -132,4 +132,7 @@
             </div>
         </div>
     {% endfor %}
+    <!-- <div class="border rounded border bg-light p-1" hx-target="#kanban-board" hx-trigger="click" hx-get="/asdasdsad" hx-swap="outerHTML">
+        <span style="writing-mode: vertical-rl; text-orientation: mixed;">Recently done (10)</span>
+    </div> -->
 </div>
