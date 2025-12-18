@@ -228,6 +228,11 @@ def _fetch_board_context():
     for task in tasks:
         grouped[task.status].append(task)
 
+    # Sort recently done column by completed_at descending
+    grouped[Task.Status.DONE].sort(
+        key=lambda t: t.completed_at or timezone.now(), reverse=True
+    )
+
     columns = [
         {"code": code, "label": label, "tasks": grouped.get(code, [])}
         for code, label in BOARD_STATUSES
