@@ -39,41 +39,40 @@
                                                     max-width: calc(318px - 90px)">{{ task.title }}</div>
                                         {% if task.description %}<div class="text-muted small">{{ task.description|truncatechars:100 }}</div>{% endif %}
                                     </div>
-                                    <span class="priority-chip priority-{{ task.priority }} d-inline-flex align-items-center gap-1 px-2 py-1 rounded-pill small"
-                                          title="Priority: {{ task.get_priority_display }}">
-                                        <svg class="priority-icon"
-                                             width="14"
-                                             height="14"
-                                             viewBox="0 0 16 16"
-                                             aria-hidden="true"
-                                             focusable="false">
-                                            {% if task.priority == 1 %}
-                                                <circle cx="8" cy="8" r="2"></circle>
-                                            {% elif task.priority == 2 %}
-                                                <circle cx="5" cy="8" r="2"></circle>
-                                                <circle cx="11" cy="8" r="2"></circle>
-                                            {% elif task.priority == 3 %}
-                                                <circle cx="5" cy="11" r="2"></circle>
-                                                <circle cx="8" cy="5" r="2"></circle>
-                                                <circle cx="11" cy="11" r="2"></circle>
-                                            {% else %}
-                                                <path d="M8 1.5 1.5 14h13L8 1.5Z"></path>
-                                                <rect x="7.25" y="6.5" width="1.5" height="3.5" rx="0.75"></rect>
-                                                <circle cx="8" cy="11.5" r="0.8"></circle>
+                                    <span>
+                                        <span class="energy-chip energy-{{ task.energy }}">
+                                            {% if task.energy == "LOW" %}
+                                                <span title="Low energy" aria-hidden="true">🙂</span>
+                                            {% elif task.energy == "HIGH" %}
+                                                <span title="High energy" aria-hidden="true">💀</span>
                                             {% endif %}
-                                        </svg>
+                                        </span>
+                                        <span class="priority-chip priority-{{ task.priority }} d-inline-flex align-items-center gap-1 px-2 py-1 rounded-pill small">
+                                            <svg class="priority-icon"
+                                                 width="14"
+                                                 height="14"
+                                                 viewBox="0 0 16 16"
+                                                 aria-hidden="true"
+                                                 focusable="false">
+                                                {% if task.priority == 1 %}
+                                                    <circle cx="8" cy="8" r="2"></circle>
+                                                {% elif task.priority == 2 %}
+                                                    <circle cx="5" cy="8" r="2"></circle>
+                                                    <circle cx="11" cy="8" r="2"></circle>
+                                                {% elif task.priority == 3 %}
+                                                    <circle cx="5" cy="11" r="2"></circle>
+                                                    <circle cx="8" cy="5" r="2"></circle>
+                                                    <circle cx="11" cy="11" r="2"></circle>
+                                                {% else %}
+                                                    <path d="M8 1.5 1.5 14h13L8 1.5Z"></path>
+                                                    <rect x="7.25" y="6.5" width="1.5" height="3.5" rx="0.75"></rect>
+                                                    <circle cx="8" cy="11.5" r="0.8"></circle>
+                                                {% endif %}
+                                            </svg>
+                                        </span>
                                     </span>
                                 </div>
                                 <div class="d-flex flex-wrap align-items-center gap-2 mt-2">
-                                    <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1">
-                                        {% if task.energy == "LOW" %}
-                                            <span title="Low energy" aria-hidden="true">🙂</span>
-                                        {% elif task.energy == "MEDIUM" %}
-                                            <span title="Medium energy" aria-hidden="true">😐</span>
-                                        {% else %}
-                                            <span title="High energy" aria-hidden="true">😭</span>
-                                        {% endif %}
-                                    </span>
                                     {% if task.due_at %}
                                         <span class="badge bg-warning text-dark d-inline-flex align-items-center gap-1">
                                             <svg width="14"
@@ -111,17 +110,6 @@
                                             {{ task.project.name }}
                                         </span>
                                     {% endif %}
-                                    {% for tag in task.tags.all %}
-                                        {% with dot_color=tag.color|default:"#6c757d" %}
-                                            <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1">
-                                                <span class="rounded-circle d-inline-block"
-                                                      style="width:7px;
-                                                             height:7px;
-                                                             background:{{ dot_color }}"></span>
-                                                {{ tag.name }}
-                                            </span>
-                                        {% endwith %}
-                                    {% endfor %}
                                 </div>
                                 <a href="{% url 'edit_task' task.id %}"
                                    class="stretched-link"
