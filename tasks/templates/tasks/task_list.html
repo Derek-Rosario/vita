@@ -1,100 +1,172 @@
 {% extends "base.html" %}
-
 {% block content %}
-<div class="container py-4">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <div>
-      <p class="text-uppercase text-muted small mb-1">Tasks</p>
-      <h1 class="h4 mb-0">All tasks</h1>
+  <div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div>
+        <p class="text-uppercase text-muted small mb-1">Tasks</p>
+        <h1 class="h4 mb-0">All tasks</h1>
+      </div>
+      <a hx-boost="true"
+         class="btn btn-outline-secondary"
+         href="{% url 'task_board' %}">Back to board</a>
     </div>
-    <a class="btn btn-outline-secondary" href="{% url 'task_board' %}">Back to board</a>
-  </div>
-
-  <div class="card shadow-sm">
-    <div class="table-responsive">
-      <table class="table mb-0 align-middle">
-        <thead class="table-light">
-          <tr>
-            <th scope="col">
-              <a class="text-decoration-none" href="?sort=title&dir={% if sort == 'title' and direction == 'asc' %}desc{% else %}asc{% endif %}">Title{% if sort == 'title' %} {% if direction == 'asc' %}↑{% else %}↓{% endif %}{% endif %}</a>
-            </th>
-            <th scope="col">
-              <a class="text-decoration-none" href="?sort=project&dir={% if sort == 'project' and direction == 'asc' %}desc{% else %}asc{% endif %}">Project{% if sort == 'project' %} {% if direction == 'asc' %}↑{% else %}↓{% endif %}{% endif %}</a>
-            </th>
-            <th scope="col">
-              <a class="text-decoration-none" href="?sort=status&dir={% if sort == 'status' and direction == 'asc' %}desc{% else %}asc{% endif %}">Status{% if sort == 'status' %} {% if direction == 'asc' %}↑{% else %}↓{% endif %}{% endif %}</a>
-            </th>
-            <th scope="col">
-              <a class="text-decoration-none" href="?sort=priority&dir={% if sort == 'priority' and direction == 'asc' %}desc{% else %}asc{% endif %}">Priority{% if sort == 'priority' %} {% if direction == 'asc' %}↑{% else %}↓{% endif %}{% endif %}</a>
-            </th>
-            <th scope="col">
-              <a class="text-decoration-none" href="?sort=due&dir={% if sort == 'due' and direction == 'asc' %}desc{% else %}asc{% endif %}">Due{% if sort == 'due' %} {% if direction == 'asc' %}↑{% else %}↓{% endif %}{% endif %}</a>
-            </th>
-            <th scope="col" class="text-end">
-              <a class="text-decoration-none" href="?sort=updated&dir={% if sort == 'updated' and direction == 'asc' %}desc{% else %}asc{% endif %}">Updated{% if sort == 'updated' %} {% if direction == 'asc' %}↑{% else %}↓{% endif %}{% endif %}</a>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for task in tasks %}
+    <div class="card shadow-sm">
+      <div class="table-responsive">
+        <table class="table mb-0 align-middle">
+          <thead class="table-light">
             <tr>
-              <td>
-                <a href="{% url 'edit_task' task.id %}" class="text-decoration-none fw-semibold">{{ task.title }}</a>
-                {% if task.description %}
-                  <div class="text-muted small">{{ task.description|truncatechars:80 }}</div>
-                {% endif %}
-                {% if task.tags.all %}
-                  <div class="d-flex flex-wrap gap-1 mt-1">
-                    {% for tag in task.tags.all %}
-                      <span class="badge bg-light text-dark border">{{ tag.name }}</span>
-                    {% endfor %}
-                  </div>
-                {% endif %}
-              </td>
-              <td>{% if task.project %}<span class="badge bg-info text-dark">{{ task.project.name }}</span>{% else %}<span class="text-muted small">—</span>{% endif %}</td>
-              <td><span class="badge bg-light text-dark border">{{ task.get_status_display }}</span></td>
-              <td><span class="badge bg-light text-dark border">{{ task.get_priority_display }}</span></td>
-              <td>{% if task.due_at %}{{ task.due_at|date:"M j, Y" }}{% else %}<span class="text-muted small">No due</span>{% endif %}</td>
-              <td class="text-end text-muted small">{{ task.updated_at|date:"M j, Y" }}</td>
+              <th scope="col">
+                <a class="text-decoration-none"
+                   href="?sort=title&dir={% if sort == 'title' and direction == 'asc' %}desc{% else %}asc{% endif %}">Title
+                  {% if sort == 'title' %}
+                    {% if direction == 'asc' %}
+                      ↑
+                    {% else %}
+                      ↓
+                    {% endif %}
+                  {% endif %}
+                </a>
+              </th>
+              <th scope="col">
+                <a class="text-decoration-none"
+                   href="?sort=project&dir={% if sort == 'project' and direction == 'asc' %}desc{% else %}asc{% endif %}">Project
+                  {% if sort == 'project' %}
+                    {% if direction == 'asc' %}
+                      ↑
+                    {% else %}
+                      ↓
+                    {% endif %}
+                  {% endif %}
+                </a>
+              </th>
+              <th scope="col">
+                <a class="text-decoration-none"
+                   href="?sort=status&dir={% if sort == 'status' and direction == 'asc' %}desc{% else %}asc{% endif %}">Status
+                  {% if sort == 'status' %}
+                    {% if direction == 'asc' %}
+                      ↑
+                    {% else %}
+                      ↓
+                    {% endif %}
+                  {% endif %}
+                </a>
+              </th>
+              <th scope="col">
+                <a class="text-decoration-none"
+                   href="?sort=priority&dir={% if sort == 'priority' and direction == 'asc' %}desc{% else %}asc{% endif %}">Priority
+                  {% if sort == 'priority' %}
+                    {% if direction == 'asc' %}
+                      ↑
+                    {% else %}
+                      ↓
+                    {% endif %}
+                  {% endif %}
+                </a>
+              </th>
+              <th scope="col">
+                <a class="text-decoration-none"
+                   href="?sort=due&dir={% if sort == 'due' and direction == 'asc' %}desc{% else %}asc{% endif %}">Due
+                  {% if sort == 'due' %}
+                    {% if direction == 'asc' %}
+                      ↑
+                    {% else %}
+                      ↓
+                    {% endif %}
+                  {% endif %}
+                </a>
+              </th>
+              <th scope="col" class="text-end">
+                <a class="text-decoration-none"
+                   href="?sort=updated&dir={% if sort == 'updated' and direction == 'asc' %}desc{% else %}asc{% endif %}">Updated
+                  {% if sort == 'updated' %}
+                    {% if direction == 'asc' %}
+                      ↑
+                    {% else %}
+                      ↓
+                    {% endif %}
+                  {% endif %}
+                </a>
+              </th>
             </tr>
-          {% empty %}
-            <tr>
-              <td colspan="6" class="text-center text-muted py-4">No tasks yet.</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-
-    <div class="card-footer bg-white">
-      <nav aria-label="Task pagination">
-        <ul class="pagination mb-0 justify-content-center">
-          {% if page_obj.has_previous %}
-            <li class="page-item">
-              <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
-            </li>
-          {% else %}
-            <li class="page-item disabled"><span class="page-link">Previous</span></li>
-          {% endif %}
-
-          {% for num in paginator.page_range %}
-            {% if num == page_obj.number %}
-              <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-            {% elif num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2" %}
-              <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+          </thead>
+          <tbody>
+            {% for task in tasks %}
+              <tr>
+                <td>
+                  <a href="{% url 'edit_task' task.id %}"
+                     class="text-decoration-none fw-semibold">{{ task.title }}</a>
+                  {% if task.description %}<div class="text-muted small">{{ task.description|truncatechars:80 }}</div>{% endif %}
+                  {% if task.tags.all %}
+                    <div class="d-flex flex-wrap gap-1 mt-1">
+                      {% for tag in task.tags.all %}<span class="badge bg-light text-dark border">{{ tag.name }}</span>{% endfor %}
+                    </div>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if task.project %}
+                    <span class="badge bg-info text-dark">{{ task.project.name }}</span>
+                  {% else %}
+                    <span class="text-muted small">—</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <span class="badge bg-light text-dark border">{{ task.get_status_display }}</span>
+                </td>
+                <td>
+                  <span class="badge bg-light text-dark border">{{ task.get_priority_display }}</span>
+                </td>
+                <td>
+                  {% if task.due_at %}
+                    {{ task.due_at|date:"M j, Y" }}
+                  {% else %}
+                    <span class="text-muted small">No due</span>
+                  {% endif %}
+                </td>
+                <td class="text-end text-muted small">{{ task.updated_at|date:"M j, Y" }}</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="6" class="text-center text-muted py-4">No tasks yet.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="card-footer bg-white">
+        <nav aria-label="Task pagination">
+          <ul class="pagination mb-0 justify-content-center">
+            {% if page_obj.has_previous %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+              </li>
+            {% else %}
+              <li class="page-item disabled">
+                <span class="page-link">Previous</span>
+              </li>
             {% endif %}
-          {% endfor %}
-
-          {% if page_obj.has_next %}
-            <li class="page-item">
-              <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
-            </li>
-          {% else %}
-            <li class="page-item disabled"><span class="page-link">Next</span></li>
-          {% endif %}
-        </ul>
-      </nav>
+            {% for num in paginator.page_range %}
+              {% if num == page_obj.number %}
+                <li class="page-item active">
+                  <span class="page-link">{{ num }}</span>
+                </li>
+              {% elif num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2" %}
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+              {% endif %}
+            {% endfor %}
+            {% if page_obj.has_next %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+              </li>
+            {% else %}
+              <li class="page-item disabled">
+                <span class="page-link">Next</span>
+              </li>
+            {% endif %}
+          </ul>
+        </nav>
+      </div>
     </div>
   </div>
-</div>
 {% endblock %}
