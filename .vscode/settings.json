@@ -2,6 +2,6 @@
   "djlint.useVenv": false,
   "djlint.pythonPath": "/home/frank/.local/share/uv/tools/djlint/bin/python3.14",
   "[html]": {
-    "editor.defaultFormatter": "vscode.html-language-features"
-  }
+    "editor.defaultFormatter": "monosans.djlint"
+  },
 }

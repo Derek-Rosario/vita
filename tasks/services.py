@@ -49,9 +49,7 @@ def generate_tasks_for_date(
     """
     run_date = target_date or timezone.localdate()
     routines_qs = (
-        Routine.objects.filter(is_active=True)
-        if routines is None
-        else routines
+        Routine.objects.filter(is_active=True) if routines is None else routines
     )
     routines_qs = routines_qs.filter(is_active=True).prefetch_related(
         "steps__default_tags"
@@ -68,13 +66,6 @@ def generate_tasks_for_date(
             ).exists():
                 continue
 
-            max_order = (
-                Task.objects.filter(status=Task.Status.TODO).aggregate(
-                    max_order=models.Max("order")
-                )["max_order"]
-                or 0
-            )
-
             task = Task.objects.create(
                 title=step.title,
                 description=step.description,
@@ -83,7 +74,6 @@ def generate_tasks_for_date(
                 energy=step.default_energy,
                 due_at=run_date,
                 estimate_minutes=step.default_estimate_minutes or step.estimate_minutes,
-                order=max_order + 1,
                 routine=routine,
                 routine_step=step,
                 routine_date=run_date,

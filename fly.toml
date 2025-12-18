@@ -7,6 +7,10 @@ app = 'vita'
 primary_region = 'ewr'
 console_command = '/code/manage.py shell'
 
+[processes]
+  app = 'python -m gunicorn --bind :8000 --workers 2 vita.wsgi'
+  worker = '/code/manage.py db_worker'
+
 [build]
 
 [env]
