@@ -101,6 +101,7 @@ def move_task(request: HttpRequest):
     task_id = request.POST.get("task_id")
     status = request.POST.get("status")
     valid_statuses = {code for code, _ in BOARD_STATUSES}
+    valid_statuses.add(Task.Status.CANCELLED)
     if not task_id or not status or status not in valid_statuses:
         return render(
             request,
@@ -129,6 +130,12 @@ def move_task(request: HttpRequest):
             response,
             type="success",
             message="Nice job buddy.",
+        )
+    elif status == Task.Status.CANCELLED:
+        add_toast(
+            response,
+            type="info",
+            message="Okay loser.",
         )
 
     return response

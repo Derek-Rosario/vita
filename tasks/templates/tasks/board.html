@@ -1,298 +1,319 @@
 {% extends "base.html" %}
 {% load django_bootstrap5 %}
 {% block content %}
-  <div class="container-fluid py-4">
-    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3 mb-3">
-      <div>
-        <p class="text-uppercase text-muted small mb-1">Tasks</p>
-        <h1 class="h3 mb-0">Kanban Board</h1>
-      </div>
-      <div class="d-flex">{% include "tasks/partials/quick_add_task_form.html" %}</div>
-      <div class="d-flex gap-2">
-        <a href="{% url 'task_list' %}" class="btn btn-outline-secondary">All tasks</a>
-        <button type="button"
-                class="btn btn-outline-secondary"
-                data-bs-toggle="offcanvas"
-                data-bs-target="#projectOffcanvas"
-                aria-controls="projectOffcanvas"
-                hx-get="{% url 'project_list' %}"
-                hx-target="#project-offcanvas-body"
-                hx-swap="innerHTML">Projects</button>
-        <button type="button"
-                class="btn btn-outline-secondary"
-                data-bs-toggle="offcanvas"
-                data-bs-target="#tagOffcanvas"
-                aria-controls="tagOffcanvas"
-                hx-get="{% url 'tag_list' %}"
-                hx-target="#tag-offcanvas-body"
-                hx-swap="innerHTML">Tags</button>
-        <button type="button"
-                class="btn btn-primary"
-                data-bs-toggle="modal"
-                data-bs-target="#addTaskModal">Add task</button>
-      </div>
+<div class="container-fluid py-4">
+  <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3 mb-3">
+    <div>
+      <p class="text-uppercase text-muted small mb-1">Tasks</p>
+      <h1 class="h3 mb-0">Kanban Board</h1>
     </div>
-    <!-- Modal -->
-    <div class="modal fade"
-         id="addTaskModal"
-         tabindex="-1"
-         aria-labelledby="addTaskModalLabel"
-         aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="addTaskModalLabel">Add task</h5>
-            <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="modal"
-                    aria-label="Close"></button>
-          </div>
-          <div class="modal-body">{% include "tasks/partials/add_task_form.html" with swap_board=False %}</div>
+    <div class="d-flex">{% include "tasks/partials/quick_add_task_form.html" %}</div>
+    <div class="d-flex gap-2">
+      <a href="{% url 'task_list' %}" class="btn btn-outline-secondary">All tasks</a>
+      <button type="button" class="btn btn-outline-secondary" data-bs-toggle="offcanvas"
+        data-bs-target="#projectOffcanvas" aria-controls="projectOffcanvas" hx-get="{% url 'project_list' %}"
+        hx-target="#project-offcanvas-body" hx-swap="innerHTML">Projects</button>
+      <button type="button" class="btn btn-outline-secondary" data-bs-toggle="offcanvas" data-bs-target="#tagOffcanvas"
+        aria-controls="tagOffcanvas" hx-get="{% url 'tag_list' %}" hx-target="#tag-offcanvas-body"
+        hx-swap="innerHTML">Tags</button>
+      <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTaskModal">Add
+        task</button>
+    </div>
+  </div>
+  <!-- Modal -->
+  <div class="modal fade" id="addTaskModal" tabindex="-1" aria-labelledby="addTaskModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addTaskModalLabel">Add task</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
+        <div class="modal-body">{% include "tasks/partials/add_task_form.html" with swap_board=False %}</div>
       </div>
     </div>
-    {% include "tasks/partials/board.html" %}
   </div>
-  <!-- Tag offcanvas -->
-  <div class="offcanvas offcanvas-end"
-       tabindex="-1"
-       id="tagOffcanvas"
-       aria-labelledby="tagOffcanvasLabel">
-    <div class="offcanvas-header">
-      <h5 class="offcanvas-title" id="tagOffcanvasLabel">Tags</h5>
-      <button type="button"
-              class="btn-close text-reset"
-              data-bs-dismiss="offcanvas"
-              aria-label="Close"></button>
-    </div>
-    <div class="offcanvas-body p-0" id="tag-offcanvas-body">
-      <div class="p-3 text-muted small">Loading tags...</div>
+  {% include "tasks/partials/board.html" %}
+  <div class="fixed-bottom mb-3 ms-3 card text-muted" id="cancel-card" style="width: 200px; border-style: dashed;">
+    <div class="card-body text-center">
+      Drop to cancel
     </div>
   </div>
-  <!-- Project offcanvas -->
-  <div class="offcanvas offcanvas-end"
-       tabindex="-1"
-       id="projectOffcanvas"
-       aria-labelledby="projectOffcanvasLabel">
-    <div class="offcanvas-header">
-      <h5 class="offcanvas-title" id="projectOffcanvasLabel">Projects</h5>
-      <button type="button"
-              class="btn-close text-reset"
-              data-bs-dismiss="offcanvas"
-              aria-label="Close"></button>
-    </div>
-    <div class="offcanvas-body p-0" id="project-offcanvas-body">
-      <div class="p-3 text-muted small">Loading projects...</div>
-    </div>
+</div>
+<!-- Tag offcanvas -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="tagOffcanvas" aria-labelledby="tagOffcanvasLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="tagOffcanvasLabel">Tags</h5>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
-  <script>
-    let boardScrollLeft = 0;
+  <div class="offcanvas-body p-0" id="tag-offcanvas-body">
+    <div class="p-3 text-muted small">Loading tags...</div>
+  </div>
+</div>
+<!-- Project offcanvas -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="projectOffcanvas" aria-labelledby="projectOffcanvasLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="projectOffcanvasLabel">Projects</h5>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body p-0" id="project-offcanvas-body">
+    <div class="p-3 text-muted small">Loading projects...</div>
+  </div>
+</div>
+<script>
+  let boardScrollLeft = 0;
 
-    const initKanbanDragAndDrop = () => {
-      const board = document.getElementById("kanban-board");
-      if (!board) return;
+  const initKanbanDragAndDrop = () => {
+    const cancelCard = document.getElementById("cancel-card");
+    if (!cancelCard) return;
+    const board = document.getElementById("kanban-board");
+    if (!board) return;
 
-      const moveUrl = board.dataset.moveUrl;
+    const moveUrl = board.dataset.moveUrl;
 
-      board.querySelectorAll("[data-card]").forEach((card) => {
-        card.addEventListener("dragstart", (event) => {
-          event.dataTransfer.effectAllowed = "move";
-          event.dataTransfer.setData("text/plain", card.dataset.taskId);
-          card.classList.add("dragging");
-        });
-        card.addEventListener("dragend", () => {
-          card.classList.remove("dragging");
-        });
-        card.addEventListener("keydown", (event) => {
-          if (event.key === "Enter" || event.key === " ") {
-            event.preventDefault();
-            const target = card.dataset.href;
-            if (target) window.location.href = target;
-          }
+    board.querySelectorAll("[data-card]").forEach((card) => {
+      card.addEventListener("dragstart", (event) => {
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.setData("text/plain", card.dataset.taskId);
+        card.classList.add("dragging");
+        cancelCard.classList.add("visible");
+      });
+      card.addEventListener("dragend", () => {
+        card.classList.remove("dragging");
+        cancelCard.classList.remove("visible");
+      });
+      card.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          const target = card.dataset.href;
+          if (target) window.location.href = target;
+        }
+      });
+    });
+
+    board.querySelectorAll("[data-column]").forEach((column) => {
+      column.addEventListener("dragover", (event) => {
+        event.preventDefault();
+        column.classList.add("drop-target");
+      });
+      column.addEventListener("dragleave", () => {
+        column.classList.remove("drop-target");
+      });
+      column.addEventListener("drop", (event) => {
+        event.preventDefault();
+        column.classList.remove("drop-target");
+        const taskId = event.dataTransfer.getData("text/plain");
+        const status = column.dataset.status;
+        if (!taskId || !status) return;
+        column.classList.add("drop-received");
+        setTimeout(() => column.classList.remove("drop-received"), 180);
+        htmx.ajax("POST", moveUrl, {
+          target: "#kanban-board",
+          swap: "outerHTML",
+          values: { task_id: taskId, status },
         });
       });
+    });
 
-      board.querySelectorAll("[data-column]").forEach((column) => {
-        column.addEventListener("dragover", (event) => {
-          event.preventDefault();
-          column.classList.add("drop-target");
-        });
-        column.addEventListener("dragleave", () => {
-          column.classList.remove("drop-target");
-        });
-        column.addEventListener("drop", (event) => {
-          event.preventDefault();
-          column.classList.remove("drop-target");
-          const taskId = event.dataTransfer.getData("text/plain");
-          const status = column.dataset.status;
-          if (!taskId || !status) return;
-          column.classList.add("drop-received");
-          setTimeout(() => column.classList.remove("drop-received"), 180);
-          htmx.ajax("POST", moveUrl, {
-            target: "#kanban-board",
-            swap: "outerHTML",
-            values: { task_id: taskId, status },
-          });
-        });
+    cancelCard.ondragover = (event) => {
+      event.preventDefault();
+      cancelCard.classList.add("drag-over");
+    };
+    cancelCard.ondragleave = () => {
+      cancelCard.classList.remove("drag-over");
+    };
+    cancelCard.ondrop = (event) => {
+      event.preventDefault();
+      cancelCard.classList.remove("drag-over");
+      const taskId = event.dataTransfer.getData("text/plain");
+      if (!taskId) return;
+      console.log("Cancelling task", taskId);
+      htmx.ajax("POST", moveUrl, {
+        target: "#kanban-board",
+        swap: "outerHTML",
+        values: { task_id: taskId, status: "cancelled" },
       });
     };
+  };
 
-    document.addEventListener("htmx:afterSwap", (event) => {
-      if (event.target && event.target.id === "kanban-board") {
-        event.target.scrollLeft = boardScrollLeft;
-        initKanbanDragAndDrop();
+  document.addEventListener("htmx:afterSwap", (event) => {
+    if (event.target && event.target.id === "kanban-board") {
+      event.target.scrollLeft = boardScrollLeft;
+      initKanbanDragAndDrop();
+    }
+    if (event.target && event.target.id === "add-task-form") {
+      const modalEl = document.getElementById("addTaskModal");
+      if (modalEl && event.detail.xhr && event.detail.xhr.status === 201) {
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        if (modal) modal.hide();
       }
-      if (event.target && event.target.id === "add-task-form") {
-        const modalEl = document.getElementById("addTaskModal");
-        if (modalEl && event.detail.xhr && event.detail.xhr.status === 201) {
-          const modal = bootstrap.Modal.getInstance(modalEl);
-          if (modal) modal.hide();
-        }
-      }
-      if (event.target && event.target.id === "tag-offcanvas-body") {
-        const offcanvasEl = document.getElementById("tagOffcanvas");
-        if (offcanvasEl) {
-          const offcanvas = bootstrap.Offcanvas.getOrCreateInstance(offcanvasEl);
-          if (!offcanvas._isShown) {
-            offcanvas.show();
-          }
-        }
-      }
-      if (event.target && event.target.id === "project-offcanvas-body") {
-        const offcanvasEl = document.getElementById("projectOffcanvas");
-        if (offcanvasEl) {
-          const offcanvas = bootstrap.Offcanvas.getOrCreateInstance(offcanvasEl);
-          if (!offcanvas._isShown) {
-            offcanvas.show();
-          }
-        }
-      }
-    });
-
-    document.addEventListener("htmx:oobAfterSwap", (event) => {
-      const target = event.detail.target;
-      if (target && target.id === "kanban-board") {
-        target.scrollLeft = boardScrollLeft;
-        initKanbanDragAndDrop();
-      }
-    });
-
-    document.addEventListener("htmx:beforeSwap", (event) => {
-      if (event.target && event.target.id === "kanban-board") {
-        boardScrollLeft = event.target.scrollLeft;
-      }
-    });
-
-    document.addEventListener("DOMContentLoaded", initKanbanDragAndDrop);
-
-    document.addEventListener("shown.bs.offcanvas", (event) => {
-      if (event.target && event.target.id === "tagOffcanvas") {
-        const body = document.getElementById("tag-offcanvas-body");
-        if (body && body.innerHTML.trim() === "Loading tags...") {
-          htmx.ajax("GET", "{% url 'tag_list' %}", {target: "#tag-offcanvas-body", swap: "innerHTML"});
-        }
-      }
-      if (event.target && event.target.id === "projectOffcanvas") {
-        const body = document.getElementById("project-offcanvas-body");
-        if (body && body.innerHTML.trim() === "Loading projects...") {
-          htmx.ajax("GET", "{% url 'project_list' %}", {target: "#project-offcanvas-body", swap: "innerHTML"});
-        }
-      }
-    });
-
-    {% if open_tags %}
-    document.addEventListener("DOMContentLoaded", () => {
+    }
+    if (event.target && event.target.id === "tag-offcanvas-body") {
       const offcanvasEl = document.getElementById("tagOffcanvas");
       if (offcanvasEl) {
         const offcanvas = bootstrap.Offcanvas.getOrCreateInstance(offcanvasEl);
-        offcanvas.show();
-        htmx.ajax("GET", "{% url 'tag_list' %}", {target: "#tag-offcanvas-body", swap: "innerHTML"});
+        if (!offcanvas._isShown) {
+          offcanvas.show();
+        }
       }
-    });
-    {% endif %}
-
-    {% if open_projects %}
-    document.addEventListener("DOMContentLoaded", () => {
+    }
+    if (event.target && event.target.id === "project-offcanvas-body") {
       const offcanvasEl = document.getElementById("projectOffcanvas");
       if (offcanvasEl) {
         const offcanvas = bootstrap.Offcanvas.getOrCreateInstance(offcanvasEl);
-        offcanvas.show();
-        htmx.ajax("GET", "{% url 'project_list' %}", {target: "#project-offcanvas-body", swap: "innerHTML"});
-      }
-    });
-    {% endif %}
-  </script>
-  <style>
-    @keyframes popIn {
-      0% {
-        transform: scale(0.95);
-        opacity: 0;
-      }
-      100% {
-        transform: scale(1);
-        opacity: 1;
+        if (!offcanvas._isShown) {
+          offcanvas.show();
+        }
       }
     }
-    
-    .kanban-card.dragging {
-      transition: transform 0.2s ease;
+  });
+
+  document.addEventListener("htmx:oobAfterSwap", (event) => {
+    const target = event.detail.target;
+    if (target && target.id === "kanban-board") {
+      target.scrollLeft = boardScrollLeft;
+      initKanbanDragAndDrop();
+    }
+  });
+
+  document.addEventListener("htmx:beforeSwap", (event) => {
+    if (event.target && event.target.id === "kanban-board") {
+      boardScrollLeft = event.target.scrollLeft;
+    }
+  });
+
+  document.addEventListener("DOMContentLoaded", initKanbanDragAndDrop);
+
+  document.addEventListener("shown.bs.offcanvas", (event) => {
+    if (event.target && event.target.id === "tagOffcanvas") {
+      const body = document.getElementById("tag-offcanvas-body");
+      if (body && body.innerHTML.trim() === "Loading tags...") {
+        htmx.ajax("GET", "{% url 'tag_list' %}", { target: "#tag-offcanvas-body", swap: "innerHTML" });
+      }
+    }
+    if (event.target && event.target.id === "projectOffcanvas") {
+      const body = document.getElementById("project-offcanvas-body");
+      if (body && body.innerHTML.trim() === "Loading projects...") {
+        htmx.ajax("GET", "{% url 'project_list' %}", { target: "#project-offcanvas-body", swap: "innerHTML" });
+      }
+    }
+  });
+
+  {% if open_tags %}
+  document.addEventListener("DOMContentLoaded", () => {
+    const offcanvasEl = document.getElementById("tagOffcanvas");
+    if (offcanvasEl) {
+      const offcanvas = bootstrap.Offcanvas.getOrCreateInstance(offcanvasEl);
+      offcanvas.show();
+      htmx.ajax("GET", "{% url 'tag_list' %}", { target: "#tag-offcanvas-body", swap: "innerHTML" });
+    }
+  });
+  {% endif %}
+
+  {% if open_projects %}
+  document.addEventListener("DOMContentLoaded", () => {
+    const offcanvasEl = document.getElementById("projectOffcanvas");
+    if (offcanvasEl) {
+      const offcanvas = bootstrap.Offcanvas.getOrCreateInstance(offcanvasEl);
+      offcanvas.show();
+      htmx.ajax("GET", "{% url 'project_list' %}", { target: "#project-offcanvas-body", swap: "innerHTML" });
+    }
+  });
+  {% endif %}
+</script>
+<style>
+  @keyframes popIn {
+    0% {
       transform: scale(0.95);
+      opacity: 0;
     }
 
-    #kanban-board .kanban-card {
-      outline: 2px solid transparent;
-      outline-offset: 2px;
-      transition: transform 0.2s ease, box-shadow 0.2s ease, outline-color 0.2s ease;
+    100% {
+      transform: scale(1);
+      opacity: 1;
     }
+  }
 
-    #kanban-board .kanban-card:focus {
-      outline-color: #0d6efd;
-      box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.3);
-    }
+  .kanban-card.dragging {
+    transition: transform 0.2s ease;
+    transform: scale(0.95);
+  }
 
-    .kanban-card[data-dropped] {
-      animation: popIn 0.2s ease-out;
+  #kanban-board .kanban-card {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, outline-color 0.2s ease;
+  }
+
+  #kanban-board .kanban-card:focus {
+    outline-color: #0d6efd;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.3);
+  }
+
+  .kanban-card[data-dropped] {
+    animation: popIn 0.2s ease-out;
+  }
+
+  #kanban-board .kanban-column {
+    min-width: 350px;
+    width: 350px;
+    min-height: 600px;
+  }
+
+  @media (max-width: 768px) {
+    #kanban-board {
+      padding-bottom: 0.5rem;
     }
 
     #kanban-board .kanban-column {
-      min-width: 350px;
-      width: 350px;
-      min-height: 600px;
+      width: 70vw;
     }
+  }
 
-    @media (max-width: 768px) {
-      #kanban-board {
-        padding-bottom: 0.5rem;
-      }
-      #kanban-board .kanban-column {
-        width: 70vw;
-      }
-    }
+  .priority-chip {
+    color: #0f172a;
+    font-weight: 600;
+  }
 
-    .priority-chip {
-      color: #0f172a;
-      font-weight: 600;
-    }
-    .priority-icon path,
-    .priority-icon rect,
-    .priority-icon circle {
-      fill: currentColor;
-    }
-    .priority-1 {
-      background: #e9ecef;
-      color: #495057;
-    }
-    .priority-2 {
-      background: #e7f1ff;
-      color: #0d6efd;
-    }
-    .priority-3 {
-      background: #fff3cd;
-      color: #d48806;
-    }
-    .priority-4 {
-      background: #fdecea;
-      color: #c92a2a;
-    }
-  </style>
+  .priority-icon path,
+  .priority-icon rect,
+  .priority-icon circle {
+    fill: currentColor;
+  }
+
+  .priority-1 {
+    background: #e9ecef;
+    color: #495057;
+  }
+
+  .priority-2 {
+    background: #e7f1ff;
+    color: #0d6efd;
+  }
+
+  .priority-3 {
+    background: #fff3cd;
+    color: #d48806;
+  }
+
+  .priority-4 {
+    background: #fdecea;
+    color: #c92a2a;
+  }
+
+  /** Cancel card */
+  #cancel-card {
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  #cancel-card.visible {
+    opacity: 0.75;
+    pointer-events: initial;
+  }
+
+  #cancel-card.drag-over {
+    opacity: 1;
+  }
+</style>
 {% endblock content %}
