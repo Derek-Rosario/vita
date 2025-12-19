@@ -19,12 +19,15 @@ from django.contrib import admin
 from django.urls import include, path
 from django.views.generic import RedirectView
 
+from core import api as core_api
+
 admin.site.site_header = "Vita Admin"
 admin.site.site_title = "Vita Admin Portal"
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/", include("django.contrib.auth.urls")),
+    path("api/tts/", core_api.tts, name="api_tts"),
     path("", RedirectView.as_view(pattern_name="task_board", permanent=False)),
     path("", include("social.urls")),
     path("tasks/", include("tasks.urls")),

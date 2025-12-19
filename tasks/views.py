@@ -1,4 +1,5 @@
 import json
+import random
 from typing import Dict, List
 from datetime import timedelta
 from datetime import datetime
@@ -14,11 +15,12 @@ from django.urls import reverse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
 
-from core.services import add_toast
+from core.services import add_toast, add_voice_message
 from core.views import HttpRequest
 from tasks.models import Task
 from tasks.models import Comment, Project, Routine, RoutineStep, Tag
 from tasks.services import generate_tasks_for_date
+from tasks.voice import TASK_CANCELLED_VOICE_MESSAGES, TASK_COMPLETED_VOICE_MESSAGES
 
 BOARD_STATUSES = [
     (Task.Status.TODO, "To do"),
@@ -126,17 +128,17 @@ def move_task(request: HttpRequest):
     )
 
     if just_completed:
+        message = random.choice(TASK_COMPLETED_VOICE_MESSAGES)
         add_toast(
             response,
             type="success",
-            message="Nice job buddy.",
+            message=message,
         )
+        add_voice_message(response, message=message)
     elif status == Task.Status.CANCELLED:
-        add_toast(
-            response,
-            type="info",
-            message="Okay loser.",
-        )
+        message = random.choice(TASK_CANCELLED_VOICE_MESSAGES)
+        add_toast(response, type="info", message=message)
+        add_voice_message(response, message=message)
 
     return response
 
@@ -428,7 +430,10 @@ def edit_task(request: HttpRequest, task_id: int):
                                     "toastMessage": {
                                         "type": "success",
                                         "message": "Saved task.",
-                                    }
+                                    },
+                                    "speak": {
+                                        "message": "Task saved.",
+                                    },
                                 }
                             )
                         },

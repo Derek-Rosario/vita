@@ -201,3 +201,8 @@ RESEND_SMTP_HOST = "smtp.resend.com"
 LOGIN_URL = "/accounts/login/"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/accounts/login/"
+
+VITA_API_KEY = env("VITA_API_KEY")
+
+ELEVEN_LABS_API_KEY = env("ELEVEN_LABS_API_KEY")
+ELEVEN_LABS_VOICE_ID = env("ELEVEN_LABS_VOICE_ID")
