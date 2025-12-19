@@ -8,14 +8,11 @@ from core.views import HttpRequest
 from tasks.models import Task
 
 
-def api_task_list(request: HttpRequest) -> HttpResponse:
+def list_tasks(request: HttpRequest) -> HttpResponse:
     """
     API endpoint to retrieve a list of tasks in JSON format.
     Supports optional filtering by project, tag, and status.
     """
-
-    if request.headers.get("X-Vita-Api-Key") != settings.VITA_API_KEY:
-        return HttpResponse(status=401, content="Missing or invalid API key.")
 
     tasks = (
         Task.objects.all()

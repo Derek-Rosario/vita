@@ -31,5 +31,6 @@ urlpatterns = [
     path("", RedirectView.as_view(pattern_name="task_board", permanent=False)),
     path("", include("social.urls")),
     path("tasks/", include("tasks.urls")),
+    path("api/", include("api.urls")),
     path("__reload__/", include("django_browser_reload.urls")),
 ]

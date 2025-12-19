@@ -2,6 +2,8 @@ from django.http import HttpResponseForbidden
 from django.shortcuts import redirect
 from django.urls import reverse
 
+from vita import settings
+
 
 class SuperuserRequiredMiddleware:
     """
@@ -17,7 +19,7 @@ class SuperuserRequiredMiddleware:
         }
 
     def __call__(self, request):
-        path = request.path
+        path: str = request.path
 
         if (
             path.startswith("/static/")
@@ -26,6 +28,12 @@ class SuperuserRequiredMiddleware:
             or path.startswith("/admin/login")
             or path.startswith("/admin/js")
         ):
+            return self.get_response(request)
+
+        if path.startswith("/api/"):
+            # Check API key
+            if request.headers.get("X-Vita-Api-Key") != settings.VITA_API_KEY:
+                return HttpResponseForbidden("Missing or invalid API key.")
             return self.get_response(request)
 
         if path in self.exempt_paths:

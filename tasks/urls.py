@@ -1,5 +1,6 @@
 from django.urls import path
-from .views import views, api
+
+from . import views
 
 urlpatterns = [
     path("board/", views.task_board, name="task_board"),
@@ -33,5 +34,4 @@ urlpatterns = [
         views.routine_run,
         name="routine_run_single",
     ),
-    path("api/tasks/", api.api_task_list, name="api_task_list"),
 ]

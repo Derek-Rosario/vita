@@ -77,6 +77,7 @@ INSTALLED_APPS = [
     "journal",
     "social",
     "notifications",
+    "api",
 ]
 
 
