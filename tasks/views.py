@@ -20,7 +20,11 @@ from core.views import HttpRequest
 from tasks.models import Task
 from tasks.models import Comment, Project, Routine, RoutineStep, Tag
 from tasks.services import generate_tasks_for_date
-from tasks.voice import TASK_CANCELLED_VOICE_MESSAGES, TASK_COMPLETED_VOICE_MESSAGES
+from tasks.voice import (
+    TASK_BACKLOGGED_VOICE_MESSAGES,
+    TASK_CANCELLED_VOICE_MESSAGES,
+    TASK_COMPLETED_VOICE_MESSAGES,
+)
 
 BOARD_STATUSES = [
     (Task.Status.TODO, "To do"),
@@ -152,6 +156,7 @@ def move_task(request: HttpRequest):
     status = request.POST.get("status")
     valid_statuses = {code for code, _ in BOARD_STATUSES}
     valid_statuses.add(Task.Status.CANCELLED)
+    valid_statuses.add(Task.Status.BACKLOG)
     if not task_id or not status or status not in valid_statuses:
         return render(
             request,
@@ -185,6 +190,10 @@ def move_task(request: HttpRequest):
         add_voice_message(response, message=message)
     elif status == Task.Status.CANCELLED:
         message = random.choice(TASK_CANCELLED_VOICE_MESSAGES)
+        add_toast(response, type="info", message=message)
+        add_voice_message(response, message=message)
+    elif status == Task.Status.BACKLOG:
+        message = random.choice(TASK_BACKLOGGED_VOICE_MESSAGES)
         add_toast(response, type="info", message=message)
         add_voice_message(response, message=message)
 

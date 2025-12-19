@@ -72,45 +72,47 @@
                                         </span>
                                     </span>
                                 </div>
-                                <div class="d-flex flex-wrap align-items-center gap-2 small">
-                                    {% if task.due_at %}
-                                        <span class="badge bg-warning text-dark d-inline-flex align-items-center gap-1">
-                                            <svg width="14"
-                                                 height="14"
-                                                 viewBox="0 0 24 24"
-                                                 aria-hidden="true"
-                                                 focusable="false">
-                                                <path d="M12 6a7 7 0 1 1-7 7 7 7 0 0 1 7-7m0-2a9 9 0 1 0 9 9 9 9 0 0 0-9-9Zm.75 4.5h-1.5v5l4.25 2.55.75-1.23-3.5-2.07Z" fill="currentColor" />
-                                            </svg>
-                                            Due {{ task.due_at|date:"M j" }}
-                                        </span>
-                                    {% endif %}
-                                    {% if task.estimate_minutes %}
-                                        <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1">
-                                            <svg width="12"
-                                                 height="12"
-                                                 viewBox="0 0 24 24"
-                                                 aria-hidden="true"
-                                                 focusable="false">
-                                                <path d="M12 3a9 9 0 1 0 9 9 9 9 0 0 0-9-9Zm0 2a7 7 0 1 1-7 7 7 7 0 0 1 7-7Z" fill="currentColor" />
-                                                <path d="M12.75 7.5h-1.5v5l4 2.4.75-1.22-3.25-1.96Z" fill="currentColor" />
-                                            </svg>
-                                            {{ task.estimate_minutes }}m
-                                        </span>
-                                    {% endif %}
-                                    {% if task.project %}
-                                        <span class="badge bg-light border text-dark d-inline-flex align-items-center gap-1">
-                                            <svg width="12"
-                                                 height="12"
-                                                 viewBox="0 0 16 16"
-                                                 aria-hidden="true"
-                                                 focusable="false">
-                                                <path d="M2 3.5a1.5 1.5 0 0 1 1.5-1.5h9A1.5 1.5 0 0 1 14 3.5V12a1 1 0 0 1-1 1h-2.5L8 15.5 5.5 13H3a1 1 0 0 1-1-1Z" fill="currentColor" />
-                                            </svg>
-                                            {{ task.project.name }}
-                                        </span>
-                                    {% endif %}
-                                </div>
+                                {% if task.due_at or task.estimate_minutes or task.project %}
+                                    <div class="d-flex flex-wrap align-items-center gap-2 small">
+                                        {% if task.due_at %}
+                                            <span class="badge bg-warning text-dark d-inline-flex align-items-center gap-1">
+                                                <svg width="14"
+                                                     height="14"
+                                                     viewBox="0 0 24 24"
+                                                     aria-hidden="true"
+                                                     focusable="false">
+                                                    <path d="M12 6a7 7 0 1 1-7 7 7 7 0 0 1 7-7m0-2a9 9 0 1 0 9 9 9 9 0 0 0-9-9Zm.75 4.5h-1.5v5l4.25 2.55.75-1.23-3.5-2.07Z" fill="currentColor" />
+                                                </svg>
+                                                Due {{ task.due_at|date:"M j" }}
+                                            </span>
+                                        {% endif %}
+                                        {% if task.estimate_minutes %}
+                                            <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-1">
+                                                <svg width="12"
+                                                     height="12"
+                                                     viewBox="0 0 24 24"
+                                                     aria-hidden="true"
+                                                     focusable="false">
+                                                    <path d="M12 3a9 9 0 1 0 9 9 9 9 0 0 0-9-9Zm0 2a7 7 0 1 1-7 7 7 7 0 0 1 7-7Z" fill="currentColor" />
+                                                    <path d="M12.75 7.5h-1.5v5l4 2.4.75-1.22-3.25-1.96Z" fill="currentColor" />
+                                                </svg>
+                                                {{ task.estimate_minutes }}m
+                                            </span>
+                                        {% endif %}
+                                        {% if task.project %}
+                                            <span class="badge bg-light border text-dark d-inline-flex align-items-center gap-1">
+                                                <svg width="12"
+                                                     height="12"
+                                                     viewBox="0 0 16 16"
+                                                     aria-hidden="true"
+                                                     focusable="false">
+                                                    <path d="M2 3.5a1.5 1.5 0 0 1 1.5-1.5h9A1.5 1.5 0 0 1 14 3.5V12a1 1 0 0 1-1 1h-2.5L8 15.5 5.5 13H3a1 1 0 0 1-1-1Z" fill="currentColor" />
+                                                </svg>
+                                                {{ task.project.name }}
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
                                 <a href="{% url 'edit_task' task.id %}"
                                    class="stretched-link"
                                    tabindex="-1"

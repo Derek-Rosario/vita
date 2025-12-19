@@ -18,3 +18,11 @@ TASK_CANCELLED_VOICE_MESSAGES = [
     "Thank you, next.",
     "Moving on...",
 ]
+
+TASK_BACKLOGGED_VOICE_MESSAGES = [
+    "Eh, we can do it later.",
+    "No rush on this one.",
+    "Putting this on the back burner.",
+    "We'll get to it when we get to it.",
+    "Soon for sure...",
+]

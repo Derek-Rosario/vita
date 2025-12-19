@@ -60,11 +60,21 @@
       </div>
     </div>
     {% include "tasks/partials/board.html" %}
-    <div class="fixed-bottom mb-3 ms-3 card border-danger text-danger"
-         id="cancel-card"
-         style="width: 200px;
-                border-style: dashed">
-      <div class="card-body text-center">Drop to cancel</div>
+    <div class="fixed-bottom mb-3 ms-3 d-flex gap-1" id="drop-to-move-cards">
+      <div class="card border-danger text-danger drop-to-move-card"
+           id="cancel-card"
+           data-target-status="cancelled"
+           style="width: 200px;
+                  border-style: dashed">
+        <div class="card-body text-center">Drop to cancel</div>
+      </div>
+      <div class="card border-info text-info drop-to-move-card"
+           id="backlog-card"
+           data-target-status="backlog"
+           style="width: 200px;
+                  border-style: dashed">
+        <div class="card-body text-center">Move to backlog</div>
+      </div>
     </div>
   </div>
   <!-- Tag offcanvas -->
@@ -103,8 +113,9 @@
   let boardScrollLeft = 0;
 
   const initKanbanDragAndDrop = () => {
-    const cancelCard = document.getElementById("cancel-card");
-    if (!cancelCard) return;
+    const dropToMoveCardsContainer = document.getElementById("drop-to-move-cards");
+    if (!dropToMoveCardsContainer) return;
+    const dropToMoveCards = dropToMoveCardsContainer.querySelectorAll(".drop-to-move-card");
     const board = document.getElementById("kanban-board");
     if (!board) return;
 
@@ -115,11 +126,11 @@
         event.dataTransfer.effectAllowed = "move";
         event.dataTransfer.setData("text/plain", card.dataset.taskId);
         card.classList.add("dragging");
-        cancelCard.classList.add("visible");
+        dropToMoveCardsContainer.classList.add("visible");
       });
       card.addEventListener("dragend", () => {
         card.classList.remove("dragging");
-        cancelCard.classList.remove("visible");
+        dropToMoveCardsContainer.classList.remove("visible");
       });
       card.addEventListener("keydown", (event) => {
         if (event.key === "Enter" || event.key === " ") {
@@ -154,25 +165,29 @@
       });
     });
 
-    cancelCard.ondragover = (event) => {
-      event.preventDefault();
-      cancelCard.classList.add("drag-over");
-    };
-    cancelCard.ondragleave = () => {
-      cancelCard.classList.remove("drag-over");
-    };
-    cancelCard.ondrop = (event) => {
-      event.preventDefault();
-      cancelCard.classList.remove("drag-over");
-      const taskId = event.dataTransfer.getData("text/plain");
-      if (!taskId) return;
-      console.log("Cancelling task", taskId);
-      htmx.ajax("POST", moveUrl, {
-        target: "#kanban-board",
-        swap: "outerHTML",
-        values: { task_id: taskId, status: "cancelled" },
-      });
-    };
+    dropToMoveCards.forEach((card) => {
+      const targetStatus = card.dataset.targetStatus;
+      card.ondragover = (event) => {
+        event.preventDefault();
+        card.classList.add("drag-over");
+      };
+      card.ondragleave = () => {
+        card.classList.remove("drag-over");
+      };
+      card.ondrop = (event) => {
+        event.preventDefault();
+        card.classList.remove("drag-over");
+        const taskId = event.dataTransfer.getData("text/plain");
+        if (!taskId) return;
+        console.log("Cancelling task", taskId);
+        htmx.ajax("POST", moveUrl, {
+          target: "#kanban-board",
+          swap: "outerHTML",
+          values: { task_id: taskId, status: targetStatus },
+        });
+      };
+    });
+    
   };
 
   document.addEventListener("htmx:afterSwap", (event) => {
@@ -341,18 +356,18 @@
   }
 
   /** Cancel card */
-  #cancel-card {
+  #drop-to-move-cards {
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.2s ease;
   }
 
-  #cancel-card.visible {
+  #drop-to-move-cards.visible {
     opacity: 0.75;
     pointer-events: initial;
   }
 
-  #cancel-card.drag-over {
+  #drop-to-move-cards.drag-over {
     opacity: 1;
   }
   </style>
