@@ -1,7 +1,5 @@
 import json
 
-from vita import settings
-
 from django.http import HttpResponse
 
 from core.views import HttpRequest
