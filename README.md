@@ -18,3 +18,12 @@ Tracks daily reflections, mood, etc.
 ## Social
 
 Tracks contacts including family, friends, acquaintances, and colleagues. A mini-CRM.
+
+# Setup
+
+1. Install `uv`
+2. `uv sync`
+3. `cp .env.example .env`
+4. `./manage.py migrate`
+5. `./manage.py createsuperuser`
+6. `./manage.py runserver`
