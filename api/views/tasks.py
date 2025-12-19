@@ -52,7 +52,7 @@ def list_tasks(request: HttpRequest) -> HttpResponse:
                 {
                     "id": comment.pk,
                     "content": comment.content,
-                    "created_at": comment.created_at,
+                    "created_at": comment.created_at.isoformat(),
                 }
                 for comment in task.comments.all()
             ],
