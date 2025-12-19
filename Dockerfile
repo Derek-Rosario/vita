@@ -49,8 +49,6 @@ RUN curl -fsSLO "$SUPERCRONIC_URL" \
  && mv "$SUPERCRONIC" "/usr/local/bin/${SUPERCRONIC}" \
  && ln -s "/usr/local/bin/${SUPERCRONIC}" /usr/local/bin/supercronic
 
-# You might need to change this depending on where your crontab is located
-COPY crontab crontab
 
 ENV PATH="/code/.venv/bin:$PATH"
 ENV SECRET_KEY "non-secret-key-for-building-purposes"
