@@ -12,13 +12,7 @@
         {% bootstrap_css %}
         {% bootstrap_javascript %}
         {% htmx_script %}
-        <script>
-        const perfEntries = performance.getEntriesByType("navigation");
-
-        if (perfEntries[0].type === "back_forward") {
-            location.reload(true);
-        }
-        </script>
+        <script type="module" src="{% static 'js/navigation.js' %}"></script>
         <script type="module" src="{% static 'js/toasts.js' %}"></script>
     </head>
     <body class="bg-light d-flex flex-column vh-100"
