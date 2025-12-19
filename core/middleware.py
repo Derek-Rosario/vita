@@ -32,6 +32,7 @@ class SuperuserRequiredMiddleware:
 
         if path.startswith("/api/"):
             # Check API key
+            print(request.headers)
             if request.headers.get("X-Vita-Api-Key") != settings.VITA_API_KEY:
                 return HttpResponseForbidden("Missing or invalid API key.")
             return self.get_response(request)
