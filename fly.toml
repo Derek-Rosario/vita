@@ -10,6 +10,7 @@ console_command = '/code/manage.py shell'
 [processes]
   app = 'python -m gunicorn --bind :8000 --workers 2 vita.wsgi'
   worker = '/code/manage.py db_worker'
+  cron = "supercronic /code/crontab"
 
 [build]
 
@@ -36,3 +37,6 @@ console_command = '/code/manage.py shell'
 
 [deploy]
   release_command = "/code/manage.py migrate --noinput"
+
+[[services]]
+  processes = ["app"]
