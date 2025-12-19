@@ -1,0 +1,1 @@
+0 5 * * * /code/manage.py enqueue_tasks --task run_routines
