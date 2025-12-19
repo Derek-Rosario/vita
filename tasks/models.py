@@ -54,6 +54,7 @@ class Project(TimestampedModel):
 
 class Task(TimestampedModel):
     class Status(models.TextChoices):
+        BACKLOG = "backlog", "Backlog"
         TODO = "todo", "To do"
         IN_PROGRESS = "in_progress", "In progress"
         BLOCKED = "blocked", "Blocked"

@@ -4,6 +4,8 @@
 
 Kanban-style task manager for personal todo items.
 
+Includes a hidden **Backlog** status for tasks that shouldn't show on the board until they're promoted to **To do**.
+
 ## Health
 
 Tracks stats and goals related to personal health and fitness. Includes

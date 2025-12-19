@@ -7,6 +7,12 @@ urlpatterns = [
     path("board/move/", views.move_task, name="task_move"),
     path("add/", views.create_task, name="task_add"),
     path("quick-add/", views.quick_add_task, name="task_quick_add"),
+    path("backlog/", views.task_backlog, name="task_backlog"),
+    path(
+        "backlog/<int:task_id>/promote/",
+        views.promote_backlog_task,
+        name="task_backlog_promote",
+    ),
     path("tasks/", views.task_list, name="task_list"),
     path("projects/", views.project_list, name="project_list"),
     path("projects/add/", views.create_project, name="project_add"),

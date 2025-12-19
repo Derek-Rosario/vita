@@ -37,6 +37,7 @@ def task_board(request: HttpRequest):
         "tasks/board.html",
         {
             **_fetch_board_context(),
+            "backlog_count": Task.objects.filter(status=Task.Status.BACKLOG).count(),
             "form": form,
             "open_tags": bool(request.GET.get("show_tags")),
             "open_projects": bool(request.GET.get("show_projects")),
@@ -85,6 +86,53 @@ def task_list(request: HttpRequest):
             "direction": direction,
         },
     )
+
+
+def task_backlog(request: HttpRequest):
+    """
+    Backlog tasks are intentionally not shown on the Kanban board.
+    Move them to "To do" to make them appear on the board.
+    """
+    tasks_qs = (
+        Task.objects.filter(status=Task.Status.BACKLOG)
+        .select_related("project", "parent")
+        .prefetch_related("tags")
+        .order_by("-priority", "due_at", "-created_at")
+    )
+    paginator = Paginator(tasks_qs, 25)
+    page = request.GET.get("page") or 1
+    try:
+        tasks_page = paginator.page(page)
+    except (PageNotAnInteger, EmptyPage):
+        tasks_page = paginator.page(1)
+
+    return render(
+        request,
+        "tasks/backlog.html",
+        {
+            "page_obj": tasks_page,
+            "paginator": paginator,
+            "tasks": tasks_page.object_list,
+            "next_url": request.get_full_path(),
+        },
+    )
+
+
+@require_POST
+def promote_backlog_task(request: HttpRequest, task_id: int):
+    task = get_object_or_404(Task, pk=task_id)
+    if task.status != Task.Status.BACKLOG:
+        messages.info(request, "Task is not in backlog.")
+        return redirect("task_backlog")
+
+    task.status = Task.Status.TODO
+    task.save(update_fields=["status", "updated_at"])
+    messages.success(request, "Moved to To do.")
+
+    next_url = request.POST.get("next")
+    if next_url:
+        return redirect(next_url)
+    return redirect("task_backlog")
 
 
 def board_fragment(request: HttpRequest):

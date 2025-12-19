@@ -12,6 +12,9 @@
         <a hx-boost="true"
            href="{% url 'task_list' %}"
            class="btn btn-outline-secondary">All tasks</a>
+        <a hx-boost="true"
+           href="{% url 'task_backlog' %}"
+           class="btn btn-outline-secondary">Backlog ({{ backlog_count|default:0 }})</a>
         <button type="button"
                 class="btn btn-outline-secondary"
                 data-bs-toggle="offcanvas"
