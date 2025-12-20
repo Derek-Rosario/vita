@@ -217,7 +217,7 @@ class Task(TimestampedModel):
         return (
             self.status != Task.Status.DONE
             and self.due_at is not None
-            and self.due_at < timezone.now()
+            and self.due_at < timezone.localdate()
         )
 
 

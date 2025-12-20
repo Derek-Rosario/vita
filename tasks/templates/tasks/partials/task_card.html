@@ -53,8 +53,8 @@
         {% if task.due_at or task.estimate_minutes or task.project %}
             <div class="d-flex flex-wrap align-items-center gap-2 small">
                 {% if task.due_at %}
-                    <span class="badge bg-light text-muted fw-normal border d-inline-flex align-items-center gap-1">
-                        <svg class="text-danger"
+                    <span class="badge {% if task.is_overdue %}bg-danger text-white fw-semibold{% else %}bg-light text-muted{% endif %} fw-normal border d-inline-flex align-items-center gap-1">
+                        <svg class="{% if task.is_overdue %}{% else %}text-danger{% endif %}"
                              width="14"
                              height="14"
                              viewBox="0 0 24 24"

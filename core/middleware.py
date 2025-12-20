@@ -32,7 +32,6 @@ class SuperuserRequiredMiddleware:
 
         if path.startswith("/api/"):
             # Check API key
-            print(request.headers)
             if (
                 request.headers.get("Authorization")
                 != f"Bearer {settings.VITA_API_KEY}"
