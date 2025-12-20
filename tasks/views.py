@@ -7,7 +7,7 @@ from datetime import datetime
 from django import forms
 from django.forms import inlineformset_factory
 from django.db import models
-from django.http import HttpResponse
+from django.http import HttpResponse, QueryDict
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
@@ -118,6 +118,45 @@ def task_backlog(request: HttpRequest):
             "paginator": paginator,
             "tasks": tasks_page.object_list,
             "next_url": request.get_full_path(),
+        },
+    )
+
+
+def task_checklist(request: HttpRequest):
+    if request.method == "POST":
+        new_task_title = request.POST.get("title", "").strip()
+        if new_task_title:
+            task = Task(title=new_task_title, status=Task.Status.TODO)
+            task.save()
+            return render(
+                request,
+                "tasks/checklist.html#checklist_item",
+                {"task": task},
+                status=201,
+            )
+    elif request.method == "PATCH":
+        data = QueryDict(request.body)
+        if data.get("task_id"):
+            task = get_object_or_404(Task, pk=int(data["task_id"]))
+            if data.get("checked") == "on":
+                task.status = Task.Status.DONE
+            else:
+                task.status = Task.Status.TODO
+            task.save(update_fields=["status", "updated_at", "completed_at"])
+            return HttpResponse(status=200)
+
+    tasks_qs = (
+        Task.objects.filter(status__in=[Task.Status.TODO, Task.Status.IN_PROGRESS])
+        .select_related("project", "parent")
+        .prefetch_related("tags")
+        .order_by("-priority", "due_at", "-created_at")
+    )
+
+    return render(
+        request,
+        "tasks/checklist.html#checklist" if request.htmx else "tasks/checklist.html",
+        {
+            "tasks": tasks_qs,
         },
     )
 

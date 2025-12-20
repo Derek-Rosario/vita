@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="container-sm mx-auto py-4 d-flex flex-column gap-3"
+         style="max-width: 500px">
+        <div>
+            <p class="text-uppercase text-muted small mb-1">Tasks</p>
+            <h1 class="h3 mb-0">Checklist</h1>
+        </div>
+        <form method="post"
+              hx-target="#task-checklist"
+              hx-post="{% url 'task_checklist' %}"
+              hx-swap="beforeend"
+              hx-on::after-request="if(event.detail.successful) this.reset()"
+              class="d-flex flex-column gap-3">
+            <div class="input-group">
+                <input type="text"
+                       name="title"
+                       id="title"
+                       class="form-control"
+                       placeholder="New task"
+                       required>
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="submit">Add</button>
+                </div>
+            </div>
+        </form>
+        <div class="d-flex flex-column gap-1 card">
+            {% partialdef checklist inline %}
+            <div id="task-checklist" class="list-group">
+                {% for task in tasks %}
+                    {% partialdef checklist_item inline %}
+                    <form hx-patch="{% url 'task_checklist' %}"
+                          hx-trigger="change"
+                          hx-swap="delete swap:500ms"
+                          class="list-group-item p-0 task-checklist-item">
+                        <label class="form-check-label d-flex align-items-center gap-2 px-2 py-2">
+                            <input type="hidden" name="task_id" value="{{ task.id }}">
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   name="checked"
+                                   {% if task.completed_at %}checked{% endif %}>
+                            <span class="flex-fill">{{ task.title }}</span>
+                            {% include "tasks/partials/priority_chip.html" with task=task %}
+                            <a class="small" href="{% url 'edit_task' task.id %}">Edit</a>
+                        </label>
+                    </form>
+                {% endpartialdef %}
+            {% endfor %}
+        </div>
+    {% endpartialdef %}
+</div>
+</div>
+{% endblock content %}

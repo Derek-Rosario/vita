@@ -16,6 +16,45 @@
         <script type="module" src="{% static 'js/navigation.js' %}"></script>
         <script type="module" src="{% static 'js/toasts.js' %}"></script>
         <script type="module" src="{% static 'js/voice.js' %}"></script>
+        <style>
+            .task-checklist-item.htmx-swapping {
+                opacity: 0;
+                text-decoration: line-through;
+                transition: opacity 0.5s ease;
+            }
+        
+        
+            .priority-chip {
+                color: #0f172a;
+                font-weight: 600;
+            }
+        
+            .priority-icon path,
+            .priority-icon rect,
+            .priority-icon circle {
+                fill: currentColor;
+            }
+        
+            .priority-1 {
+                background: #e9ecef;
+                color: #495057;
+            }
+        
+            .priority-2 {
+                background: #e7f1ff;
+                color: #0d6efd;
+            }
+        
+            .priority-3 {
+                background: #fff3cd;
+                color: #d48806;
+            }
+        
+            .priority-4 {
+                background: #fdecea;
+                color: #c92a2a;
+            }
+        </style>
     </head>
     <body class="bg-light d-flex flex-column vh-100"
           data-csrftoken="{{ csrf_token }}"

@@ -14,6 +14,7 @@ urlpatterns = [
         views.promote_backlog_task,
         name="task_backlog_promote",
     ),
+    path("checklist/", views.task_checklist, name="task_checklist"),
     path("tasks/", views.task_list, name="task_list"),
     path("projects/", views.project_list, name="project_list"),
     path("projects/add/", views.create_project, name="project_add"),
