@@ -8,6 +8,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="description" content="Vita - Frank OS" />
         <meta name="author" content="Frank Matranga" />
+        <link rel="manifest" href="{% static 'manifest.json' %}">
         <title>Vita - Frank OS</title>
         {% bootstrap_css %}
         {% bootstrap_javascript %}
@@ -57,5 +58,66 @@
                 </div>
             </template>
         </div>
+        <script>
+            // Minimal Web Push registration and subscription
+            (async function registerPush() {
+                try {
+                    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+                        return; // Unsupported
+                    }
+
+                    // Register service worker
+                    const swReg = await navigator.serviceWorker.register('{% static 'js/sw.js' %}');
+
+                    // Prompt for notifications permission on first load
+                    const permission = await Notification.requestPermission();
+                    if (permission !== 'granted') {
+                        return;
+                    }
+
+                    // Fetch VAPID public key
+                    const keyResp = await fetch('/notifications/vapid-public-key/');
+                    if (!keyResp.ok) return;
+                    const { publicKey } = await keyResp.json();
+                    if (!publicKey) return;
+
+                    // Convert base64 URL-safe key to Uint8Array
+                    function urlBase64ToUint8Array(base64String) {
+                        const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+                        const base64 = (base64String + padding)
+                            .replace(/-/g, '+')
+                            .replace(/_/g, '/');
+                        const rawData = atob(base64);
+                        const outputArray = new Uint8Array(rawData.length);
+                        for (let i = 0; i < rawData.length; ++i) {
+                            outputArray[i] = rawData.charCodeAt(i);
+                        }
+                        return outputArray;
+                    }
+
+                    // Subscribe
+                    let subscription = await swReg.pushManager.getSubscription();
+                    if (!subscription) {
+                        subscription = await swReg.pushManager.subscribe({
+                            userVisibleOnly: true,
+                            applicationServerKey: urlBase64ToUint8Array(publicKey),
+                        });
+                    }
+
+                    // Send subscription to server
+                    const csrftoken = document.body.dataset.csrftoken;
+                    await fetch('/notifications/subscribe/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrftoken,
+                        },
+                        body: JSON.stringify(subscription),
+                    });
+                } catch (err) {
+                    console.error('Push registration failed:', err);
+                }
+            })();
+        </script>
     </body>
 </html>

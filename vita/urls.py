@@ -32,5 +32,6 @@ urlpatterns = [
     path("", include("social.urls")),
     path("tasks/", include("tasks.urls")),
     path("api/", include("api.urls")),
+    path("notifications/", include("notifications.urls")),
     path("__reload__/", include("django_browser_reload.urls")),
 ]

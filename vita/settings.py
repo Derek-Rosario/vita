@@ -228,3 +228,59 @@ VITA_API_KEY = env("VITA_API_KEY")
 
 ELEVEN_LABS_API_KEY = env("ELEVEN_LABS_API_KEY")
 ELEVEN_LABS_VOICE_ID = env("ELEVEN_LABS_VOICE_ID")
+
+# Web Push (VAPID)
+WEBPUSH_VAPID_PUBLIC_KEY = env("WEBPUSH_VAPID_PUBLIC_KEY", "")
+WEBPUSH_VAPID_PRIVATE_KEY = env("WEBPUSH_VAPID_PRIVATE_KEY", "")
+WEBPUSH_VAPID_EMAIL = env("WEBPUSH_VAPID_EMAIL", "")
+
+# Provide dev-friendly VAPID keys if missing
+if not WEBPUSH_VAPID_PUBLIC_KEY or not WEBPUSH_VAPID_PRIVATE_KEY:
+    try:
+        import base64
+        from cryptography.hazmat.primitives.asymmetric import ec
+
+        vapid_file = BASE_DIR / ".vapid.json"
+        if vapid_file.exists():
+            import json
+
+            keys = json.loads(vapid_file.read_text())
+            WEBPUSH_VAPID_PUBLIC_KEY = (
+                WEBPUSH_VAPID_PUBLIC_KEY or keys.get("public") or ""
+            )
+            WEBPUSH_VAPID_PRIVATE_KEY = (
+                WEBPUSH_VAPID_PRIVATE_KEY or keys.get("private") or ""
+            )
+        elif DEBUG:
+            # Generate ephemeral dev keys
+            priv = ec.generate_private_key(ec.SECP256R1())
+            priv_num = priv.private_numbers().private_value
+            pub_nums = priv.public_key().public_numbers()
+            x = pub_nums.x.to_bytes(32, "big")
+            y = pub_nums.y.to_bytes(32, "big")
+            uncompressed = b"\x04" + x + y
+            WEBPUSH_VAPID_PUBLIC_KEY = (
+                base64.urlsafe_b64encode(uncompressed).decode("ascii").rstrip("=")
+            )
+            WEBPUSH_VAPID_PRIVATE_KEY = (
+                base64.urlsafe_b64encode(priv_num.to_bytes(32, "big"))
+                .decode("ascii")
+                .rstrip("=")
+            )
+            # Persist to file for consistent dev sessions
+            try:
+                import json
+
+                vapid_file.write_text(
+                    json.dumps(
+                        {
+                            "public": WEBPUSH_VAPID_PUBLIC_KEY,
+                            "private": WEBPUSH_VAPID_PRIVATE_KEY,
+                        }
+                    )
+                )
+            except Exception:
+                pass
+    except Exception:
+        # Leave keys empty if generation fails
+        pass
