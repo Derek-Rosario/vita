@@ -1,11 +1,13 @@
 import json
-
+import logging
 from django.conf import settings
 from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_http_methods
 
 from .models import WebPushSubscription
 from .services import send_webpush
+
+logger = logging.getLogger(__name__)
 
 
 @require_http_methods(["GET"])
@@ -52,6 +54,7 @@ def send_test(request: HttpRequest) -> JsonResponse:
             send_webpush(sub, payload)
             sent += 1
         except Exception:
+            logger.error("Failed to send webpush to %s", sub.endpoint, exc_info=True)
             sub.active = False
             sub.save(update_fields=["active"])
     return JsonResponse({"ok": True, "sent": sent})
