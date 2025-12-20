@@ -6,6 +6,9 @@
       <div>
         <p class="text-uppercase text-muted small mb-1">Tasks</p>
         <h1 class="h3 mb-0">Kanban Board</h1>
+        <h2 class="small">
+          <a href="{% url 'task_checklist' %}">Switch to list</a>
+        </h2>
       </div>
       <div class="d-flex">{% include "tasks/partials/quick_add_task_form.html" %}</div>
       <div class="d-flex gap-2">

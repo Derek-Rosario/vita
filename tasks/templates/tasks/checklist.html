@@ -5,6 +5,9 @@
         <div>
             <p class="text-uppercase text-muted small mb-1">Tasks</p>
             <h1 class="h3 mb-0">Checklist</h1>
+            <h2 class="small">
+                <a href="{% url 'task_board' %}">Switch to board</a>
+            </h2>
         </div>
         <form method="post"
               hx-target="#task-checklist"
