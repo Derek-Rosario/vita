@@ -30,6 +30,7 @@ urlpatterns = [
     path("api/tts/", core_api.tts, name="api_tts"),
     path("", RedirectView.as_view(pattern_name="task_board", permanent=False)),
     path("", include("social.urls")),
+    path("social/", include("social.urls")),
     path("tasks/", include("tasks.urls")),
     path("api/", include("api.urls")),
     path("notifications/", include("notifications.urls")),

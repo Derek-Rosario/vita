@@ -85,3 +85,13 @@ class Interest(TimestampedModel):
 
     def __str__(self):
         return self.name
+
+
+class Group(TimestampedModel):
+    slug = models.SlugField(unique=True, primary_key=True)
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True)
+    members = models.ManyToManyField(Contact, related_name="groups", blank=True)
+
+    def __str__(self):
+        return self.name

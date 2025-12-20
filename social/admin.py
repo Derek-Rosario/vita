@@ -5,6 +5,7 @@ from social.models import (
     ContactRelationship,
     ContactTouchpoint,
     Interest,
+    Group,
 )
 
 
@@ -53,3 +54,12 @@ class InterestAdmin(admin.ModelAdmin):
     list_display = ("name", "slug", "created_at")
     search_fields = ("name", "description")
     prepopulated_fields = {"slug": ("name",)}
+
+
+@admin.register(Group)
+class GroupAdmin(admin.ModelAdmin):
+    list_display = ("name", "slug", "created_at")
+    search_fields = ("name", "description")
+    prepopulated_fields = {"slug": ("name",)}
+    filter_horizontal = ("members",)
+    autocomplete_fields = ("members",)
