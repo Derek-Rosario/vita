@@ -2,7 +2,13 @@
 <div class="card shadow-sm" id="task-form-card">
   <div class="card-header bg-light sticky-top d-flex justify-content-between align-items-center">
     <div>
-      <p class="text-uppercase text-muted small mb-0">Task</p>
+      <p class="text-uppercase text-muted small mb-0">
+        {% if task.routine %}
+          Routine Task
+        {% else %}
+          Task
+        {% endif %}
+      </p>
       <h2 class="h5 mb-0">{{ task.title }}</h2>
     </div>
     <div id="task-save-indicator"
@@ -12,6 +18,11 @@
     </div>
   </div>
   <div class="card-body">
+    {% if task.routine %}
+      <div class="alert alert-info" role="alert">
+        This task is part of routine <a href="{% url 'routine_edit' task.routine.id %}">{{ task.routine.name }}</a>.
+      </div>
+    {% endif %}
     <div id="task-autosave-status" class="small text-muted" aria-live="polite"></div>
     <form id="task-form"
           method="post"

@@ -341,7 +341,7 @@ class CommentForm(forms.ModelForm):
                     "class": "form-control",
                     "rows": 2,
                     "placeholder": "Add a comment...",
-                }
+                },
             )
         }
 
@@ -459,56 +459,27 @@ def edit_task(request: HttpRequest, task_id: int):
     comment_form = CommentForm()
 
     if request.method == "POST":
-        # If the POST is for comments
-        if "content" in request.POST and "title" not in request.POST:
-            comment_form = CommentForm(request.POST)
-            form = TaskForm(instance=task)
-            if comment_form.is_valid():
-                comment = comment_form.save(commit=False)
-                comment.task = task
-                comment.save()
-                if request.htmx:
-                    return render(
-                        request,
-                        "tasks/partials/task_comments.html",
-                        {"task": task, "comment_form": CommentForm()},
-                    )
-                return redirect("edit_task", task_id=task.pk)
-        else:
-            form = TaskForm(request.POST, instance=task)
-            if form.is_valid():
-                form.save()
-                if request.htmx and is_autosave:
-                    return HttpResponse(
-                        status=204,
-                        headers={
-                            "HX-Trigger": json.dumps(
-                                {
-                                    "toastMessage": {
-                                        "type": "success",
-                                        "message": "Saved task.",
-                                    },
-                                    "speak": {
-                                        "message": "Task saved.",
-                                    },
-                                }
-                            )
-                        },
-                    )
-                elif request.htmx:
-                    return render(
-                        request,
-                        "tasks/partials/task_form_card.html",
-                        {
-                            "form": form,
-                            "task": task,
-                            "saved": True,
-                            "comment_form": comment_form,
-                        },
-                    )
-                return redirect("task_board")
-            elif request.htmx and is_autosave:
-                return HttpResponse("Failed validation.", status=400)
+        form = TaskForm(request.POST, instance=task)
+        if form.is_valid():
+            form.save()
+            if request.htmx and is_autosave:
+                return HttpResponse(
+                    status=204,
+                )
+            elif request.htmx:
+                return render(
+                    request,
+                    "tasks/partials/task_form_card.html",
+                    {
+                        "form": form,
+                        "task": task,
+                        "saved": True,
+                        "comment_form": comment_form,
+                    },
+                )
+            return redirect("task_board")
+        elif request.htmx and is_autosave:
+            return HttpResponse("Failed validation.", status=400)
     else:
         form = TaskForm(instance=task)
 
@@ -525,6 +496,30 @@ def edit_task(request: HttpRequest, task_id: int):
             "comment_form": comment_form,
         },
         status=400 if form.errors else 200,
+    )
+
+
+def task_activity(request: HttpRequest, task_id: int):
+    task = get_object_or_404(Task, pk=task_id)
+    comment_form = CommentForm()
+    if request.method == "POST":
+        comment_form = CommentForm(request.POST)
+        if comment_form.is_valid():
+            comment = comment_form.save(commit=False)
+            comment.task = task
+            comment.save()
+
+            comment_form = CommentForm()
+
+    comments = Comment.objects.filter(task=task).order_by("-created_at")
+    return render(
+        request,
+        "tasks/partials/task_activity_card.html",
+        {
+            "task": task,
+            "comments": comments,
+            "comment_form": comment_form,
+        },
     )
 
 

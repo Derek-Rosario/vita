@@ -21,6 +21,7 @@ urlpatterns = [
     path("tags/", views.tag_list, name="tag_list"),
     path("tags/add/", views.create_tag, name="tag_add"),
     path("tags/<int:tag_id>/", views.tag_detail, name="tag_detail"),
+    path("tags/<int:task_id>/activity", views.task_activity, name="task_activity"),
     path("task/<int:task_id>/edit/", views.edit_task, name="edit_task"),
     path("routines/", views.routine_list, name="routine_list"),
     path("routines/add/", views.routine_create, name="routine_add"),
