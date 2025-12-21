@@ -178,6 +178,22 @@ def promote_backlog_task(request: HttpRequest, task_id: int):
     return redirect("task_backlog")
 
 
+@require_POST
+def mark_task_done(request: HttpRequest, task_id: int):
+    task = get_object_or_404(Task, pk=task_id)
+    if task.status == Task.Status.DONE:
+        return HttpResponse(status=204)
+
+    task.status = Task.Status.DONE
+    task.save(update_fields=["status", "updated_at", "completed_at"])
+
+    response = HttpResponse(status=204)
+
+    response["HX-Location"] = reverse("task_board")
+
+    return response
+
+
 def board_fragment(request: HttpRequest):
     """
     Return just the board partial for HTMX refreshes.
@@ -332,7 +348,12 @@ def _fetch_board_context():
     )
 
     columns = [
-        {"code": code, "label": label, "tasks": grouped.get(code, [])}
+        {
+            "code": code,
+            "label": label,
+            "tasks": grouped.get(code, []),
+            "total_weight": sum(t.completion_weight for t in grouped.get(code, [])),
+        }
         for code, label in BOARD_STATUSES
     ]
     return {"columns": columns}

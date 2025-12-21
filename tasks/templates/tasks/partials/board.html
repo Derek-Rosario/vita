@@ -14,7 +14,7 @@
             <div class="flex-grow-1 card shadow-sm border-0">
                 <div class="card-header sticky-top d-flex justify-content-between align-items-center bg-white">
                     <span class="fw-semibold">{{ column.label }}</span>
-                    <span class="badge bg-secondary">{{ column.tasks|length }}</span>
+                    <span class="badge bg-secondary">{{ column.tasks|length }} / {{ column.total_weight }}</span>
                 </div>
                 <div class="card-body kanban-column-body"
                      style="height: calc(100vh - 220px);

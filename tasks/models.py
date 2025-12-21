@@ -1,3 +1,5 @@
+from typing import cast
+
 from django.db import models
 from django.utils import timezone
 from core.models import TimestampedModel
@@ -219,6 +221,26 @@ class Task(TimestampedModel):
             and self.due_at is not None
             and self.due_at < timezone.localdate()
         )
+
+    @property
+    def completion_weight(self) -> float:
+        """
+        Calculate a weighted score for task completion based on priority and energy.
+        Higher priority and higher energy tasks are worth more points.
+
+        Returns a value between 1 (low priority, low energy) and 12 (urgent, high energy).
+        """
+        # Energy multiplier
+        energy_multiplier = {
+            Task.Energy.LOW: 1,
+            Task.Energy.MEDIUM: 2,
+            Task.Energy.HIGH: 3,
+        }.get(cast(Task.Energy, self.energy), 2)
+
+        # Priority is already numeric: LOW=1, NORMAL=2, HIGH=3, URGENT=4
+        priority_value = self.priority
+
+        return priority_value * energy_multiplier
 
 
 class Comment(TimestampedModel):
