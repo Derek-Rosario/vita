@@ -325,7 +325,7 @@ def create_task(request: HttpRequest):
 
 # Helper functions
 def _fetch_board_context():
-    cutoff = timezone.now() - timedelta(days=14)
+    cutoff = timezone.now() - timedelta(days=2)
     tasks = (
         Task.objects.filter(status__in=[code for code, _ in BOARD_STATUSES])
         .filter(
