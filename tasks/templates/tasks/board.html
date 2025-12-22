@@ -296,14 +296,15 @@
     transform: scale(0.95);
   }
 
+
   #kanban-board .kanban-card {
     outline: 2px solid transparent;
     outline-offset: 2px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, outline-color 0.2s ease;
   }
-
+  
   #kanban-board .kanban-card:focus {
     outline-color: #0d6efd;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, outline-color 0.2s ease;
     box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.3);
   }
 
