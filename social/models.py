@@ -1,6 +1,7 @@
 from django.db import models
 from core.models import TimestampedModel
 from django.core.validators import MaxValueValidator
+from django.utils.text import slugify
 
 
 class RelationshipType(models.TextChoices):
@@ -27,7 +28,9 @@ class TouchpointChannel(models.TextChoices):
 
 class Contact(TimestampedModel):
     slug = models.SlugField(unique=True, primary_key=True)
-    name = models.CharField(max_length=100)
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    nickname = models.CharField(max_length=100, blank=True)
     priority = models.PositiveSmallIntegerField(
         default=1, validators=[MaxValueValidator(10)]
     )
@@ -43,6 +46,18 @@ class Contact(TimestampedModel):
     )
     check_in_frequency_days = models.PositiveIntegerField(default=30)
     last_contacted_at = models.DateField(null=True, blank=True)
+
+    @property
+    def name(self):
+        return f"{self.first_name} {self.last_name}"
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super(Contact, self).save(*args, **kwargs)
 
 
 class ContactRelationship(TimestampedModel):
@@ -86,6 +101,11 @@ class Interest(TimestampedModel):
     def __str__(self):
         return self.name
 
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super(Interest, self).save(*args, **kwargs)
+
 
 class Group(TimestampedModel):
     slug = models.SlugField(unique=True, primary_key=True)
@@ -95,3 +115,8 @@ class Group(TimestampedModel):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super(Group, self).save(*args, **kwargs)

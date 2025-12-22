@@ -20,15 +20,16 @@ class ContactTouchpointInline(admin.TabularInline):
 @admin.register(Contact)
 class ContactAdmin(admin.ModelAdmin):
     list_display = (
-        "name",
+        "first_name",
+        "last_name",
         "relationship_to_me",
         "priority",
         "check_in_frequency_days",
         "last_contacted_at",
     )
     list_filter = ("relationship_to_me", "priority", "preferred_channel")
-    search_fields = ("name", "notes")
-    prepopulated_fields = {"slug": ("name",)}
+    search_fields = ("first_name", "last_name", "notes")
+    prepopulated_fields = {"slug": ("first_name", "last_name")}
     inlines = [ContactTouchpointInline]
 
 
@@ -37,7 +38,7 @@ class ContactTouchpointAdmin(admin.ModelAdmin):
     list_display = ("contact", "date", "channel", "sentiment")
     list_filter = ("channel", "sentiment")
     date_hierarchy = "date"
-    search_fields = ("contact__name", "notes")
+    search_fields = ("contact__first_name", "contact__last_name", "notes")
     autocomplete_fields = ("contact",)
 
 

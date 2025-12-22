@@ -25,11 +25,10 @@ admin.site.site_header = "Vita Admin"
 admin.site.site_title = "Vita Admin Portal"
 
 urlpatterns = [
+    path("", RedirectView.as_view(pattern_name="task_board", permanent=False)),
     path("admin/", admin.site.urls),
     path("accounts/", include("django.contrib.auth.urls")),
     path("api/tts/", core_api.tts, name="api_tts"),
-    path("", RedirectView.as_view(pattern_name="task_board", permanent=False)),
-    path("", include("social.urls")),
     path("social/", include("social.urls")),
     path("tasks/", include("tasks.urls")),
     path("api/", include("api.urls")),

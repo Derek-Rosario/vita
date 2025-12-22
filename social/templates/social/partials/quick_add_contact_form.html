@@ -1,0 +1,10 @@
+{% load django_bootstrap5 %}
+<form id="quick-add-contact-form"
+      class="card"
+      hx-swap="outerHTML"
+      hx-post="{% url 'social:quick_add_contact' %}">
+    <div class="card-body">
+        {% bootstrap_form form %}
+        <button type="submit" class="btn btn-primary">Add Contact</button>
+    </div>
+</form>
