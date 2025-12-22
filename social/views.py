@@ -1,11 +1,12 @@
 from django.shortcuts import render
 from django.db.models import Count
 from django.views.decorators.http import require_POST
+from django.db.models.functions import Lower
 
 from core.services import add_toast, add_htmx_trigger
 from core.views import HttpRequest
 from social.forms import QuickAddContactForm
-from social.models import Contact, Group
+from social.models import Contact, Group, RelationshipType
 
 
 def index(request: HttpRequest):
@@ -30,6 +31,51 @@ def index(request: HttpRequest):
             "groups": groups,
             "relationship_types": relationship_types,
             "quick_add_contact_form": QuickAddContactForm(),
+        },
+    )
+
+
+def list_contacts(request: HttpRequest):
+    # Apply search filter if provided
+    search = request.GET.get("search", "").strip()
+    if search:
+        contacts = (
+            Contact.objects.filter(first_name__icontains=search)
+            | Contact.objects.filter(last_name__icontains=search)
+            | Contact.objects.filter(nickname__icontains=search)
+        )
+        contacts = contacts.order_by(Lower("first_name"), Lower("last_name"))
+    else:
+        contacts = Contact.objects.all().order_by(
+            Lower("first_name"), Lower("last_name")
+        )
+
+    group_id = request.GET.get("group")
+    if group_id:
+        contacts = contacts.filter(groups__pk=group_id)
+
+    relationship_to_me = request.GET.get("relationship_to_me")
+    if relationship_to_me:
+        contacts = contacts.filter(relationship_to_me=relationship_to_me)
+
+    groups = Group.objects.all()
+    relationship_types = RelationshipType.choices
+
+    template_name = "social/contacts.html"
+
+    if request.htmx:
+        template_name += "#contacts"
+
+    return render(
+        request,
+        template_name,
+        {
+            "search": search,
+            "contacts": contacts,
+            "groups": groups,
+            "relationship_types": relationship_types,
+            "selected_group": group_id,
+            "selected_relationship": relationship_to_me,
         },
     )
 

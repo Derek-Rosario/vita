@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="container py-4">
+        <h1 class="h1">Contacts</h1>
+        <form hx-get="{% url 'social:list_contacts' %}"
+              hx-target="#search-results"
+              hx-swap="outerHTML"
+              hx-push-url="true"
+              hx-trigger="input changed delay:500ms, keyup[key=='Enter']"
+              hx-indicator="#search-indicator"
+              class="row">
+            <div class="col-xs-12 col-md-6">
+                <div class="form-floating mb-3">
+                    <input value="{{ search }}"
+                           type="search"
+                           class="form-control"
+                           id="search"
+                           name="search"
+                           placeholder="Search contacts...">
+                    <label for="search">Search</label>
+                </div>
+            </div>
+            <div class="col-xs-12 col-md-3">
+                <div class="form-floating">
+                    <select class="form-select" name="group">
+                        <option value>-------</option>
+                        {% for group in groups %}
+                            <option value="{{ group.pk }}"
+                                    {% if group.pk == selected_group %}selected{% endif %}>{{ group.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <label for="floatingSelect">Group</label>
+                </div>
+            </div>
+            <div class="col-xs-12 col-md-3">
+                <div class="form-floating">
+                    <select class="form-select" name="relationship_to_me">
+                        <option value>-------</option>
+                        {% for relationship_type, display in relationship_types %}
+                            <option value="{{ relationship_type }}"
+                                    {% if relationship_type == selected_relationship %}selected{% endif %}>
+                                {{ display }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <label for="floatingSelect">Relationship</label>
+                </div>
+            </div>
+        </form>
+        {% partialdef contacts inline %}
+        <table id="search-results" class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Phone</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for contact in contacts %}
+                    <tr>
+                        <td>
+                            {{ contact.first_name }} {{ contact.last_name }}
+                            {% if contact.nickname %}<span class="text-muted">({{ contact.nickname }})</span>{% endif %}
+                        </td>
+                        <td>{{ contact.email|default:"—" }}</td>
+                        <td>{{ contact.phone|default:"—" }}</td>
+                        <td class="text-end">
+                            <a href="#" class="btn btn-sm btn-outline-success">Edit</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endpartialdef %}
+</div>
+{% endblock content %}
