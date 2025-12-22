@@ -7,7 +7,7 @@
      role="button"
      aria-label="Edit {{ task.title }}"
      {% if dropped_task_pk == task.id %}data-dropped{% endif %}>
-    <div class="card-body d-flex flex-column gap-1 py-2 {% if task.status == 'done' %}opacity-75{% endif %}">
+    <div class="card-body d-flex flex-column py-2 {% if task.status == 'done' %}opacity-75{% endif %}">
         <div class="d-flex justify-content-between align-items-start gap-2">
             <div>
                 <div class="fw-medium"
@@ -29,7 +29,7 @@
             </span>
         </div>
         {% if task.due_at or task.estimate_minutes or task.project %}
-            <div class="d-flex flex-wrap align-items-center gap-2 small">
+            <div class="mt-1 d-flex flex-wrap align-items-center gap-2 small">
                 {% if task.due_at %}
                     <span class="badge {% if task.is_overdue %}bg-danger text-white fw-semibold{% else %}bg-light text-muted{% endif %} fw-normal border d-inline-flex align-items-center gap-1">
                         <svg class="{% if task.is_overdue %}{% else %}text-danger{% endif %}"

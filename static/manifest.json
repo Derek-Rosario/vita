@@ -2,18 +2,19 @@
   "name": "Vita",
   "short_name": "Vita",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#000000",
   "icons": [
     {
-      "src": "/static/icons/icon-192.png",
-      "sizes": "192x192",
+      "src": "/static/icons/icon-250.png",
+      "sizes": "250x250",
       "type": "image/png"
     },
     {
-      "src": "/static/icons/icon-512.png",
-      "sizes": "512x512",
+      "src": "/static/icons/icon-500.png",
+      "sizes": "500x500",
       "type": "image/png"
     }
   ]
