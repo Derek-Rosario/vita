@@ -17,7 +17,7 @@
                     <span class="badge bg-secondary">{{ column.tasks|length }} / {{ column.total_weight }}</span>
                 </div>
                 <div class="card-body kanban-column-body"
-                     style="height: calc(100vh - 220px);
+                     style="height: calc(100vh - 260px);
                             overflow: auto">
                     {% for task in column.tasks %}
                         {% include "tasks/partials/task_card.html" with task=task dropped_task_pk=dropped_task_pk %}

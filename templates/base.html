@@ -9,7 +9,7 @@
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="default">
         <meta name="apple-mobile-web-app-title" content="Vita">
-        <link rel="apple-touch-icon" href="{% static 'icons/icon-250.png' %}">
+        <meta name="mobile-web-app-capable" content="yes">
         <meta name="color-scheme" content="light dark">
         <meta name="theme-color" content="#000000">
         <meta name="description" content="Vita - Frank OS" />
@@ -67,7 +67,7 @@
     <body class="bg-light d-flex flex-column vh-100"
           data-csrftoken="{{ csrf_token }}"
           hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark z-100">
             <div class="container-fluid">
                 <a class="navbar-brand" href="#">Vita</a>
                 <button class="navbar-toggler"
@@ -78,8 +78,30 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbar-collapse">
                     <div class="navbar-nav me-auto">
-                        <a class="nav-link" href="{% url 'task_board' %}">Tasks</a>
-                        <a class="nav-link" href="{% url 'routine_list' %}">Routines</a>
+                        <div class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle"
+                               href="#"
+                               role="button"
+                               data-bs-toggle="dropdown"
+                               aria-expanded="false">Tasks</a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'task_board' %}">Board</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'task_checklist' %}">Checklist</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'task_backlog' %}">Backlog</a>
+                                </li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'routine_list' %}">Routines</a>
+                                </li>
+                            </ul>
+                        </div>
                         <a class="nav-link" href="{% url 'social_contacts' %}">Social</a>
                         <a class="nav-link" href="#">Inbox</a>
                     </div>

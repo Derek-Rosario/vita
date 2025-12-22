@@ -3,77 +3,20 @@
       hx-post="{% url 'task_quick_add' %}"
       hx-swap="outerHTML"
       class="d-flex flex-column gap-3">
-    <div class="input-group">
-        <input type="text"
-               name="title"
-               id="title"
-               class="form-control"
-               placeholder="Quick add"
-               required>
-        <div class="input-group-append">
-            <button class="btn btn-outline-secondary" type="submit">Quick add</button>
-            <!-- <button id="speech" class="btn btn-outline-secondary" type="button">Voice</button> -->
-            <!-- <span id="diagnostic"></span> -->
-        </div>
+  <div class="input-group">
+    <input type="text"
+           name="title"
+           id="title"
+           class="form-control"
+           placeholder="Quick add"
+           required>
+    <div class="input-group-append">
+      <button class="btn btn-outline-secondary" type="submit">Quick add</button>
+      <!-- <button id="speech" class="btn btn-outline-secondary" type="button">Voice</button> -->
+      <!-- <span id="diagnostic"></span> -->
     </div>
+  </div>
 </form>
 {% if swap_board %}
-    {% include "tasks/partials/board.html" with swap_oob=True %}
+  {% include "tasks/partials/board.html" with swap_oob=True %}
 {% endif %}
-<script>
-    const SpeechRecognition =
-  window.SpeechRecognition || window.webkitSpeechRecognition;
-const SpeechRecognitionEvent =
-  window.SpeechRecognitionEvent || window.webkitSpeechRecognitionEvent;
-
-  const recognition = new SpeechRecognition();
-recognition.lang = "en-US";
-recognition.continuous = false;
-recognition.interimResults = false;
-recognition.maxAlternatives = 1;
-recognition.processLocally = true;
-
-recognition.onspeechend = function () {
-  recognition.stop();
-};
-
-recognition.onresult = (event) => {
-  diagnostic.textContent = `Result received: ${JSON.stringify(event.results)}.`;
-};
-
-recognition.onnomatch = (event) => {
-  diagnostic.textContent = "I didn't recognize that color.";
-};
-recognition.onerror = (event) => {
-  diagnostic.textContent = `Error occurred in recognition: ${event.error}`;
-}
-
-const speechButton = document.getElementById('speech');
-const diagnostic = document.getElementById('diagnostic');
-speechButton.addEventListener('click', () => {
-    SpeechRecognition.available({ langs: ["en-US"], processLocally: true }).then(
-    (result) => {
-      if (result === "unavailable") {
-        diagnostic.textContent = `en-US is not available to download at this time. Sorry!`;
-      } else if (result === "available") {
-        recognition.start();
-        console.log("Ready to receive a color command.");
-      } else {
-        diagnostic.textContent = `en-US language pack is downloading...`;
-        SpeechRecognition.install({
-          langs: ["en-US"],
-          processLocally: true,
-        }).then((result) => {
-          if (result) {
-            diagnostic.textContent = `en-US language pack downloaded. Start recognition again.`;
-          } else {
-            diagnostic.textContent = `en-US language pack failed to download. Try again later.`;
-          }
-        });
-      }
-    },
-  );
-
-})
-
-</script>
