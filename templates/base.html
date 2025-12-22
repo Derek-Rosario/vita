@@ -25,6 +25,10 @@
         <script type="module" src="{% static 'js/toasts.js' %}"></script>
         <script type="module" src="{% static 'js/voice.js' %}"></script>
         <style>
+            body {
+                height: 100dvh;
+            }
+            
             .task-checklist-item.htmx-swapping {
                 opacity: 0;
                 text-decoration: line-through;
@@ -64,7 +68,7 @@
             }
         </style>
     </head>
-    <body class="bg-light d-flex flex-column vh-100"
+    <body class="bg-light d-flex flex-column"
           data-csrftoken="{{ csrf_token }}"
           hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'>
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark z-100">
