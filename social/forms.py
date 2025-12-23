@@ -74,9 +74,6 @@ class ContactTouchpointForm(forms.ModelForm):
         initial = kwargs.setdefault("initial", {})
         initial.setdefault("date", timezone.localdate())
         super().__init__(*args, **kwargs)
-        self.fields["channel"].widget.attrs["class"] = "form-select"
-        self.fields["sentiment"].widget.attrs["class"] = "form-select"
-        self.fields["contact"].widget.attrs["class"] = "form-select"
 
         if contact is not None:
             self.fields["contact"].initial = contact

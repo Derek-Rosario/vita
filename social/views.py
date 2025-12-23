@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.db.models import Count
 from django.views.decorators.http import require_POST
@@ -5,8 +6,13 @@ from django.db.models.functions import Lower
 
 from core.services import add_toast, add_htmx_trigger
 from core.views import HttpRequest
-from social.forms import QuickAddContactForm
-from social.models import Contact, Group, RelationshipType
+from social.forms import ContactTouchpointForm, QuickAddContactForm
+from social.models import (
+    Contact,
+    ContactTouchpointSentiment,
+    Group,
+    RelationshipType,
+)
 
 
 def index(request: HttpRequest):
@@ -37,6 +43,8 @@ def index(request: HttpRequest):
 
 def list_contacts(request: HttpRequest):
     # Apply search filter if provided
+    print(request.GET)
+
     search = request.GET.get("search", "").strip()
     if search:
         contacts = (
@@ -77,6 +85,31 @@ def list_contacts(request: HttpRequest):
             "selected_group": group_id,
             "selected_relationship": relationship_to_me,
         },
+    )
+
+
+def log_contact_touchpoint_modal(request: HttpRequest, contact_pk: str):
+    contact = Contact.objects.get(pk=contact_pk)
+    if request.method == "POST":
+        form = ContactTouchpointForm(request.POST)
+        if form.is_valid():
+            form.save()
+            response = HttpResponse(status=204)
+            add_htmx_trigger(response, "contactTouchpointLogged")
+            add_toast(response, "success", "Contact touchpoint logged successfully.")
+            return response
+
+    form = ContactTouchpointForm(
+        initial={
+            "contact": contact,
+            "channel": contact.preferred_channel,
+            "sentiment": ContactTouchpointSentiment.POSITIVE,
+        }
+    )
+    return render(
+        request,
+        "social/partials/log_contact_touchpoint_modal.html",
+        {"contact": contact, "form": form},
     )
 
 
