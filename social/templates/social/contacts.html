@@ -84,12 +84,15 @@
                         <td class="text-end">
                             <a class="btn btn-sm btn-warning"
                                hx-post="{% url 'social:create_contact_task' contact.pk %}">Create Task</a>
-                            <a class="btn btn-sm btn-success"
-                               data-bs-toggle="modal"
-                               data-bs-target="#log-contact-touchpoint-modal"
-                               hx-target="#log-contact-touchpoint-modal"
-                               hx-swap="innerHTML"
-                               hx-get="{% url 'social:log_contact_touchpoint_modal' contact.pk %}">Log Contact</a>
+                            <button type="button"
+                                    class="btn btn-sm btn-success"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#log-contact-touchpoint-modal"
+                                    hx-target="#log-contact-touchpoint-modal"
+                                    hx-swap="innerHTML"
+                                    hx-get="{% url 'social:log_contact_touchpoint_modal' contact.pk %}">
+                                Log Contact
+                            </button>
                             <a href="{% url 'admin:social_contact_change' contact.pk %}"
                                class="btn btn-sm btn-outline-info">Edit</a>
                         </td>
@@ -99,19 +102,5 @@
         </table>
     {% endpartialdef %}
 </div>
-<div id="log-contact-touchpoint-modal" class="modal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Loading...</h5>
-                <button type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal"
-                        aria-label="Close"></button>
-            </div>
-            <div class="modal-body"></div>
-            <div class="modal-footer"></div>
-        </div>
-    </div>
-</div>
+{% include "social/partials/log_contact_touchpoint_modal_container.html" with contact=contact %}
 {% endblock content %}

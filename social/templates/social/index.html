@@ -23,12 +23,21 @@
                     <div class="list-group">
                         {% for contact in contacts_needing_attention %}
                             <a href="{% url 'admin:social_contact_change' contact.pk %}"
-                               class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                                <span class="w-50">{{ contact.name }}</span>
-                                <div class="progress w-50" role="progressbar">
+                               class="list-group-item list-group-item-action d-flex gap-3 justify-content-between align-items-center">
+                                <span>{{ contact.name }}</span>
+                                <div class="progress flex-grow-1" role="progressbar">
                                     <div class="progress-bar progress-bar-striped progress-bar-animated {% if contact.strength < 40 %}bg-danger{% elif contact.strength < 70 %}bg-warning{% else %}bg-success{% endif %}"
                                          style="width: {{ contact.strength }}%">{{ contact.strength }}%</div>
                                 </div>
+                                <button type="button"
+                                        class="btn btn-sm btn-success"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#log-contact-touchpoint-modal"
+                                        hx-target="#log-contact-touchpoint-modal"
+                                        hx-swap="innerHTML"
+                                        hx-get="{% url 'social:log_contact_touchpoint_modal' contact.pk %}">
+                                    Log Contact
+                                </button>
                             </a>
                         {% empty %}
                             <div class="list-group-item">All caught up! No contacts need attention.</div>
@@ -82,4 +91,5 @@
             </div>
         {% endpartialdef %}
     </div>
+    {% include "social/partials/log_contact_touchpoint_modal_container.html" with contact=contact %}
 {% endblock content %}
