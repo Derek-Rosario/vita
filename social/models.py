@@ -1,3 +1,4 @@
+import datetime
 from django.db import models
 from core.models import TimestampedModel
 from django.core.validators import MaxValueValidator
@@ -58,6 +59,30 @@ class Contact(TimestampedModel):
     @property
     def name(self):
         return self.nickname if self.nickname else f"{self.first_name} {self.last_name}"
+
+    def create_contact_task(self):
+        """
+        Create a task/reminder to contact this person based on their check-in frequency.
+        """
+        from tasks.models import Task
+
+        # Skip if existing non-done and non-cancelled task exists for this contact
+        existing_tasks = Task.objects.filter(
+            related_contact=self,
+        ).exclude(
+            status__in=[Task.Status.DONE, Task.Status.CANCELLED],
+        )
+        if existing_tasks.exists():
+            return
+
+        due_at = django_now().date() + datetime.timedelta(days=3)
+        return Task.objects.create(
+            title=f"Check in with {self.name}",
+            estimate_minutes=30,
+            energy=Task.Energy.HIGH,
+            due_at=due_at,
+            related_contact=self,
+        )
 
     def update_strength(self):
         """

@@ -1,5 +1,5 @@
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.db.models import Count
 from django.views.decorators.http import require_POST
 from django.db.models.functions import Lower
@@ -54,7 +54,10 @@ def list_contacts(request: HttpRequest):
             Contact.objects.filter(first_name__icontains=search)
             | Contact.objects.filter(last_name__icontains=search)
             | Contact.objects.filter(nickname__icontains=search)
-            | Contact.objects.filter(first_name__icontains=search.split(" ")[0], last_name__icontains=" ".join(search.split(" ")[1:]))    
+            | Contact.objects.filter(
+                first_name__icontains=search.split(" ")[0],
+                last_name__icontains=" ".join(search.split(" ")[1:]),
+            )
         )
         contacts = contacts.order_by(Lower("first_name"), Lower("last_name"))
     else:
@@ -115,6 +118,24 @@ def log_contact_touchpoint_modal(request: HttpRequest, contact_pk: str):
         "social/partials/log_contact_touchpoint_modal.html",
         {"contact": contact, "form": form},
     )
+
+
+@require_POST
+def create_contact_task(request: HttpRequest, contact_pk: str) -> HttpResponse:
+    contact = get_object_or_404(Contact, pk=contact_pk)
+    created_task = contact.create_contact_task()
+    response = HttpResponse(status=204)
+
+    if created_task:
+        add_htmx_trigger(response, "contactTaskCreated")
+        add_toast(response, "success", "Contact task created successfully.")
+    else:
+        add_toast(
+            response,
+            "info",
+            "A non-completed task for this contact already exists.",
+        )
+    return response
 
 
 @require_POST

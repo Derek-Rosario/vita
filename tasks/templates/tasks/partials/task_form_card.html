@@ -16,17 +16,24 @@
          role="status">
       <span class="visually-hidden">Loading...</span>
     </div>
-    <div>
-      <button id="mark-done-button"
-              class="btn btn-success"
-              type="button"
-              hx-post="{% url 'mark_task_done' task.id %}">Mark Done</button>
-    </div>
+    {% if task.status != 'done' %}
+      <div>
+        <button id="mark-done-button"
+                class="btn btn-success"
+                type="button"
+                hx-post="{% url 'mark_task_done' task.id %}">Mark Done</button>
+      </div>
+    {% endif %}
   </div>
   <div class="card-body">
     {% if task.routine %}
-      <div class="alert alert-info" role="alert">
-        This task is part of routine <a href="{% url 'routine_edit' task.routine.id %}">{{ task.routine.name }}</a>.
+      <div class="alert alert-info mb-3" role="alert">
+        This task is part of routine <a href="{% url 'routine_edit' task.routine.id %}">{{ task.routine.name }}</a>
+      </div>
+    {% endif %}
+    {% if task.related_contact %}
+      <div class="alert alert-info mb-3" role="alert">
+        This task is related to contact <a href="{% url 'social:list_contacts' %}?search={{ task.related_contact.name|urlencode }}">{{ task.related_contact.name }}</a>
       </div>
     {% endif %}
     <div id="task-autosave-status" class="small text-muted" aria-live="polite"></div>

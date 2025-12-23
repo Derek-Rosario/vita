@@ -167,6 +167,15 @@ class Task(TimestampedModel):
         help_text="True if explicitly kept from the routine.",
     )  # if you explicitly "keep" it
 
+    related_contact = models.ForeignKey(
+        "social.Contact",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="related_tasks",
+        help_text="Contact associated with this task.",
+    )
+
     class Meta:
         ordering = ["status", "-priority", "due_at", "-created_at"]
         indexes = [

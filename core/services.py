@@ -29,7 +29,7 @@ def add_toast(
     """Add a toast message to an HttpResponse using HTMX triggers. Optionally add a custom voice message."""
     add_htmx_trigger(
         response,
-        "toast",
+        "toastMessage",
         {"type": type, "message": message},
     )
 

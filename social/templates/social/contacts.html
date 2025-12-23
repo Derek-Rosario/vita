@@ -76,6 +76,8 @@
                         </td>
                         <td>{{ contact.last_contacted_at|default:"—" }}</td>
                         <td class="text-end">
+                            <a class="btn btn-sm btn-warning"
+                               hx-post="{% url 'social:create_contact_task' contact.pk %}">Create Task</a>
                             <a class="btn btn-sm btn-success"
                                data-bs-toggle="modal"
                                data-bs-target="#log-contact-touchpoint-modal"
