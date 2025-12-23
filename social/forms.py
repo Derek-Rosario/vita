@@ -20,7 +20,13 @@ class QuickAddContactForm(forms.ModelForm):
 
     class Meta:
         model = Contact
-        fields = ["name", "relationship_to_me", "preferred_channel"]
+        fields = [
+            "name",
+            "relationship_to_me",
+            "check_in_frequency_days",
+            "priority",
+            "preferred_channel",
+        ]
 
     def clean_name(self):
         name = self.cleaned_data.get("name", "").strip()
