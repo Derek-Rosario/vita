@@ -69,12 +69,7 @@
                             {% if contact.nickname %}<span class="text-muted">({{ contact.nickname }})</span>{% endif %}
                         </td>
                         <td>
-                            <div class="progress"
-                                 role="progressbar"
-                                 aria-label="Basic example"
-                                 aria-valuenow="0"
-                                 aria-valuemin="0"
-                                 aria-valuemax="100">
+                            <div class="progress" role="progressbar">
                                 <div class="progress-bar progress-bar-striped progress-bar-animated {% if contact.strength < 40 %}bg-danger{% elif contact.strength < 70 %}bg-warning{% else %}bg-success{% endif %}"
                                      style="width: {{ contact.strength }}%">{{ contact.strength }}%</div>
                             </div>

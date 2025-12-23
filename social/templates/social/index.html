@@ -14,64 +14,72 @@
                     </form>
                 </div>
             </div>
-        </div>
-        <div class="row">
             <div class="col-xs-12 col-md-4">
                 {% include "social/partials/quick_add_contact_form.html" with form=quick_add_contact_form %}
             </div>
             <div class="col-xs-12 col-md-8">
                 <div class="card">
                     <div class="card-header">Contacts Needing Attention</div>
-                    <div class="card-body">
-                        <p>hello</p>
+                    <div class="list-group">
+                        {% for contact in contacts_needing_attention %}
+                            <a href="{% url 'social:list_contacts' %}?search={{ contact.name|urlencode }}"
+                               class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                <span class="w-50">{{ contact.name }}</span>
+                                <div class="progress w-50" role="progressbar">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated {% if contact.strength < 40 %}bg-danger{% elif contact.strength < 70 %}bg-warning{% else %}bg-success{% endif %}"
+                                         style="width: {{ contact.strength }}%">{{ contact.strength }}%</div>
+                                </div>
+                            </a>
+                        {% empty %}
+                            <div class="list-group-item">All caught up! No contacts need attention.</div>
+                        {% endfor %}
                     </div>
                 </div>
             </div>
-        </div>
-        <hr>
-        <!-- Quick contact search -->
-        {% partialdef contacts inline %}
-        <div hx-get="{% url 'social:index' %}"
-             hx-trigger="contactListChanged from:body"
-             hx-swap="outerHTML">
-            <h1 class="h1">Browse Contacts</h1>
-            <h2>Groups</h2>
-            <div class="row row-cols-1 row-cols-md-3 g-3 mb-4">
-                {% for group in groups %}
-                    <div class="col">
-                        <div class="card h-100">
-                            <div class="card-body">
-                                <h5 class="card-title">{{ group.name }}</h5>
-                                <p class="card-text">{{ group.member_count }} contacts</p>
+            <hr>
+            <!-- Quick contact search -->
+            {% partialdef contacts inline %}
+            <div hx-get="{% url 'social:index' %}"
+                 hx-trigger="contactListChanged from:body"
+                 hx-swap="outerHTML">
+                <h1 class="h1">Browse Contacts</h1>
+                <h2>Groups</h2>
+                <div class="row row-cols-1 row-cols-md-3 g-3 mb-4">
+                    {% for group in groups %}
+                        <div class="col">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ group.name }}</h5>
+                                    <p class="card-text">{{ group.member_count }} contacts</p>
+                                </div>
+                                <a href="{% url 'social:list_contacts' %}?group={{ group.pk }}"
+                                   class="stretched-link"
+                                   tabindex="-1"
+                                   aria-hidden="true"
+                                   title="{{ group.name }}"></a>
                             </div>
-                            <a href="{% url 'social:list_contacts' %}?group={{ group.pk }}"
-                               class="stretched-link"
-                               tabindex="-1"
-                               aria-hidden="true"
-                               title="{{ group.name }}"></a>
                         </div>
-                    </div>
-                {% endfor %}
-            </div>
-            <h2>Relationship</h2>
-            <div class="row row-cols-1 row-cols-md-3 g-3 mb-4">
-                {% for relationship_type in relationship_types %}
-                    <div class="col">
-                        <div class="card h-100">
-                            <div class="card-body">
-                                <h5 class="card-title">{{ relationship_type.relationship_to_me }}s</h5>
-                                <p class="card-text">{{ relationship_type.count }} contacts</p>
+                    {% endfor %}
+                </div>
+                <h2>Relationship</h2>
+                <div class="row row-cols-1 row-cols-md-3 g-3 mb-4">
+                    {% for relationship_type in relationship_types %}
+                        <div class="col">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ relationship_type.relationship_to_me }}s</h5>
+                                    <p class="card-text">{{ relationship_type.count }} contacts</p>
+                                </div>
+                                <a href="{% url 'social:list_contacts' %}?relationship_to_me={{ relationship_type.relationship_to_me }}"
+                                   class="stretched-link"
+                                   tabindex="-1"
+                                   aria-hidden="true"
+                                   title="{{ relationship_type.relationship_to_me }}"></a>
                             </div>
-                            <a href="{% url 'social:list_contacts' %}?relationship_to_me={{ relationship_type.relationship_to_me }}"
-                               class="stretched-link"
-                               tabindex="-1"
-                               aria-hidden="true"
-                               title="{{ relationship_type.relationship_to_me }}"></a>
                         </div>
-                    </div>
-                {% endfor %}
+                    {% endfor %}
+                </div>
             </div>
-        </div>
-    {% endpartialdef %}
-</div>
+        {% endpartialdef %}
+    </div>
 {% endblock content %}

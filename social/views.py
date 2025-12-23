@@ -25,6 +25,10 @@ def index(request: HttpRequest):
         .order_by("count")
     )
 
+    contacts_needing_attention = Contact.objects.filter(strength__lt=70).order_by(
+        "strength", Lower("first_name"), Lower("last_name")
+    )
+
     template_name = "social/index.html"
 
     if request.htmx:
@@ -34,6 +38,7 @@ def index(request: HttpRequest):
         request,
         template_name,
         {
+            "contacts_needing_attention": contacts_needing_attention,
             "groups": groups,
             "relationship_types": relationship_types,
             "quick_add_contact_form": QuickAddContactForm(),
@@ -43,14 +48,13 @@ def index(request: HttpRequest):
 
 def list_contacts(request: HttpRequest):
     # Apply search filter if provided
-    print(request.GET)
-
     search = request.GET.get("search", "").strip()
     if search:
         contacts = (
             Contact.objects.filter(first_name__icontains=search)
             | Contact.objects.filter(last_name__icontains=search)
             | Contact.objects.filter(nickname__icontains=search)
+            | Contact.objects.filter(first_name__icontains=search.split(" ")[0], last_name__icontains=" ".join(search.split(" ")[1:]))    
         )
         contacts = contacts.order_by(Lower("first_name"), Lower("last_name"))
     else:
