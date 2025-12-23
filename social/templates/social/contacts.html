@@ -68,8 +68,11 @@
                 {% for contact in contacts %}
                     <tr>
                         <td>
-                            {{ contact.first_name }} {{ contact.last_name }}
-                            {% if contact.nickname %}<span class="text-muted">({{ contact.nickname }})</span>{% endif %}
+                            {% if contact.nickname %}
+                                <abbr title="{{ contact.first_name }} {{ contact.last_name }}">{{ contact.nickname }}</abbr>
+                            {% else %}
+                                {{ contact.first_name }} {{ contact.last_name }}
+                            {% endif %}
                         </td>
                         <td>
                             <div class="progress" role="progressbar">
@@ -87,7 +90,8 @@
                                hx-target="#log-contact-touchpoint-modal"
                                hx-swap="innerHTML"
                                hx-get="{% url 'social:log_contact_touchpoint_modal' contact.pk %}">Log Contact</a>
-                            <a href="#" class="btn btn-sm btn-outline-info">Edit</a>
+                            <a href="{% url 'admin:social_contact_change' contact.pk %}"
+                               class="btn btn-sm btn-outline-info">Edit</a>
                         </td>
                     </tr>
                 {% endfor %}

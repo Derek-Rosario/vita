@@ -22,7 +22,7 @@
                     <div class="card-header">Contacts Needing Attention</div>
                     <div class="list-group">
                         {% for contact in contacts_needing_attention %}
-                            <a href="{% url 'social:list_contacts' %}?search={{ contact.name|urlencode }}"
+                            <a href="{% url 'admin:social_contact_change' contact.pk %}"
                                class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                                 <span class="w-50">{{ contact.name }}</span>
                                 <div class="progress w-50" role="progressbar">

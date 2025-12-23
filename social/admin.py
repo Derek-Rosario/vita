@@ -17,6 +17,11 @@ class ContactTouchpointInline(admin.TabularInline):
     ordering = ("-date",)
 
 
+class GroupInline(admin.TabularInline):
+    model = Group.members.through
+    extra = 0
+
+
 @admin.register(Contact)
 class ContactAdmin(admin.ModelAdmin):
     list_display = (
@@ -30,7 +35,7 @@ class ContactAdmin(admin.ModelAdmin):
     list_filter = ("relationship_to_me", "priority", "preferred_channel")
     search_fields = ("first_name", "last_name", "notes")
     prepopulated_fields = {"slug": ("first_name", "last_name")}
-    inlines = [ContactTouchpointInline]
+    inlines = [ContactTouchpointInline, GroupInline]
 
 
 @admin.register(ContactTouchpoint)
