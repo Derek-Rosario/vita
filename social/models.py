@@ -1,9 +1,14 @@
-from functools import cached_property
 from django.db import models
 from core.models import TimestampedModel
 from django.core.validators import MaxValueValidator
 from django.utils.text import slugify
 from django.utils.timezone import now as django_now
+
+
+class ContactTouchpointSentiment(models.TextChoices):
+    POSITIVE = "positive", "Positive"
+    NEUTRAL = "neutral", "Neutral"
+    NEGATIVE = "negative", "Negative"
 
 
 class RelationshipType(models.TextChoices):
@@ -48,14 +53,15 @@ class Contact(TimestampedModel):
     )
     check_in_frequency_days = models.PositiveIntegerField(default=30)
     last_contacted_at = models.DateField(null=True, blank=True)
+    strength = models.PositiveSmallIntegerField(default=0, db_index=True)
 
     @property
     def name(self):
         return self.nickname if self.nickname else f"{self.first_name} {self.last_name}"
 
-    def calculate_strength(self):
+    def update_strength(self):
         """
-        Calculate relationship strength (0-100) based on:
+        Calculate and update relationship strength (0-100) based on:
         - Cadence adherence (60%): How well you're keeping up with the check-in frequency
         - Sentiment quality (25%): Average sentiment of recent touchpoints
         - Priority/consistency (15%): Priority level and frequency of touchpoints
@@ -69,7 +75,7 @@ class Contact(TimestampedModel):
         # Priority/consistency (0-15)
         consistency_score = self._calculate_consistency_score()
 
-        return cadence_score + sentiment_score + consistency_score
+        self.strength = cadence_score + sentiment_score + consistency_score
 
     def _calculate_cadence_score(self):
         """Score based on how well you keep to the set cadence (0-60)."""
@@ -126,22 +132,13 @@ class Contact(TimestampedModel):
 
         return priority_bonus + frequency_bonus
 
-    @property
-    def strength(self):
-        """Cached relationship strength score (0-100)."""
-        return self.calculate_strength()
-
     def __str__(self):
         return self.name
 
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
-
-        # Clear cached strength
-        if hasattr(self, "__dict__"):
-            self.__dict__.pop("strength", None)
-
+        self.update_strength()
         super(Contact, self).save(*args, **kwargs)
 
 
@@ -159,12 +156,6 @@ class ContactRelationship(TimestampedModel):
         return f"{self.from_contact.name} <> {self.to_contact.name} ({self.relationship_type})"
 
 
-class ContactTouchpointSentiment(models.TextChoices):
-    POSITIVE = "positive", "Positive"
-    NEUTRAL = "neutral", "Neutral"
-    NEGATIVE = "negative", "Negative"
-
-
 class ContactTouchpoint(TimestampedModel):
     contact = models.ForeignKey(
         Contact, on_delete=models.CASCADE, related_name="touchpoints"
@@ -172,7 +163,9 @@ class ContactTouchpoint(TimestampedModel):
     date = models.DateField()
     channel = models.CharField(max_length=100, choices=TouchpointChannel.choices)
     sentiment = models.CharField(
-        max_length=100, blank=True, choices=ContactTouchpointSentiment.choices
+        max_length=100,
+        choices=ContactTouchpointSentiment.choices,
+        default=ContactTouchpointSentiment.POSITIVE,
     )
     notes = models.TextField(blank=True)
 
@@ -187,11 +180,8 @@ class ContactTouchpoint(TimestampedModel):
             or self.date > self.contact.last_contacted_at
         ):
             self.contact.last_contacted_at = self.date
-            self.contact.save()
-
-        # Clear cached strength
-        if hasattr(self.contact, "__dict__"):
-            self.contact.__dict__.pop("strength", None)
+        # Update contact strength
+        self.contact.save()
 
 
 class Interest(TimestampedModel):
