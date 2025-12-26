@@ -60,6 +60,7 @@ SESSION_COOKIE_SECURE = True
 # Application definition
 
 INSTALLED_APPS = [
+    "django_extensions",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -219,6 +220,7 @@ EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 RESEND_SMTP_PORT = 587
 RESEND_SMTP_USERNAME = "resend"
 RESEND_SMTP_HOST = "smtp.resend.com"
+SELF_EMAIL = env("SELF_EMAIL")
 
 LOGIN_URL = "/accounts/login/"
 LOGIN_REDIRECT_URL = "/"

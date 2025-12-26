@@ -18,6 +18,8 @@ dependencies = [
     "python-dotenv>=1.2.1",
     "whitenoise[brotli]>=6.11.0",
     "pywebpush>=1.14.0",
+    "django-extensions>=4.1",
+    "mjml>=0.11.1",
 ]
 
 [tool.djlint]
@@ -25,5 +27,9 @@ profile="django"
 
 [dependency-groups]
 dev = [
+    "notebook==6.5.4",
+    "traitlets==5.9.0",
+    "ipython==8.10.0",
     "ruff>=0.14.8",
+    "setuptools>=80.9.0",
 ]

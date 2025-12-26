@@ -232,7 +232,7 @@ class Task(TimestampedModel):
         )
 
     @property
-    def completion_weight(self) -> float:
+    def completion_weight(self) -> int:
         """
         Calculate a weighted score for task completion based on priority and energy.
         Higher priority and higher energy tasks are worth more points.

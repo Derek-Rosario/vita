@@ -1,1 +1,2 @@
 0 5 * * * /code/manage.py enqueue_tasks --task run_routines
+0 6 * * * /code/manage.py enqueue_tasks --task send_morning_report_email_task
