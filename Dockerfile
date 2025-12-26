@@ -55,6 +55,7 @@ RUN curl -fsSLO "$SUPERCRONIC_URL" \
 ENV PATH="/code/.venv/bin:$PATH"
 ENV SECRET_KEY "non-secret-key-for-building-purposes"
 ENV DEFAULT_FROM_EMAIL "frank@example.com"
+ENV SELF_EMAIL "frank@example.com"
 ENV DATABASE_URL "postgres://public-username-for-building:password@localhost:5432/vita"
 ENV VITA_API_KEY "non-secret-api-key-for-building-purposes"
 ENV ELEVEN_LABS_API_KEY "123"
