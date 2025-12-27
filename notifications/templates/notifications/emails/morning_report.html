@@ -5,8 +5,8 @@
         <mj-divider border-color="#0d6efd"></mj-divider>
 
         <mj-text
-          >Time to rise and shine buddy. You've got {{in_progress_count}}
-          ({{in_progress_points}} points) tasks to complete today. This is
+          >Time to rise and shine buddy. You've got {{incomplete_count}}
+          ({{incomplete_points}} points) tasks to complete today. This is
           {{yesterday_comparison}} yesterday's
           {{completed_yesterday_count}} ({{completed_yesterday_points}}
           points). Here they are:</mj-text
@@ -21,13 +21,15 @@
             "
           >
             <th style="padding: 0 15px 0 0">Task</th>
+            <th style="padding: 0 15px 0 0">Status</th>
             <th style="padding: 0 15px">Priority</th>
           </tr>
-          {% for task in in_progress_tasks %}
+          {% for task in tasks %}
           <tr>
             <td style="padding: 0 15px 0 0">{{task.title}}
               {% if task.energy == 'high' %}💀{% elif task.energy == 'low' %}😊{% endif %}
             </td>
+            <td style="padding: 0 15px">{{task.get_status_display}}</td>
             <td style="padding: 0 15px">{{task.get_priority_display}}</td>
           </tr>
           {% endfor %}

@@ -13,11 +13,13 @@ def send_morning_report_email_task():
     """Send the morning report email to the user."""
     logger.info("Morning report email sent.")
 
-    in_progress_tasks = (
-        Task.objects.filter(status="in_progress").order_by("-priority").all()
+    incomplete_tasks = (
+        Task.objects.filter(status__in=["in_progress", "todo"])
+        .order_by("-priority")
+        .all()
     )
-    in_progress_count = in_progress_tasks.count()
-    in_progress_points = sum(task.completion_weight for task in in_progress_tasks)
+    incomplete_count = incomplete_tasks.count()
+    incomplete_points = sum(task.completion_weight for task in incomplete_tasks)
 
     completed_yesterday_tasks = Task.objects.filter(
         status="completed",
@@ -29,14 +31,14 @@ def send_morning_report_email_task():
     )
 
     args = MorningReportEmailArgs(
-        in_progress_count=in_progress_count,
-        in_progress_points=in_progress_points,
+        incomplete_count=incomplete_count,
+        incomplete_points=incomplete_points,
         yesterday_comparison="more than"
-        if in_progress_count > completed_yesterday_count
+        if incomplete_count > completed_yesterday_count
         else "not more than",
         completed_yesterday_count=completed_yesterday_count,
         completed_yesterday_points=completed_yesterday_points,
-        in_progress_tasks=in_progress_tasks,
+        incomplete_tasks=incomplete_tasks,
     )
     send_morning_report_email(args)
     return True

@@ -32,12 +32,12 @@ def send_mail(to_address, subject, body_html):
 
 @dataclass
 class MorningReportEmailArgs:
-    in_progress_count: int
-    in_progress_points: int
+    incomplete_count: int
+    incomplete_points: int
     yesterday_comparison: str
     completed_yesterday_count: int
     completed_yesterday_points: int
-    in_progress_tasks: BaseManager[Task]
+    incomplete_tasks: BaseManager[Task]
 
 
 def send_morning_report_email(args: MorningReportEmailArgs):
