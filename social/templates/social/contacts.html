@@ -101,17 +101,19 @@
                             </td>
                             <td>{{ contact.last_contacted_at|default:"—" }}</td>
                             <td class="text-end">
-                                <a class="btn btn-sm btn-warning"
-                                   hx-post="{% url 'social:create_contact_task' contact.pk %}">Create Task</a>
-                                <button type="button"
-                                        class="btn btn-sm btn-success"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#log-contact-touchpoint-modal"
-                                        hx-target="#log-contact-touchpoint-modal"
-                                        hx-swap="innerHTML"
-                                        hx-get="{% url 'social:log_contact_touchpoint_modal' %}">Log Contact</button>
-                                <a href="{% url 'admin:social_contact_change' contact.pk %}"
-                                   class="btn btn-sm btn-outline-info">Edit</a>
+                                <form hx-target="#log-contact-touchpoint-modal"
+                                      hx-swap="innerHTML"
+                                      hx-get="{% url 'social:log_contact_touchpoint_modal' %}">
+                                    <input type="hidden" name="contacts" value="{{ contact.pk }}">
+                                    <a class="btn btn-sm btn-warning"
+                                       hx-post="{% url 'social:create_contact_task' contact.pk %}">Task</a>
+                                    <button type="submit"
+                                            class="btn btn-sm btn-success"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#log-contact-touchpoint-modal">Log</button>
+                                    <a href="{% url 'admin:social_contact_change' contact.pk %}"
+                                       class="btn btn-sm btn-outline-info">Edit</a>
+                                </form>
                             </td>
                         </tr>
                     {% endfor %}
