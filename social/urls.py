@@ -9,7 +9,7 @@ urlpatterns = [
     path("contacts", views.list_contacts, name="list_contacts"),
     path("contacts/quick_add/", views.quick_add_contact, name="quick_add_contact"),
     path(
-        "contacts/<str:contact_pk>/touchpoints/",
+        "contacts/log_touchpoints/",
         views.log_contact_touchpoint_modal,
         name="log_contact_touchpoint_modal",
     ),

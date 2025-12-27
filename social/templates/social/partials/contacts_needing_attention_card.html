@@ -9,13 +9,15 @@
                     <div class="progress-bar progress-bar-striped progress-bar-animated {% if contact.strength < 40 %}bg-danger{% elif contact.strength < 70 %}bg-warning{% else %}bg-success{% endif %}"
                          style="width: {{ contact.strength }}%">{{ contact.strength }}%</div>
                 </div>
-                <button type="button"
-                        class="btn btn-sm btn-success"
-                        data-bs-toggle="modal"
-                        data-bs-target="#log-contact-touchpoint-modal"
-                        hx-target="#log-contact-touchpoint-modal"
-                        hx-swap="innerHTML"
-                        hx-get="{% url 'social:log_contact_touchpoint_modal' contact.pk %}">Log Contact</button>
+                <form hx-target="#log-contact-touchpoint-modal"
+                      hx-swap="innerHTML"
+                      hx-get="{% url 'social:log_contact_touchpoint_modal' %}">
+                    <input type="hidden" name="contacts" value="{{ contact.pk }}">
+                    <button type="submit"
+                            class="btn btn-sm btn-success"
+                            data-bs-toggle="modal"
+                            data-bs-target="#log-contact-touchpoint-modal">Log Contact</button>
+                </form>
             </a>
         {% empty %}
             <div class="list-group-item">All caught up! No contacts need attention.</div>

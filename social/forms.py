@@ -62,9 +62,15 @@ class QuickAddContactForm(forms.ModelForm):
 
 
 class ContactTouchpointForm(forms.ModelForm):
+    contacts = forms.ModelMultipleChoiceField(
+        queryset=Contact.objects.all(),
+        widget=forms.SelectMultiple,
+        required=True,
+    )
+
     class Meta:
         model = ContactTouchpoint
-        fields = ["contact", "date", "channel", "sentiment", "notes"]
+        fields = ["date", "channel", "sentiment", "notes"]
         widgets = {
             "date": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
             "notes": forms.Textarea(
@@ -82,5 +88,16 @@ class ContactTouchpointForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         if contact is not None:
-            self.fields["contact"].initial = contact
-            self.fields["contact"].widget = forms.HiddenInput()
+            self.fields["contacts"].initial = [contact]
+            self.fields["contacts"].widget = forms.HiddenInput()
+
+    def save(self, commit=True):
+        contacts = self.cleaned_data.pop("contacts")
+        instances = []
+        for contact in contacts:
+            instance = super().save(commit=False)
+            instance.contact = contact
+            if commit:
+                instance.save()
+            instances.append(instance)
+        return instances

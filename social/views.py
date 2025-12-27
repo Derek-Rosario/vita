@@ -12,6 +12,7 @@ from social.models import (
     ContactTouchpointSentiment,
     Group,
     RelationshipType,
+    TouchpointChannel,
 )
 
 
@@ -38,6 +39,7 @@ def index(request: HttpRequest):
         request,
         template_name,
         {
+            "contact_count": Contact.objects.count(),
             "contacts_needing_attention": contacts_needing_attention,
             "groups": groups,
             "relationship_types": relationship_types,
@@ -106,8 +108,7 @@ def list_contacts(request: HttpRequest):
     )
 
 
-def log_contact_touchpoint_modal(request: HttpRequest, contact_pk: str):
-    contact = Contact.objects.get(pk=contact_pk)
+def log_contact_touchpoint_modal(request: HttpRequest):
     if request.method == "POST":
         form = ContactTouchpointForm(request.POST)
         if form.is_valid():
@@ -117,10 +118,18 @@ def log_contact_touchpoint_modal(request: HttpRequest, contact_pk: str):
             add_toast(response, "success", "Contact touchpoint logged successfully.")
             return response
 
+    selected_contacts = request.GET.getlist("contacts")
+    contact = (
+        get_object_or_404(Contact, pk=selected_contacts[0])
+        if len(selected_contacts) == 1
+        else None
+    )
+    channel = contact.preferred_channel if contact else TouchpointChannel.IN_PERSON
+
     form = ContactTouchpointForm(
         initial={
-            "contact": contact,
-            "channel": contact.preferred_channel,
+            "contacts": selected_contacts,
+            "channel": channel,
             "sentiment": ContactTouchpointSentiment.POSITIVE,
         }
     )

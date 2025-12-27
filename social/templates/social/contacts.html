@@ -50,57 +50,75 @@
                 </div>
             </div>
         </form>
-        {% partialdef contacts inline %}
-        <table id="search-results"
-               class="table table-striped"
-               hx-get="{% url 'social:list_contacts' %}?search={{ search|default:''|urlencode }}&group={{ selected_group|default:''|urlencode }}&relationship_to_me={{ selected_relationship|default:''|urlencode }}"
-               hx-trigger="contactTouchpointLogged from:body"
-               hx-swap="outerHTML">
-            <thead>
-                <tr>
-                    <th scope="col">Name</th>
-                    <th scope="col">Strength</th>
-                    <th scope="col">Last Contact</th>
-                    <th scope="col"></th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for contact in contacts %}
+        <form hx-target="#log-contact-touchpoint-modal"
+              hx-swap="innerHTML"
+              hx-get="{% url 'social:log_contact_touchpoint_modal' %}"
+              hx-trigger="submit">
+            <input type="submit"
+                   value="Bulk Log Contact"
+                   data-bs-toggle="modal"
+                   data-bs-target="#log-contact-touchpoint-modal"
+                   class="btn btn-primary">
+            {% partialdef contacts inline %}
+            <table id="search-results"
+                   hx-target="this"
+                   class="table table-striped"
+                   hx-get="{% url 'social:list_contacts' %}?search={{ search|default:''|urlencode }}&group={{ selected_group|default:''|urlencode }}&relationship_to_me={{ selected_relationship|default:''|urlencode }}"
+                   hx-trigger="contactTouchpointLogged from:body"
+                   hx-swap="outerHTML">
+                <thead>
                     <tr>
-                        <td>
-                            {% if contact.nickname %}
-                                <abbr title="{{ contact.first_name }} {{ contact.last_name }}">{{ contact.nickname }}</abbr>
-                            {% else %}
-                                {{ contact.first_name }} {{ contact.last_name }}
-                            {% endif %}
-                        </td>
-                        <td>
-                            <div class="progress" role="progressbar">
-                                <div class="progress-bar progress-bar-striped progress-bar-animated {% if contact.strength < 40 %}bg-danger{% elif contact.strength < 70 %}bg-warning{% else %}bg-success{% endif %}"
-                                     style="width: {{ contact.strength }}%">{{ contact.strength }}%</div>
-                            </div>
-                        </td>
-                        <td>{{ contact.last_contacted_at|default:"—" }}</td>
-                        <td class="text-end">
-                            <a class="btn btn-sm btn-warning"
-                               hx-post="{% url 'social:create_contact_task' contact.pk %}">Create Task</a>
-                            <button type="button"
-                                    class="btn btn-sm btn-success"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#log-contact-touchpoint-modal"
-                                    hx-target="#log-contact-touchpoint-modal"
-                                    hx-swap="innerHTML"
-                                    hx-get="{% url 'social:log_contact_touchpoint_modal' contact.pk %}">
-                                Log Contact
-                            </button>
-                            <a href="{% url 'admin:social_contact_change' contact.pk %}"
-                               class="btn btn-sm btn-outline-info">Edit</a>
-                        </td>
+                        <th scope="col">Name</th>
+                        <th scope="col">Strength</th>
+                        <th scope="col">Last Contact</th>
+                        <th scope="col"></th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% endpartialdef %}
+                </thead>
+                <tbody>
+                    {% for contact in contacts %}
+                        <tr>
+                            <td>
+                                <div class="form-check">
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           value="{{ contact.pk }}"
+                                           name="contacts"
+                                           id="selected:{{ contact.pk }}">
+                                    <label for="selected:{{ contact.pk }}" class="form-check-label">
+                                        {% if contact.nickname %}
+                                            <abbr title="{{ contact.first_name }} {{ contact.last_name }}">{{ contact.nickname }}</abbr>
+                                        {% else %}
+                                            {{ contact.first_name }} {{ contact.last_name }}
+                                        {% endif %}
+                                    </label>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="progress" role="progressbar">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated {% if contact.strength < 40 %}bg-danger{% elif contact.strength < 70 %}bg-warning{% else %}bg-success{% endif %}"
+                                         style="width: {{ contact.strength }}%">{{ contact.strength }}%</div>
+                                </div>
+                            </td>
+                            <td>{{ contact.last_contacted_at|default:"—" }}</td>
+                            <td class="text-end">
+                                <a class="btn btn-sm btn-warning"
+                                   hx-post="{% url 'social:create_contact_task' contact.pk %}">Create Task</a>
+                                <button type="button"
+                                        class="btn btn-sm btn-success"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#log-contact-touchpoint-modal"
+                                        hx-target="#log-contact-touchpoint-modal"
+                                        hx-swap="innerHTML"
+                                        hx-get="{% url 'social:log_contact_touchpoint_modal' %}">Log Contact</button>
+                                <a href="{% url 'admin:social_contact_change' contact.pk %}"
+                                   class="btn btn-sm btn-outline-info">Edit</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endpartialdef %}
+    </form>
 </div>
 {% include "social/partials/log_contact_touchpoint_modal_container.html" with contact=contact %}
 {% endblock content %}
