@@ -46,6 +46,17 @@ def index(request: HttpRequest):
     )
 
 
+def _contacts_needing_attention_card(request: HttpRequest):
+    contacts_needing_attention = Contact.objects.filter(strength__lt=70).order_by(
+        "strength", Lower("first_name"), Lower("last_name")
+    )
+    return render(
+        request,
+        "social/partials/contacts_needing_attention_card.html",
+        {"contacts_needing_attention": contacts_needing_attention},
+    )
+
+
 def list_contacts(request: HttpRequest):
     # Apply search filter if provided
     search = request.GET.get("search", "").strip()

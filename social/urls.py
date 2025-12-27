@@ -18,4 +18,9 @@ urlpatterns = [
         views.create_contact_task,
         name="create_contact_task",
     ),
+    path(
+        "_contacts_needing_attention_card/",
+        views._contacts_needing_attention_card,
+        name="contacts_needing_attention_card",
+    ),
 ]
