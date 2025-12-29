@@ -37,4 +37,6 @@ urlpatterns = [
         views.routine_run,
         name="routine_run_single",
     ),
+    path("velocity/", views.velocity_chart, name="task_velocity"),
+    path("velocity/data", views.velocity_data, name="task_velocity_data"),
 ]

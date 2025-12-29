@@ -1,4 +1,4 @@
-from typing import cast
+from typing import Any, cast
 
 from django.db import models
 from django.utils import timezone
@@ -55,6 +55,10 @@ class Project(TimestampedModel):
 
 
 class Task(TimestampedModel):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self._original_status = self.status
+
     class Status(models.TextChoices):
         BACKLOG = "backlog", "Backlog"
         TODO = "todo", "To do"
@@ -111,7 +115,11 @@ class Task(TimestampedModel):
         default=Energy.MEDIUM,
         help_text="Energy level needed.",
     )
-
+    status_last_changed_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="When the status last changed.",
+    )
     completed_at = models.DateTimeField(
         null=True,
         blank=True,
@@ -205,6 +213,16 @@ class Task(TimestampedModel):
                 fields = set(update_fields)
                 fields.add("completed_at")
                 kwargs["update_fields"] = list(fields)
+
+        if self.status != self._original_status:
+            self.status_last_changed_at = timezone.now()
+            update_fields = kwargs.get("update_fields")
+            if update_fields is not None:
+                fields = set(update_fields)
+                fields.add("status_last_changed_at")
+                kwargs["update_fields"] = list(fields)
+            self._original_status = self.status
+
         super().save(*args, **kwargs)
 
     @property
@@ -249,7 +267,7 @@ class Task(TimestampedModel):
         # Priority is already numeric: LOW=1, NORMAL=2, HIGH=3, URGENT=4
         priority_value = self.priority
 
-        return priority_value * energy_multiplier
+        return priority_value + energy_multiplier
 
 
 class Comment(TimestampedModel):

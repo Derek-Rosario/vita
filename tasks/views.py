@@ -7,7 +7,7 @@ from datetime import datetime
 from django import forms
 from django.forms import inlineformset_factory
 from django.db import models
-from django.http import HttpResponse, QueryDict
+from django.http import HttpResponse, QueryDict, JsonResponse
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
@@ -25,12 +25,14 @@ from tasks.voice import (
     TASK_CANCELLED_VOICE_MESSAGES,
     TASK_COMPLETED_VOICE_MESSAGES,
 )
+from django.db.models import Count, Sum, F, IntegerField, Value, Case, When
+from django.db.models.functions import TruncWeek, Coalesce
 
 BOARD_STATUSES = [
     (Task.Status.TODO, "To do"),
     (Task.Status.IN_PROGRESS, "In progress"),
     (Task.Status.BLOCKED, "Blocked"),
-    (Task.Status.DONE, "Recently done"),
+    (Task.Status.DONE, "Done"),
 ]
 
 
@@ -321,6 +323,124 @@ def create_task(request: HttpRequest):
         context,
         status=400 if form.errors else 200,
     )
+
+
+def velocity_chart(request: HttpRequest):
+    """
+    Render the velocity chart page. Data is fetched from the JSON endpoint.
+    """
+    return render(request, "tasks/velocity.html")
+
+
+def velocity_data(request: HttpRequest):
+    """
+    Return weekly velocity data as JSON.
+
+    Query params:
+    - weeks: int (default 12) number of weeks to include
+    - project_id: optional filter to a specific project
+    """
+    try:
+        weeks = int(request.GET.get("weeks", 12))
+    except ValueError:
+        weeks = 12
+
+    now = timezone.localtime()
+    start = now - timedelta(weeks=weeks)
+
+    completed_qs = Task.objects.filter(
+        status=Task.Status.DONE, completed_at__isnull=False, completed_at__gte=start
+    )
+
+    cancelled_qs = Task.objects.filter(
+        status=Task.Status.CANCELLED,
+        status_last_changed_at__isnull=False,
+        status_last_changed_at__gte=start,
+    )
+
+    created_qs = Task.objects.filter(created_at__gte=start)
+
+    # Weekly aggregation for tasks completed and estimated minutes.
+    completed_base = completed_qs.annotate(week=TruncWeek("completed_at")).values(
+        "week"
+    )
+    completed_agg = completed_base.annotate(
+        tasks_completed=Count("id"),
+    ).order_by("week")
+
+    cancelled_base = cancelled_qs.annotate(
+        week=TruncWeek("status_last_changed_at")
+    ).values("week")
+    cancelled_agg = cancelled_base.annotate(
+        tasks_cancelled=Count("id"),
+    ).order_by("week")
+
+    created_base = created_qs.annotate(week=TruncWeek("created_at")).values("week")
+    created_agg = created_base.annotate(
+        tasks_created=Count("id"),
+    ).order_by("week")
+
+    labels: list[str] = []
+    tasks_completed: list[int] = []
+    tasks_cancelled: list[int] = []
+    tasks_created: list[int] = []
+
+    # Build a complete sequence of week buckets from start to now to include empty weeks.
+    # Normalize weeks to Monday starts.
+    def week_start(dt: datetime) -> datetime:
+        return (dt - timedelta(days=dt.weekday())).replace(
+            hour=0, minute=0, second=0, microsecond=0
+        )
+
+    buckets: dict[datetime, dict] = {}
+    cursor = week_start(start)
+    end = week_start(now)
+    while cursor <= end:
+        buckets[cursor] = {
+            "tasks_completed": 0,
+            "tasks_cancelled": 0,
+            "tasks_created": 0,
+        }
+        cursor = cursor + timedelta(weeks=1)
+
+    for row in completed_agg:
+        wk = week_start(row["week"])
+        if wk in buckets:
+            buckets[wk]["tasks_completed"] = int(row["tasks_completed"] or 0)
+        else:
+            print("Unexpected week:", wk)
+
+    for row in cancelled_agg:
+        wk = week_start(row["week"])
+        if wk in buckets:
+            buckets[wk]["tasks_cancelled"] = int(row["tasks_cancelled"] or 0)
+        else:
+            print("Unexpected week:", wk)
+
+    for row in created_agg:
+        wk = week_start(row["week"])
+        if wk in buckets:
+            buckets[wk]["tasks_created"] = int(row["tasks_created"] or 0)
+        else:
+            print("Unexpected week:", wk)
+
+    # Sort by week and extract series
+    for wk in sorted(buckets.keys()):
+        labels.append(
+            f"{wk.month}/{wk.day} - {(wk + timedelta(days=6)).month}/{(wk + timedelta(days=6)).day}"
+        )
+        tasks_completed.append(buckets[wk]["tasks_completed"])
+        tasks_cancelled.append(buckets[wk]["tasks_cancelled"])
+        tasks_created.append(buckets[wk]["tasks_created"])
+
+    data = {
+        "labels": labels,
+        "tasks_completed": tasks_completed,
+        "tasks_cancelled": tasks_cancelled,
+        "tasks_created": tasks_created,
+    }
+
+    return JsonResponse(data)
 
 
 # Helper functions

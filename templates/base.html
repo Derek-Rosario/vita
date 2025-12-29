@@ -17,7 +17,11 @@
         <meta name="author" content="Frank Matranga" />
         <link rel="manifest" href="{% static 'manifest.json' %}">
         <link rel="icon" type="image/png" href="{% static 'icons/icon-250.png' %}">
-        <title>Vita - Frank OS</title>
+        <title>
+            {% block title %}
+                Vita - Frank OS
+            {% endblock title %}
+        </title>
         {% bootstrap_css %}
         {% bootstrap_javascript %}
         {% htmx_script %}
@@ -67,6 +71,8 @@
                 color: #c92a2a;
             }
         </style>
+        {% block head %}
+        {% endblock head %}
     </head>
     <body class="bg-light d-flex flex-column"
           data-csrftoken="{{ csrf_token }}"
@@ -97,6 +103,9 @@
                                 </li>
                                 <li>
                                     <a class="dropdown-item" href="{% url 'task_backlog' %}">Backlog</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'task_velocity' %}">Velocity</a>
                                 </li>
                                 <li>
                                     <hr class="dropdown-divider">
