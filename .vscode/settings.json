@@ -3,5 +3,16 @@
   "djlint.pythonPath": "/home/codespace/.local/share/uv/tools/djlint/bin/python3.14",
   "[html]": {
     "editor.defaultFormatter": "monosans.djlint"
-  }
+  },
+  "python-envs.defaultEnvManager": "ms-python.python:system",
+  "python-envs.pythonProjects": [],
+  "python.testing.unittestArgs": [
+    "-v",
+    "-s",
+    "./notifications",
+    "-p",
+    "test_*.py"
+  ],
+  "python.testing.pytestEnabled": false,
+  "python.testing.unittestEnabled": true
 }

@@ -685,6 +685,29 @@ def edit_task(request: HttpRequest, task_id: int):
     )
 
 
+@require_POST
+def clone_task(request: HttpRequest, task_id: int):
+    task = get_object_or_404(Task, pk=task_id)
+    task.pk = None  # Reset PK to create a new instance
+    task.title = f"Copy of {task.title}"
+    task.status = Task.Status.TODO
+    task.completed_at = None
+    task.status_last_changed_at = None
+    task.created_at = timezone.now()
+    task.updated_at = timezone.now()
+    task.save()
+    task.tags.set(task.tags.all())  # Copy many-to-many relationships
+
+    response = HttpResponse(status=204)
+    response["HX-Location"] = reverse("edit_task", args=[task.pk])
+    add_toast(
+        response,
+        type="success",
+        message="Cloned task.",
+    )
+    return response
+
+
 def task_activity(request: HttpRequest, task_id: int):
     task = get_object_or_404(Task, pk=task_id)
     comment_form = CommentForm()

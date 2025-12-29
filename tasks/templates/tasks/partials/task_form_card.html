@@ -52,6 +52,9 @@
           class="d-flex flex-column gap-3">
       {% bootstrap_form form layout="horizontal" %}
       <div class="d-flex justify-content-end gap-2">
+        <button class="btn btn-outline-warning"
+                hx-post="{% url 'clone_task' task.id %}"
+                hx-target="body">Clone</button>
         <a class="btn btn-outline-secondary" href="{% url 'task_board' %}">Back to Board</a>
       </div>
     </form>
