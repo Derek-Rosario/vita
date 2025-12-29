@@ -24,7 +24,7 @@
             <th style="padding: 0 15px 0 0">Status</th>
             <th style="padding: 0 15px">Priority</th>
           </tr>
-          {% for task in tasks %}
+          {% for task in incomplete_tasks %}
           <tr>
             <td style="padding: 0 15px 0 0">{{task.title}}
               {% if task.energy == 'high' %}💀{% elif task.energy == 'low' %}😊{% endif %}
