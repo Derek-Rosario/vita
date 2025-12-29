@@ -6,12 +6,6 @@ from django.utils.text import slugify
 from django.utils.timezone import now as django_now
 
 
-class ContactTouchpointSentiment(models.TextChoices):
-    POSITIVE = "positive", "Positive"
-    NEUTRAL = "neutral", "Neutral"
-    NEGATIVE = "negative", "Negative"
-
-
 class RelationshipType(models.TextChoices):
     PARTNER = "partner", "Partner"
     SIBLING = "sibling", "Sibling"
@@ -88,19 +82,15 @@ class Contact(TimestampedModel):
         """
         Calculate and update relationship strength (0-100) based on:
         - Cadence adherence (60%): How well you're keeping up with the check-in frequency
-        - Sentiment quality (25%): Average sentiment of recent touchpoints
         - Priority/consistency (15%): Priority level and frequency of touchpoints
         """
-        # Cadence adherence (0-60)
+        # Cadence adherence (0-75)
         cadence_score = self._calculate_cadence_score()
 
-        # Sentiment quality (0-25)
-        sentiment_score = self._calculate_sentiment_score()
-
-        # Priority/consistency (0-15)
+        # Priority/consistency (0-25)
         consistency_score = self._calculate_consistency_score()
 
-        self.strength = cadence_score + sentiment_score + consistency_score
+        self.strength = cadence_score + consistency_score
 
     def _calculate_cadence_score(self):
         """Score based on how well you keep to the set cadence (0-60)."""
@@ -113,7 +103,7 @@ class Contact(TimestampedModel):
         # If on schedule, score 60. If overdue, score decreases linearly.
         # At 2x the cadence, score is 0.
         if days_since_contact <= self.check_in_frequency_days:
-            return 60  # Perfect
+            return 75  # Perfect
 
         overdue_days = days_since_contact - self.check_in_frequency_days
         max_overdue = self.check_in_frequency_days  # Allow 1x overdue before hitting 0
@@ -121,39 +111,16 @@ class Contact(TimestampedModel):
         if overdue_days >= max_overdue:
             return 0
 
-        return int(60 * (1 - (overdue_days / max_overdue)))
-
-    def _calculate_sentiment_score(self):
-        """Score based on sentiment of recent touchpoints (0-25)."""
-
-        # Look at last 10 touchpoints
-        recent_touchpoints = self.touchpoints.all().order_by("-date")[:10]
-
-        if not recent_touchpoints:
-            return 0  # No touchpoints = 0 sentiment score
-
-        sentiment_weights = {
-            ContactTouchpointSentiment.POSITIVE: 25,
-            ContactTouchpointSentiment.NEUTRAL: 12,
-            ContactTouchpointSentiment.NEGATIVE: 0,
-        }
-
-        total_weight = 0
-        count = 0
-        for touchpoint in recent_touchpoints:
-            total_weight += sentiment_weights.get(touchpoint.sentiment, 12)
-            count += 1
-
-        return int(total_weight / count) if count > 0 else 0
+        return int(75 * (1 - (overdue_days / max_overdue)))
 
     def _calculate_consistency_score(self):
-        """Score based on priority and frequency of touchpoints (0-15)."""
+        """Score based on priority and frequency of touchpoints (0-25)."""
         # Priority bonus: higher priority = better score
-        priority_bonus = int((self.priority / 10) * 8)  # 0-8 points from priority
+        priority_bonus = int((self.priority / 10) * 15)  # 0-15 points from priority
 
-        # Frequency bonus: if they have many touchpoints, they're consistent (0-7)
+        # Frequency bonus: if they have many touchpoints, they're consistent (0-10)
         touchpoint_count = self.touchpoints.count()
-        frequency_bonus = min(int(touchpoint_count / 5), 7)  # Cap at 7 points
+        frequency_bonus = min(int(touchpoint_count / 5), 10)  # Cap at 10 points
 
         return priority_bonus + frequency_bonus
 
@@ -187,11 +154,7 @@ class ContactTouchpoint(TimestampedModel):
     )
     date = models.DateField()
     channel = models.CharField(max_length=100, choices=TouchpointChannel.choices)
-    sentiment = models.CharField(
-        max_length=100,
-        choices=ContactTouchpointSentiment.choices,
-        default=ContactTouchpointSentiment.POSITIVE,
-    )
+
     notes = models.TextField(blank=True)
 
     def __str__(self):

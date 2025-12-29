@@ -9,7 +9,6 @@ from core.views import HttpRequest
 from social.forms import ContactTouchpointForm, QuickAddContactForm
 from social.models import (
     Contact,
-    ContactTouchpointSentiment,
     Group,
     RelationshipType,
     TouchpointChannel,
@@ -130,7 +129,6 @@ def log_contact_touchpoint_modal(request: HttpRequest):
         initial={
             "contacts": selected_contacts,
             "channel": channel,
-            "sentiment": ContactTouchpointSentiment.POSITIVE,
         }
     )
     return render(

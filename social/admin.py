@@ -12,7 +12,7 @@ from social.models import (
 class ContactTouchpointInline(admin.TabularInline):
     model = ContactTouchpoint
     extra = 0
-    fields = ("date", "channel", "sentiment", "notes")
+    fields = ("date", "channel", "notes")
     readonly_fields = ()
     ordering = ("-date",)
 
@@ -40,8 +40,12 @@ class ContactAdmin(admin.ModelAdmin):
 
 @admin.register(ContactTouchpoint)
 class ContactTouchpointAdmin(admin.ModelAdmin):
-    list_display = ("contact", "date", "channel", "sentiment")
-    list_filter = ("channel", "sentiment")
+    list_display = (
+        "contact",
+        "date",
+        "channel",
+    )
+    list_filter = ("channel",)
     date_hierarchy = "date"
     search_fields = ("contact__first_name", "contact__last_name", "notes")
     autocomplete_fields = ("contact",)

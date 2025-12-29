@@ -70,7 +70,7 @@ class ContactTouchpointForm(forms.ModelForm):
 
     class Meta:
         model = ContactTouchpoint
-        fields = ["date", "channel", "sentiment", "notes"]
+        fields = ["date", "channel", "notes"]
         widgets = {
             "date": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
             "notes": forms.Textarea(
