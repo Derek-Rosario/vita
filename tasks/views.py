@@ -3,6 +3,7 @@ import random
 from typing import Dict, List
 from datetime import timedelta
 from datetime import datetime
+from django_bootstrap5.widgets import RadioSelectButtonGroup
 
 from django import forms
 from django.forms import inlineformset_factory
@@ -501,11 +502,16 @@ class TaskForm(forms.ModelForm):
             ),
             "due_at": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
             "estimate_minutes": forms.NumberInput(attrs={"class": "form-control"}),
+            "status": forms.RadioSelect(),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for name in ["status", "priority", "energy", "parent", "tags"]:
+        # Only allow active parents; show newest first for convenience.
+        self.fields["parent"].queryset = Task.objects.filter(
+            status__in=[Task.Status.TODO, Task.Status.IN_PROGRESS]
+        ).order_by("-created_at")
+        for name in ["priority", "energy", "parent", "tags"]:
             widget = self.fields[name].widget
             css = widget.attrs.get("class", "")
             widget.attrs["class"] = f"{css} form-select".strip()
