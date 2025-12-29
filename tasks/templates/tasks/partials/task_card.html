@@ -28,7 +28,7 @@
                 {% include "tasks/partials/priority_chip.html" with task=task %}
             </span>
         </div>
-        {% if task.due_at or task.estimate_minutes or task.project %}
+        {% if task.due_at or task.estimate_minutes or task.project or task.parent or task.subtasks %}
             <div class="mt-1 d-flex flex-wrap align-items-center gap-2 small">
                 {% if task.due_at %}
                     <span class="badge {% if task.is_overdue %}bg-danger text-white fw-semibold{% else %}bg-light text-muted{% endif %} fw-normal border d-inline-flex align-items-center gap-1">
@@ -67,6 +67,23 @@
                         </svg>
                         {{ task.project.name }}
                     </span>
+                {% endif %}
+                {% if task.parent %}
+                    <span class="badge bg-light border text-dark fw-normal d-inline-flex align-items-center gap-1">
+                        ↳ {{ task.parent.title|truncatechars:20 }}
+                    </span>
+                {% endif %}
+                {% if task.subtasks.count > 0 %}
+                    <div class="badge bg-light border text-dark fw-normal d-inline-flex align-items-center gap-1">
+                        <svg width="12"
+                             height="12"
+                             viewBox="0 0 16 16"
+                             aria-hidden="true"
+                             focusable="false">
+                            <path d="M2 2h2v2H2V2zm0 5h2v2H2V7zm0 5h2v2H2v-2zm5-10h7v2H7V2zm0 5h7v2H7V7zm0 5h7v2H7v-2z" fill="currentColor" />
+                        </svg>
+                        {{ task.subtasks.count }}
+                    </div>
                 {% endif %}
             </div>
         {% endif %}

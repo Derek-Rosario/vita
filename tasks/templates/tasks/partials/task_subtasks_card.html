@@ -1,0 +1,22 @@
+{% load tz %}
+{% if task.subtasks.count > 0 %}
+    <div id="task-activity" class="card shadow-sm mb-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span class="fw-semibold">Subtasks</span>
+            <span class="badge bg-secondary">{{ task.subtasks.count }}</span>
+        </div>
+        <div class="card-body">
+            {% for subtask in task.subtasks.all %}
+                {% include "tasks/partials/task_card.html" with task=subtask %}
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}
+{% if task.parent %}
+    <div id="task-parent" class="card shadow-sm mb-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span class="fw-semibold">Parent Task</span>
+        </div>
+        <div class="card-body">{% include "tasks/partials/task_card.html" with task=task.parent %}</div>
+    </div>
+{% endif %}

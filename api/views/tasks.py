@@ -17,6 +17,8 @@ def list_tasks(request: HttpRequest) -> HttpResponse:
         .select_related("project")
         .prefetch_related("tags")
         .prefetch_related("comments")
+        .prefetch_related("subtasks")
+        .select_related("parent")
         .order_by("created_at", "due_at", "priority")
     )
 

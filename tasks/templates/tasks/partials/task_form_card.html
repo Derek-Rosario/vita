@@ -5,6 +5,8 @@
       <p class="text-uppercase text-muted small mb-0">
         {% if task.routine %}
           Routine Task
+        {% elif task.parent %}
+          Subtask
         {% else %}
           Task
         {% endif %}
