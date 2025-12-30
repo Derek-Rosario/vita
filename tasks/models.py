@@ -408,7 +408,7 @@ class RoutineStep(TimestampedModel):
         help_text="Default energy level for generated tasks.",
     )
     is_stackable = models.BooleanField(
-        default=True,
+        default=False,
         help_text="Whether multiple uncompleted tasks of this step can exist simultaneously.",
     )
 
