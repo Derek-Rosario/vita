@@ -606,6 +606,7 @@ class RoutineStepForm(forms.ModelForm):
             "default_energy",
             "default_estimate_minutes",
             "default_tags",
+            "is_stackable",
         ]
         widgets = {
             "title": forms.TextInput(attrs={"class": "form-control"}),

@@ -66,6 +66,17 @@ def generate_tasks_for_date(
             ).exists():
                 continue
 
+            # Skip creating new task if step is not stackable and an uncompleted task already exists
+            if (
+                not step.is_stackable
+                and Task.objects.filter(
+                    routine=routine,
+                    routine_step=step,
+                    status__in=[Task.Status.TODO, Task.Status.IN_PROGRESS],
+                ).exists()
+            ):
+                continue
+
             task = Task.objects.create(
                 title=step.title,
                 description=step.description,
