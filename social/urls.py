@@ -23,4 +23,9 @@ urlpatterns = [
         views._contacts_needing_attention_card,
         name="contacts_needing_attention_card",
     ),
+    path(
+        "recalculate_strengths/",
+        views.recalculate_all_strengths,
+        name="recalculate_all_strengths",
+    ),
 ]
