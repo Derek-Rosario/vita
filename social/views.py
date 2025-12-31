@@ -175,19 +175,3 @@ def quick_add_contact(request: HttpRequest):
         {"form": form},
         status=400,
     )
-
-
-def recalculate_all_strengths(request: HttpRequest):
-    """
-    Recalculate strength scores for all contacts.
-    """
-    contacts = Contact.objects.all()
-    count = contacts.count()
-
-    for contact in contacts:
-        contact.save()
-
-    return HttpResponse(
-        f"Successfully recalculated strength for {count} contacts.",
-        content_type="text/plain",
-    )
