@@ -80,49 +80,36 @@ class Contact(TimestampedModel):
 
     def update_strength(self):
         """
-        Calculate and update relationship strength (0-100) based on:
-        - Cadence adherence (60%): How well you're keeping up with the check-in frequency
-        - Priority/consistency (15%): Priority level and frequency of touchpoints
+        Calculate and update the strength score (0-100) for this contact.
+        100 = fully in compliance with desired contact frequency
+        0 = not in compliance at all
+
+        Priority affects decay rate:
+        - Priority 1 (most important): fastest decay when off cadence
+        - Priority 10 (least important): slowest decay when off cadence
         """
-        # Cadence adherence (0-75)
-        cadence_score = self._calculate_cadence_score()
-
-        # Priority/consistency (0-25)
-        consistency_score = self._calculate_consistency_score()
-
-        self.strength = cadence_score + consistency_score
-
-    def _calculate_cadence_score(self):
-        """Score based on how well you keep to the set cadence (0-60)."""
         if not self.last_contacted_at:
-            return 0  # Never contacted
+            self.strength = 0
+            return
 
-        today = django_now().date()
-        days_since_contact = (today - self.last_contacted_at).days
+        days_since_contact = (django_now().date() - self.last_contacted_at).days
 
-        # If on schedule, score 60. If overdue, score decreases linearly.
-        # At 2x the cadence, score is 0.
+        # Within target frequency - full compliance
         if days_since_contact <= self.check_in_frequency_days:
-            return 75  # Perfect
+            self.strength = 100
+        else:
+            # Overdue - calculate decay based on priority
+            days_overdue = days_since_contact - self.check_in_frequency_days
 
-        overdue_days = days_since_contact - self.check_in_frequency_days
-        max_overdue = self.check_in_frequency_days  # Allow 1x overdue before hitting 0
+            # Priority affects decay rate (1 = fastest, 10 = slowest)
+            # Normalize priority to decay factor: 1.0 for priority 1, 0.1 for priority 10
+            decay_rate = (11 - self.priority) / 10
 
-        if overdue_days >= max_overdue:
-            return 0
+            # Calculate decay as a function of how many check-in periods we're overdue
+            decay_periods = days_overdue / self.check_in_frequency_days
+            decay_amount = min(100, decay_periods * 100 * decay_rate)
 
-        return int(75 * (1 - (overdue_days / max_overdue)))
-
-    def _calculate_consistency_score(self):
-        """Score based on priority and frequency of touchpoints (0-25)."""
-        # Priority bonus: higher priority = better score
-        priority_bonus = int((self.priority / 10) * 15)  # 0-15 points from priority
-
-        # Frequency bonus: if they have many touchpoints, they're consistent (0-10)
-        touchpoint_count = self.touchpoints.count()
-        frequency_bonus = min(int(touchpoint_count / 5), 10)  # Cap at 10 points
-
-        return priority_bonus + frequency_bonus
+            self.strength = max(0, int(100 - decay_amount))
 
     def __str__(self):
         return self.name
@@ -163,12 +150,18 @@ class ContactTouchpoint(TimestampedModel):
     # Update contact's last_contacted_at on save
     def save(self, *args, **kwargs):
         super(ContactTouchpoint, self).save(*args, **kwargs)
+
+        # Refresh contact from database to avoid stale data
+        self.contact.refresh_from_db()
+
+        # Update last_contacted_at if this touchpoint is newer
         if (
             not self.contact.last_contacted_at
             or self.date > self.contact.last_contacted_at
         ):
             self.contact.last_contacted_at = self.date
-        # Update contact strength
+
+        # Update contact strength and save
         self.contact.save()
 
 
