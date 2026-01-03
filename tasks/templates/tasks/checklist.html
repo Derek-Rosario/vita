@@ -1,11 +1,18 @@
 {% extends "base.html" %}
+{% block head %}
+    <style>
+        .checklist-container {
+            max-width: 600px;
+        }
+    </style>
+{% endblock head %}
 {% block content %}
-    <div class="container-sm mx-auto py-4 d-flex flex-column gap-3"
-         style="max-width: 500px">
+    <div class="checklist-container container-sm mx-auto py-4 d-flex flex-column gap-3">
         <div>
-            <p class="text-uppercase text-muted small mb-1">Tasks</p>
+            <p class="no-print text-uppercase text-muted small mb-1">Tasks</p>
+            <p class="only-print text-uppercase text-muted small mb-1">{% now "SHORT_DATE_FORMAT" %}</p>
             <h1 class="h3 mb-0">Checklist</h1>
-            <h2 class="small">
+            <h2 class="small no-print">
                 <a href="{% url 'task_board' %}">Switch to board</a>
             </h2>
         </div>
@@ -14,7 +21,7 @@
               hx-post="{% url 'task_checklist' %}"
               hx-swap="beforeend"
               hx-on::after-request="if(event.detail.successful) this.reset()"
-              class="d-flex flex-column gap-3">
+              class="no-print d-flex flex-column gap-3">
             <div class="input-group">
                 <input type="text"
                        name="title"
