@@ -3,10 +3,12 @@ from __future__ import annotations
 from django.core.management.base import BaseCommand, CommandParser
 from notifications.tasks import send_morning_report_email_task
 from tasks.tasks import run_routines
+from social.tasks import recalculate_contact_strengths
 
 supported_tasks = {
     "run_routines": run_routines,
     "send_morning_report_email_task": send_morning_report_email_task,
+    "recalculate_contact_strengths": recalculate_contact_strengths,
 }
 
 
