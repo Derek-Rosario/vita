@@ -3,6 +3,7 @@ from django.shortcuts import redirect
 from django.urls import reverse
 
 from vita import settings
+from notifications.services import log_application_interaction
 
 
 class SuperuserRequiredMiddleware:
@@ -47,5 +48,7 @@ class SuperuserRequiredMiddleware:
 
         if not request.user.is_superuser:
             return HttpResponseForbidden("Superuser required.")
+
+        log_application_interaction()
 
         return self.get_response(request)

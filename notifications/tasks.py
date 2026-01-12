@@ -4,6 +4,8 @@ from django.tasks import task
 from django.utils import timezone
 from notifications.emails import MorningReportEmailArgs, send_morning_report_email
 from tasks.models import Task
+from notifications.models import LastApplicationInteraction, WebPushSubscription
+from notifications.services import log_application_interaction, send_webpush
 
 logger = logging.getLogger(__name__)
 
@@ -41,4 +43,36 @@ def send_morning_report_email_task():
         incomplete_tasks=incomplete_tasks,
     )
     send_morning_report_email(args)
+    return True
+
+
+@task()
+def send_inactivity_notification_if_applicable_task():
+    """Send inactivity notification if there hasn't been an interaction in a long time."""
+
+    interaction = LastApplicationInteraction.objects.first()
+    if interaction:
+        delta = timezone.now() - interaction.last_interaction_at
+        if delta >= datetime.timedelta(hours=2):
+            # Send push notification about inactivity
+            logger.info("Inactivity notification sent.")
+
+            payload = {
+                "title": "Catch Up",
+                "body": "You have been away for a while. Check your tasks!",
+                "url": "/",
+            }
+            subs = WebPushSubscription.objects.filter(active=True)
+            sent = 0
+            for sub in subs:
+                try:
+                    send_webpush(sub, payload)
+                    sent += 1
+                except Exception:
+                    logger.error(
+                        "Failed to send webpush to %s", sub.endpoint, exc_info=True
+                    )
+                    sub.active = False
+                    sub.save(update_fields=["active"])
+
     return True

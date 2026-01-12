@@ -3,17 +3,26 @@ from django.db import models
 
 
 class WebPushSubscription(models.Model):
-	"""Stores a Web Push subscription for a user or anonymous device."""
+    """Stores a Web Push subscription for a user or anonymous device."""
 
-	user = models.ForeignKey(
-		settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True
-	)
-	endpoint = models.URLField(unique=True)
-	p256dh = models.CharField(max_length=255)
-	auth = models.CharField(max_length=255)
-	created_at = models.DateTimeField(auto_now_add=True)
-	active = models.BooleanField(default=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True
+    )
+    endpoint = models.URLField(unique=True)
+    p256dh = models.CharField(max_length=255)
+    auth = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    active = models.BooleanField(default=True)
 
-	def __str__(self) -> str:
-		owner = getattr(self.user, "username", "anon")
-		return f"{owner} - {self.endpoint[:32]}..."
+    def __str__(self) -> str:
+        owner = getattr(self.user, "username", "anon")
+        return f"{owner} - {self.endpoint[:32]}..."
+
+
+class LastApplicationInteraction(models.Model):
+    """Tracks the last time a user interacted with the application."""
+
+    last_interaction_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self) -> str:
+        return f"{self.last_interaction_at}"
