@@ -34,3 +34,16 @@ class JournalEntry(TimestampedModel):
 
     def __str__(self):
         return f"{self.date} - {self.title}"
+
+class DreamTypeChoices(models.TextChoices):
+    NIGHTMARE = "nightmare", "Nightmare"
+    NEUTRAL = "neutral", "Neutral"
+    HAPPY = "happy", "Happy"
+
+class DreamEntry(TimestampedModel):
+    date = models.DateField(auto_now_add=True)
+    type = models.CharField(max_length=10, choices=DreamTypeChoices.choices)
+    content_markdown = models.TextField()
+
+    def __str__(self):
+        return f"{self.date} - {self.get_type_display()} Dream"
