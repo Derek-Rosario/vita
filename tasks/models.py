@@ -250,31 +250,30 @@ class Task(TimestampedModel):
         )
     
     @property
-    def days_since_last_routine_completion(self) -> int | None:
-        """
-        Calculate the number of days since the last completed task
-        from the same routine.
-
-        Returns the number of days, or None if not applicable.
-        """
-        if not self.routine:
+    def missed_routine_tasks(self) -> int | None:
+        # Get all tasks from the same routine and find the most recent completed one,
+        # and calculate the number of non-completed tasks since then
+        if not self.is_routine_task or self.routine_date is None:
             return None
-
-        last_completed_task = (
+        last_completed = (
             Task.objects.filter(
                 routine=self.routine,
+                routine_step=self.routine_step,
                 status=Task.Status.DONE,
-                completed_at__isnull=False,
             )
-            .order_by("-completed_at")
+            .order_by("-routine_date")
             .first()
         )
-
-        if not last_completed_task or not last_completed_task.completed_at:
-            return None
-
-        delta = timezone.localdate() - last_completed_task.completed_at.date()
-        return delta.days
+        if last_completed:
+            last_date = last_completed.routine_date
+        else:
+            last_date = self.routine_date - timezone.timedelta(days=1)
+        missed_count = Task.objects.filter(
+            routine=self.routine,
+            routine_step=self.routine_step,
+            routine_date__gt=last_date,
+        ).exclude(status=Task.Status.DONE).count()
+        return missed_count
 
     @property
     def completion_weight(self) -> int:
