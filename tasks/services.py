@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime
 from typing import Iterable, List, Optional
 
 from django.db import models
@@ -16,30 +16,34 @@ def _weekday_sunday_first(target_date: date) -> int:
     return (target_date.weekday() + 1) % 7
 
 
-def routine_is_due(routine: Routine, target_date: date) -> bool:
+def routine_is_due(routine: Routine, target_datetime: datetime) -> bool:
     """
     Determine whether a routine should run on a given date.
     """
     if not routine.is_active:
         return False
+    
+    # Skip if target_date is before anchor time of day, if set
+    if routine.anchor_time:
+        if target_datetime.time() < routine.anchor_time:
+            return False
 
     # Explicit monthly day
     if routine.day_of_month:
-        return target_date.day == routine.day_of_month
+        return target_datetime.day == routine.day_of_month
 
     # Day-of-week schedule
     if routine.days_of_week:
-        return _weekday_sunday_first(target_date) in routine.days_of_week
+        return _weekday_sunday_first(target_datetime) in routine.days_of_week
 
     # Interval-based (anchor on created_at)
     interval = routine.interval or 1
     start_date = routine.created_at.date()
-    days_since_start = (target_date - start_date).days
+    days_since_start = (target_datetime.date() - start_date).days
     return days_since_start >= 0 and days_since_start % interval == 0
 
 
 def generate_tasks_for_date(
-    target_date: Optional[date] = None,
     routines: Optional[Iterable[Routine]] = None,
 ) -> List[Task]:
     """
@@ -47,7 +51,9 @@ def generate_tasks_for_date(
 
     Returns the list of created tasks.
     """
-    run_date = target_date or timezone.localdate()
+    run_at = timezone.localtime(timezone.now())
+    run_date = timezone.localdate()
+
     routines_qs = (
         Routine.objects.filter(is_active=True) if routines is None else routines
     )
@@ -57,7 +63,7 @@ def generate_tasks_for_date(
 
     created: List[Task] = []
     for routine in routines_qs:
-        if not routine_is_due(routine, run_date):
+        if not routine_is_due(routine, run_at):
             continue
 
         for step in routine.steps.all().order_by("sort_order", "pk"):
@@ -73,15 +79,6 @@ def generate_tasks_for_date(
                     routine_step=step,
                     status__in=[Task.Status.TODO, Task.Status.IN_PROGRESS],
                 ).update(status=Task.Status.CANCELLED)
-
-            # If task has an anchor time, don't create unless the current time is past that time
-            if step.anchor_time:
-                now = timezone.localtime()
-                anchor_datetime = timezone.make_aware(
-                    timezone.datetime.combine(run_date, step.anchor_time)
-                )
-                if now < anchor_datetime:
-                    continue
 
             task = Task.objects.create(
                 title=step.title,

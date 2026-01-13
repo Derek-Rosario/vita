@@ -1052,22 +1052,13 @@ def routine_delete(request: HttpRequest, routine_id: int):
 
 @require_POST
 def routine_run(request: HttpRequest, routine_id: int | None = None):
-    date_str = request.POST.get("date")
-    target_date = timezone.localdate()
-    if date_str:
-        try:
-            target_date = datetime.strptime(date_str, "%Y-%m-%d").date()
-        except ValueError:
-            messages.error(request, "Invalid date format. Use YYYY-MM-DD.")
-            return redirect("routine_list")
-
     routines = None
     if routine_id:
         routines = Routine.objects.filter(pk=routine_id)
 
-    created = generate_tasks_for_date(target_date=target_date, routines=routines)
+    created = generate_tasks_for_date(routines=routines)
     messages.success(
         request,
-        f"Created {len(created)} task(s) for {target_date.isoformat()}.",
+        f"Created {len(created)} task(s) for {timezone.now().isoformat()}.",
     )
     return redirect("routine_list")
