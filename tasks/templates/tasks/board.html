@@ -174,7 +174,6 @@
       
       // Save scroll positions on scroll
       body.addEventListener("scroll", (event) => {
-        console.log(status, event.target.scrollTop);
         localStorage.setItem("kanban-column-scroll-" + status, event.target.scrollTop);
       });
     });

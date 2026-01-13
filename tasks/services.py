@@ -74,6 +74,15 @@ def generate_tasks_for_date(
                     status__in=[Task.Status.TODO, Task.Status.IN_PROGRESS],
                 ).update(status=Task.Status.CANCELLED)
 
+            # If task has an anchor time, don't create unless the current time is past that time
+            if step.anchor_time:
+                now = timezone.localtime()
+                anchor_datetime = timezone.make_aware(
+                    timezone.datetime.combine(run_date, step.anchor_time)
+                )
+                if now < anchor_datetime:
+                    continue
+
             task = Task.objects.create(
                 title=step.title,
                 description=step.description,

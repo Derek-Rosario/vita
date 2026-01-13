@@ -1,4 +1,3 @@
-0 5 * * * /code/manage.py enqueue_tasks --task run_routines
-0 5 * * * /code/manage.py enqueue_tasks --task run_routines
+*/15 * * * * /code/manage.py enqueue_tasks --task run_routines
 0 5 * * * /code/manage.py enqueue_tasks --task recalculate_contact_strengths
-0 6-23 * * * /code/manage.py enqueue_tasks --task send_inactivity_notification_if_applicable
+0 8-23 * * * /code/manage.py enqueue_tasks --task send_inactivity_notification_if_applicable

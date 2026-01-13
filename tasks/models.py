@@ -352,7 +352,7 @@ class Routine(TimestampedModel):
     anchor_time = models.TimeField(
         null=True,
         blank=True,
-        help_text="Optional anchor time (e.g., 08:00).",
+        help_text="When to add the task to the board (e.g., 08:00).",
     )
 
     is_active = models.BooleanField(
