@@ -85,6 +85,20 @@
                         {{ task.subtasks.count }}
                     </div>
                 {% endif %}
+                {% with task.days_since_last_routine_completion as missed_days %}
+                    {% if missed_days is not None and missed_days > 2 %}
+                        <div class="badge bg-warning text-dark fw-normal d-inline-flex align-items-center gap-1" title="Missed routine for {{ missed_days }} day{% if missed_days > 1 %}s{% endif %}">
+                            <svg width="12"
+                                 height="12"
+                                 viewBox="0 0 24 24"
+                                 aria-hidden="true"
+                                 focusable="false">
+                                <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm1 15h-2v-2h2Zm0-4h-2V7h2Z" fill="currentColor" />
+                            </svg>
+                            Missed {{ missed_days }}
+                        </div>
+                    {% endif %}
+                {% endwith %}
             </div>
         {% endif %}
         <a href="{% url 'edit_task' task.id %}"

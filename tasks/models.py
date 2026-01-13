@@ -248,6 +248,33 @@ class Task(TimestampedModel):
             and self.due_at is not None
             and self.due_at < timezone.localdate()
         )
+    
+    @property
+    def days_since_last_routine_completion(self) -> int | None:
+        """
+        Calculate the number of days since the last completed task
+        from the same routine.
+
+        Returns the number of days, or None if not applicable.
+        """
+        if not self.routine:
+            return None
+
+        last_completed_task = (
+            Task.objects.filter(
+                routine=self.routine,
+                status=Task.Status.DONE,
+                completed_at__isnull=False,
+            )
+            .order_by("-completed_at")
+            .first()
+        )
+
+        if not last_completed_task or not last_completed_task.completed_at:
+            return None
+
+        delta = timezone.localdate() - last_completed_task.completed_at.date()
+        return delta.days
 
     @property
     def completion_weight(self) -> int:
