@@ -31,8 +31,8 @@
         {% if task.due_at or task.estimate_minutes or task.project or task.parent or task.subtasks %}
             <div class="mt-1 d-flex flex-wrap align-items-center gap-2 small">
                 {% if task.due_at %}
-                    <span class="badge {% if task.is_overdue %}bg-danger text-white fw-semibold{% else %}bg-light text-muted{% endif %} fw-normal border d-inline-flex align-items-center gap-1">
-                        <svg class="{% if task.is_overdue %}{% else %}text-danger{% endif %}"
+                    <span class="badge {% if task.is_overdue %}bg-danger text-white fw-semibold{% elif task.is_due_today %}bg-warning text-dark fw-semibold{% else %}bg-light text-muted{% endif %} fw-normal border d-inline-flex align-items-center gap-1">
+                        <svg class="{% if task.is_overdue %}{% elif task.is_due_today %}{% else %}text-danger{% endif %}"
                              width="14"
                              height="14"
                              viewBox="0 0 24 24"
@@ -40,7 +40,7 @@
                              focusable="false">
                             <path d="M12 6a7 7 0 1 1-7 7 7 7 0 0 1 7-7m0-2a9 9 0 1 0 9 9 9 9 0 0 0-9-9Zm.75 4.5h-1.5v5l4.25 2.55.75-1.23-3.5-2.07Z" fill="currentColor" />
                         </svg>
-                        {{ task.due_at|date:"M j" }}
+                        {% if task.is_due_today %}Today{% else %}{{ task.due_at|date:"M j" }}{% endif %}
                     </span>
                 {% endif %}
                 {% if task.estimate_minutes %}
