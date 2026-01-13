@@ -154,6 +154,32 @@
   <script>
   let boardScrollLeft = 0;
 
+  function restoreKanbanColumnScrollPositions() {
+    document.querySelectorAll(".kanban-column").forEach((column) => {
+      const status = column.dataset.status;
+      const body = column.querySelector(".kanban-column-body");
+      const savedScrollTop = localStorage.getItem("kanban-column-scroll-" + status);
+      if (savedScrollTop) {
+        body.scrollTop = savedScrollTop;
+      }
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    restoreKanbanColumnScrollPositions();
+
+    document.querySelectorAll(".kanban-column").forEach((column) => {
+      const status = column.dataset.status;
+      const body = column.querySelector(".kanban-column-body");
+      
+      // Save scroll positions on scroll
+      body.addEventListener("scroll", (event) => {
+        console.log(status, event.target.scrollTop);
+        localStorage.setItem("kanban-column-scroll-" + status, event.target.scrollTop);
+      });
+    });
+  });
+
   const initKanbanDragAndDrop = () => {
     const dropToMoveCardsContainer = document.getElementById("drop-to-move-cards");
     if (!dropToMoveCardsContainer) return;
@@ -233,6 +259,7 @@
   };
 
   document.addEventListener("htmx:afterSwap", (event) => {
+    restoreKanbanColumnScrollPositions();
     if (event.target && event.target.id === "kanban-board") {
       event.target.scrollLeft = boardScrollLeft;
       initKanbanDragAndDrop();
@@ -317,6 +344,7 @@
   });
   {% endif %}
   </script>
+
   <style>
   @keyframes popIn {
     0% {

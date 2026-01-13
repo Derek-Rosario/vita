@@ -242,6 +242,10 @@ class Task(TimestampedModel):
         return self.status not in {Task.Status.DONE, Task.Status.CANCELLED}
 
     @property
+    def is_due_today(self) -> bool:
+        return self.due_at == timezone.localdate()
+
+    @property
     def is_overdue(self) -> bool:
         return (
             self.status != Task.Status.DONE
