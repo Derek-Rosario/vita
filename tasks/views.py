@@ -270,7 +270,7 @@ def quick_add_task(request: HttpRequest):
             status=400,
         )
 
-    task = Task(title=title)
+    task = Task.from_text(title)
     task.save()
 
     response = render(

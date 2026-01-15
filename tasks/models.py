@@ -218,6 +218,29 @@ class Task(TimestampedModel):
         help_text="Contact associated with this task.",
     )
 
+    @staticmethod
+    def from_text(text: str) -> Task:
+        """Create a Task instance from a text input."""
+        # If exclamation points are prefixed, set priority
+        priority = Task.Priority.NORMAL
+        while text.startswith("!"):
+            priority += 1
+            text = text[1:]
+        priority = min(priority, Task.Priority.URGENT)
+
+        # If minus signs are prefixed, lower priority
+        while text.startswith("-"):
+            priority -= 1
+            text = text[1:]
+        priority = max(priority, Task.Priority.LOW)
+
+        # If colon is present, split into title and description
+        parts = text.split(":", 1)
+        if len(parts) == 2:
+            title, description = parts[0].strip(), parts[1].strip()
+            return Task(title=title, description=description, priority=priority)
+        return Task(title=text.strip(), priority=priority)
+
     class Meta:
         ordering = ["status", "-priority", "due_at", "-created_at"]
         indexes = [
