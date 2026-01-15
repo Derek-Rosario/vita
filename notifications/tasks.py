@@ -5,7 +5,7 @@ from django.utils import timezone
 from notifications.emails import MorningReportEmailArgs, send_morning_report_email
 from tasks.models import Task
 from notifications.models import LastApplicationInteraction, WebPushSubscription
-from notifications.services import log_application_interaction, send_webpush
+from notifications.services import send_webpush
 
 logger = logging.getLogger(__name__)
 

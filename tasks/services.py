@@ -22,7 +22,7 @@ def routine_is_due(routine: Routine, target_datetime: datetime) -> bool:
     """
     if not routine.is_active:
         return False
-    
+
     # Skip if target_date is before anchor time of day, if set
     if routine.anchor_time:
         if target_datetime.time() < routine.anchor_time:
@@ -77,13 +77,13 @@ def generate_tasks_for_date(
                 Task.objects.filter(
                     routine=routine,
                     routine_step=step,
-                    status__in=[Task.Status.TODO, Task.Status.IN_PROGRESS],
-                ).update(status=Task.Status.CANCELLED)
+                    status__in=[TaskStatus.TODO, TaskStatus.IN_PROGRESS],
+                ).update(status=TaskStatus.CANCELLED)
 
             task = Task.objects.create(
                 title=step.title,
                 description=step.description,
-                status=Task.Status.TODO,
+                status=TaskStatus.TODO,
                 priority=step.default_priority,
                 energy=step.default_energy,
                 due_at=run_date,

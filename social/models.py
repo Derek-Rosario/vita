@@ -58,13 +58,13 @@ class Contact(TimestampedModel):
         """
         Create a task/reminder to contact this person based on their check-in frequency.
         """
-        from tasks.models import Task
+        from tasks.models import Task, TaskStatus
 
         # Skip if existing non-done and non-cancelled task exists for this contact
         existing_tasks = Task.objects.filter(
             related_contact=self,
         ).exclude(
-            status__in=[Task.Status.DONE, Task.Status.CANCELLED],
+            status__in=[TaskStatus.DONE, TaskStatus.CANCELLED],
         )
         if existing_tasks.exists():
             return

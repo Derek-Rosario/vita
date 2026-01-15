@@ -6,7 +6,7 @@ from django.template.loader import render_to_string
 from mjml import mjml_to_html
 from django.utils.html import strip_tags
 
-from tasks.models import Task
+from tasks.models import Task, TaskStatus
 
 
 def send_mail(to_address, subject, body_html):

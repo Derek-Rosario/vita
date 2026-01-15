@@ -3,7 +3,7 @@ import json
 from django.http import HttpResponse
 
 from core.views import HttpRequest
-from tasks.models import Task
+from tasks.models import Task, TaskStatus
 
 
 def list_tasks(request: HttpRequest) -> HttpResponse:

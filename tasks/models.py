@@ -54,18 +54,47 @@ class Project(TimestampedModel):
         return self.name
 
 
+class TaskStatus(models.TextChoices):
+    BACKLOG = "backlog", "Backlog"
+    TODO = "todo", "To do"
+    IN_PROGRESS = "in_progress", "In progress"
+    ON_DECK = "on_deck", "On deck"
+    BLOCKED = "blocked", "Blocked"
+    MISSED = "missed", "Missed"
+    CANCELLED = "cancelled", "Cancelled"
+    DONE = "done", "Done"
+
+
+class TaskStatusCategory(models.TextChoices):
+    TODO = "todo", "To do"
+    IN_PROGRESS = "in_progress", "In Progress"
+    CLOSED = "closed", "Closed"
+    DONE = "done", "Done"
+
+
+TASK_STATUS_TO_CATEGORY = {
+    TaskStatus.BACKLOG: TaskStatusCategory.TODO,
+    TaskStatus.TODO: TaskStatusCategory.TODO,
+    TaskStatus.ON_DECK: TaskStatusCategory.TODO,
+    TaskStatus.IN_PROGRESS: TaskStatusCategory.IN_PROGRESS,
+    TaskStatus.BLOCKED: TaskStatusCategory.IN_PROGRESS,
+    TaskStatus.MISSED: TaskStatusCategory.IN_PROGRESS,
+    TaskStatus.CANCELLED: TaskStatusCategory.CLOSED,
+    TaskStatus.DONE: TaskStatusCategory.DONE,
+}
+
+TASK_STATUS_CATEGORY_TO_STATUSES = {
+    category: [
+        status for status, cat in TASK_STATUS_TO_CATEGORY.items() if cat == category
+    ]
+    for category in TaskStatusCategory
+}
+
+
 class Task(TimestampedModel):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self._original_status = self.status
-
-    class Status(models.TextChoices):
-        BACKLOG = "backlog", "Backlog"
-        TODO = "todo", "To do"
-        IN_PROGRESS = "in_progress", "In progress"
-        BLOCKED = "blocked", "Blocked"
-        CANCELLED = "cancelled", "Cancelled"
-        DONE = "done", "Done"
 
     class Priority(models.IntegerChoices):
         LOW = 1, "Low"
@@ -87,10 +116,15 @@ class Task(TimestampedModel):
     )
     status = models.CharField(
         max_length=20,
-        choices=Status.choices,
-        default=Status.TODO,
+        choices=TaskStatus.choices,
+        default=TaskStatus.TODO,
         help_text="Current workflow state.",
     )
+
+    @property
+    def status_category(self) -> TaskStatusCategory:
+        return TASK_STATUS_TO_CATEGORY[self.status]
+
     priority = models.PositiveSmallIntegerField(
         choices=Priority.choices,
         default=Priority.NORMAL,
@@ -195,7 +229,7 @@ class Task(TimestampedModel):
         return self.title
 
     def save(self, *args, **kwargs):
-        set_completed = self.status == Task.Status.DONE and self.completed_at is None
+        set_completed = self.status == TaskStatus.DONE and self.completed_at is None
         if set_completed:
             self.completed_at = timezone.now()
             update_fields = kwargs.get("update_fields")
@@ -204,7 +238,7 @@ class Task(TimestampedModel):
                 fields.add("completed_at")
                 kwargs["update_fields"] = list(fields)
         clear_completed = (
-            self.status != Task.Status.DONE and self.completed_at is not None
+            self.status != TaskStatus.DONE and self.completed_at is not None
         )
         if clear_completed:
             self.completed_at = None
@@ -239,7 +273,7 @@ class Task(TimestampedModel):
 
     @property
     def is_active(self) -> bool:
-        return self.status not in {Task.Status.DONE, Task.Status.CANCELLED}
+        return self.status not in {TaskStatus.DONE, TaskStatus.CANCELLED}
 
     @property
     def is_due_today(self) -> bool:
@@ -248,11 +282,11 @@ class Task(TimestampedModel):
     @property
     def is_overdue(self) -> bool:
         return (
-            self.status != Task.Status.DONE
+            self.status != TaskStatus.DONE
             and self.due_at is not None
             and self.due_at < timezone.localdate()
         )
-    
+
     @property
     def missed_routine_tasks(self) -> int | None:
         # Get all tasks from the same routine and find the most recent completed one,
@@ -263,7 +297,7 @@ class Task(TimestampedModel):
             Task.objects.filter(
                 routine=self.routine,
                 routine_step=self.routine_step,
-                status=Task.Status.DONE,
+                status=TaskStatus.DONE,
             )
             .order_by("-routine_date")
             .first()
@@ -272,11 +306,15 @@ class Task(TimestampedModel):
             last_date = last_completed.routine_date
         else:
             last_date = self.routine_date - timezone.timedelta(days=1)
-        missed_count = Task.objects.filter(
-            routine=self.routine,
-            routine_step=self.routine_step,
-            routine_date__gt=last_date,
-        ).exclude(status=Task.Status.DONE).count()
+        missed_count = (
+            Task.objects.filter(
+                routine=self.routine,
+                routine_step=self.routine_step,
+                routine_date__gt=last_date,
+            )
+            .exclude(status=TaskStatus.DONE)
+            .count()
+        )
         return missed_count
 
     @property

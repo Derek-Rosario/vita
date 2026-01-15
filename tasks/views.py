@@ -18,7 +18,7 @@ from django.contrib import messages
 
 from core.services import add_toast, add_voice_message
 from core.views import HttpRequest
-from tasks.models import Task
+from tasks.models import Task, TaskStatus
 from tasks.models import Comment, Project, Routine, RoutineStep, Tag
 from tasks.services import generate_tasks_for_date
 from tasks.voice import (
@@ -30,10 +30,11 @@ from django.db.models import Count, Sum, F, IntegerField, Value, Case, When
 from django.db.models.functions import TruncWeek, Coalesce
 
 BOARD_STATUSES = [
-    (Task.Status.TODO, "To do"),
-    (Task.Status.IN_PROGRESS, "In progress"),
-    (Task.Status.BLOCKED, "Blocked"),
-    (Task.Status.DONE, "Done"),
+    (TaskStatus.TODO, "To do"),
+    (TaskStatus.ON_DECK, "On deck"),
+    (TaskStatus.IN_PROGRESS, "In progress"),
+    (TaskStatus.BLOCKED, "Blocked"),
+    (TaskStatus.DONE, "Done"),
 ]
 
 
@@ -44,7 +45,7 @@ def task_board(request: HttpRequest):
         "tasks/board.html",
         {
             **_fetch_board_context(),
-            "backlog_count": Task.objects.filter(status=Task.Status.BACKLOG).count(),
+            "backlog_count": Task.objects.filter(status=TaskStatus.BACKLOG).count(),
             "form": form,
             "open_tags": bool(request.GET.get("show_tags")),
             "open_projects": bool(request.GET.get("show_projects")),
@@ -101,7 +102,7 @@ def task_backlog(request: HttpRequest):
     Move them to "To do" to make them appear on the board.
     """
     tasks_qs = (
-        Task.objects.filter(status=Task.Status.BACKLOG)
+        Task.objects.filter(status=TaskStatus.BACKLOG)
         .select_related("project", "parent")
         .prefetch_related("tags")
         .order_by("-priority", "due_at", "-created_at")
@@ -129,7 +130,7 @@ def task_checklist(request: HttpRequest):
     if request.method == "POST":
         new_task_title = request.POST.get("title", "").strip()
         if new_task_title:
-            task = Task(title=new_task_title, status=Task.Status.TODO)
+            task = Task(title=new_task_title, status=TaskStatus.TODO)
             task.save()
             return render(
                 request,
@@ -142,14 +143,14 @@ def task_checklist(request: HttpRequest):
         if data.get("task_id"):
             task = get_object_or_404(Task, pk=int(data["task_id"]))
             if data.get("checked") == "on":
-                task.status = Task.Status.DONE
+                task.status = TaskStatus.DONE
             else:
-                task.status = Task.Status.TODO
+                task.status = TaskStatus.TODO
             task.save(update_fields=["status", "updated_at", "completed_at"])
             return HttpResponse(status=200)
 
     tasks_qs = (
-        Task.objects.filter(status__in=[Task.Status.TODO, Task.Status.IN_PROGRESS])
+        Task.objects.filter(status__in=[TaskStatus.TODO, TaskStatus.IN_PROGRESS])
         .select_related("project", "parent")
         .prefetch_related("tags")
         .order_by("-priority", "due_at", "-created_at")
@@ -167,11 +168,11 @@ def task_checklist(request: HttpRequest):
 @require_POST
 def promote_backlog_task(request: HttpRequest, task_id: int):
     task = get_object_or_404(Task, pk=task_id)
-    if task.status != Task.Status.BACKLOG:
+    if task.status != TaskStatus.BACKLOG:
         messages.info(request, "Task is not in backlog.")
         return redirect("task_backlog")
 
-    task.status = Task.Status.TODO
+    task.status = TaskStatus.TODO
     task.save(update_fields=["status", "updated_at"])
     messages.success(request, "Moved to To do.")
 
@@ -184,10 +185,10 @@ def promote_backlog_task(request: HttpRequest, task_id: int):
 @require_POST
 def mark_task_done(request: HttpRequest, task_id: int):
     task = get_object_or_404(Task, pk=task_id)
-    if task.status == Task.Status.DONE:
+    if task.status == TaskStatus.DONE:
         return HttpResponse(status=204)
 
-    task.status = Task.Status.DONE
+    task.status = TaskStatus.DONE
     task.save(update_fields=["status", "updated_at", "completed_at"])
 
     response = HttpResponse(status=204)
@@ -213,8 +214,8 @@ def move_task(request: HttpRequest):
     task_id = request.POST.get("task_id")
     status = request.POST.get("status")
     valid_statuses = {code for code, _ in BOARD_STATUSES}
-    valid_statuses.add(Task.Status.CANCELLED)
-    valid_statuses.add(Task.Status.BACKLOG)
+    valid_statuses.add(TaskStatus.CANCELLED)
+    valid_statuses.add(TaskStatus.BACKLOG)
     if not task_id or not status or status not in valid_statuses:
         return render(
             request,
@@ -226,7 +227,7 @@ def move_task(request: HttpRequest):
     task = get_object_or_404(Task, pk=task_id)
     task.status = status
     update_fields = ["status", "updated_at"]
-    just_completed = status == Task.Status.DONE and task.completed_at is None
+    just_completed = status == TaskStatus.DONE and task.completed_at is None
     if just_completed:
         task.completed_at = timezone.now()
         update_fields.append("completed_at")
@@ -246,11 +247,11 @@ def move_task(request: HttpRequest):
             message=message,
         )
         add_voice_message(response, message=message)
-    elif status == Task.Status.CANCELLED:
+    elif status == TaskStatus.CANCELLED:
         message = random.choice(TASK_CANCELLED_VOICE_MESSAGES)
         add_toast(response, type="info", message=message)
         add_voice_message(response, message=message)
-    elif status == Task.Status.BACKLOG:
+    elif status == TaskStatus.BACKLOG:
         message = random.choice(TASK_BACKLOGGED_VOICE_MESSAGES)
         add_toast(response, type="info", message=message)
         add_voice_message(response, message=message)
@@ -350,11 +351,11 @@ def velocity_data(request: HttpRequest):
     start = now - timedelta(weeks=weeks)
 
     completed_qs = Task.objects.filter(
-        status=Task.Status.DONE, completed_at__isnull=False, completed_at__gte=start
+        status=TaskStatus.DONE, completed_at__isnull=False, completed_at__gte=start
     )
 
     cancelled_qs = Task.objects.filter(
-        status=Task.Status.CANCELLED,
+        status=TaskStatus.CANCELLED,
         status_last_changed_at__isnull=False,
         status_last_changed_at__gte=start,
     )
@@ -450,21 +451,21 @@ def _fetch_board_context():
     tasks = (
         Task.objects.filter(status__in=[code for code, _ in BOARD_STATUSES])
         .filter(
-            models.Q(status=Task.Status.DONE, completed_at__gte=cutoff)
-            | ~models.Q(status=Task.Status.DONE)
+            models.Q(status=TaskStatus.DONE, completed_at__gte=cutoff)
+            | ~models.Q(status=TaskStatus.DONE)
         )
         .select_related("parent", "project")
         .prefetch_related("tags")
         .order_by("-priority", "due_at", "-created_at")
     )
-    grouped: Dict[Task.Status | str, List[Task]] = {
+    grouped: Dict[TaskStatus | str, List[Task]] = {
         code: [] for code, _ in BOARD_STATUSES
     }
     for task in tasks:
         grouped[task.status].append(task)
 
     # Sort recently done column by completed_at descending
-    grouped[Task.Status.DONE].sort(
+    grouped[TaskStatus.DONE].sort(
         key=lambda t: t.completed_at or timezone.now(), reverse=True
     )
 
@@ -509,7 +510,7 @@ class TaskForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         # Only allow active parents; show newest first for convenience.
         self.fields["parent"].queryset = Task.objects.filter(
-            status__in=[Task.Status.TODO, Task.Status.IN_PROGRESS]
+            status__in=[TaskStatus.TODO, TaskStatus.IN_PROGRESS]
         ).order_by("-created_at")
         for name in ["priority", "energy", "parent", "tags"]:
             widget = self.fields[name].widget
@@ -691,7 +692,7 @@ def clone_task(request: HttpRequest, task_id: int):
     task = get_object_or_404(Task, pk=task_id)
     task.pk = None  # Reset PK to create a new instance
     task.title = f"Copy of {task.title}"
-    task.status = Task.Status.TODO
+    task.status = TaskStatus.TODO
     task.completed_at = None
     task.status_last_changed_at = None
     task.created_at = timezone.now()
