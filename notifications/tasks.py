@@ -1,6 +1,7 @@
 import datetime
 import logging
 from django.tasks import task
+from django.urls import reverse
 from django.utils import timezone
 from notifications.emails import MorningReportEmailArgs, send_morning_report_email
 from tasks.models import Task
@@ -61,6 +62,43 @@ def send_inactivity_notification_if_applicable_task():
                 "title": "Catch Up",
                 "body": "You have been away for a while. Check your tasks!",
                 "url": "/",
+            }
+            subs = WebPushSubscription.objects.filter(active=True)
+            sent = 0
+            for sub in subs:
+                try:
+                    send_webpush(sub, payload)
+                    sent += 1
+                except Exception:
+                    logger.error(
+                        "Failed to send webpush to %s", sub.endpoint, exc_info=True
+                    )
+                    sub.active = False
+                    sub.save(update_fields=["active"])
+
+    return True
+
+
+@task()
+def send_long_in_progress_tasks_notification_task():
+    """Send notification for tasks that have been in progress for too long."""
+    threshold_date = timezone.now() - datetime.timedelta(hours=4)
+    long_in_progress_tasks = Task.objects.filter(
+        status="in_progress", status_last_changed_at__lt=threshold_date
+    ).all()
+
+    if long_in_progress_tasks:
+        logger.info(
+            f"Sending long in-progress tasks notification for {long_in_progress_tasks.count()} tasks."
+        )
+
+        for task in long_in_progress_tasks:
+            logger.info(f" - {task.title} (since {task.status_last_changed_at})")
+
+            payload = {
+                "title": f"Still working on {task.title}?",
+                "body": "You started this task over 4 hours ago.",
+                "url": reverse("edit_task", args=[task.pk]),
             }
             subs = WebPushSubscription.objects.filter(active=True)
             sent = 0
