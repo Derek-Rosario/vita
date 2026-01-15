@@ -151,6 +151,15 @@
   <script>
   let boardScrollLeft = 0;
 
+  // Auto-scroll configuration
+  const AUTO_SCROLL_CONFIG = {
+    edgeDistance: 200,      // pixels from edge to trigger scroll
+    scrollSpeed: 10,       // pixels to scroll per animation frame
+    enabled: true
+  };
+
+  let autoScrollAnimationId = null;
+
   function restoreKanbanColumnScrollPositions() {
     document.querySelectorAll(".kanban-column").forEach((column) => {
       const status = column.dataset.status;
@@ -182,6 +191,47 @@
     };
   }
 
+  function startAutoScroll(board, clientX) {
+    if (!AUTO_SCROLL_CONFIG.enabled) return;
+    
+    // Cancel existing animation
+    if (autoScrollAnimationId) {
+      cancelAnimationFrame(autoScrollAnimationId);
+    }
+
+    const boardRect = board.getBoundingClientRect();
+    const scrollLeftEdge = boardRect.left + AUTO_SCROLL_CONFIG.edgeDistance;
+    const scrollRightEdge = boardRect.right - AUTO_SCROLL_CONFIG.edgeDistance;
+
+    const animate = () => {
+      if (clientX < scrollLeftEdge) {
+        // Scroll left
+        board.scrollLeft = Math.max(0, board.scrollLeft - AUTO_SCROLL_CONFIG.scrollSpeed);
+        autoScrollAnimationId = requestAnimationFrame(animate);
+      } else if (clientX > scrollRightEdge) {
+        // Scroll right
+        const maxScroll = board.scrollWidth - board.clientWidth;
+        board.scrollLeft = Math.min(maxScroll, board.scrollLeft + AUTO_SCROLL_CONFIG.scrollSpeed);
+        autoScrollAnimationId = requestAnimationFrame(animate);
+      } else {
+        // Stop scrolling
+        if (autoScrollAnimationId) {
+          cancelAnimationFrame(autoScrollAnimationId);
+          autoScrollAnimationId = null;
+        }
+      }
+    };
+
+    autoScrollAnimationId = requestAnimationFrame(animate);
+  }
+
+  function stopAutoScroll() {
+    if (autoScrollAnimationId) {
+      cancelAnimationFrame(autoScrollAnimationId);
+      autoScrollAnimationId = null;
+    }
+  }
+
   document.addEventListener("DOMContentLoaded", () => {
     restoreKanbanColumnScrollPositions();
     watchScrollPositions();
@@ -206,6 +256,7 @@
       card.addEventListener("dragend", () => {
         card.classList.remove("dragging");
         dropToMoveCardsContainer.classList.remove("visible");
+        stopAutoScroll();
       });
       card.addEventListener("keydown", (event) => {
         if (event.key === "Enter" || event.key === " ") {
@@ -220,6 +271,7 @@
       column.addEventListener("dragover", (event) => {
         event.preventDefault();
         column.classList.add("drop-target");
+        startAutoScroll(board, event.clientX);
       });
       column.addEventListener("dragleave", () => {
         column.classList.remove("drop-target");
@@ -227,6 +279,7 @@
       column.addEventListener("drop", (event) => {
         event.preventDefault();
         column.classList.remove("drop-target");
+        stopAutoScroll();
         const taskId = event.dataTransfer.getData("text/plain");
         const status = column.dataset.status;
         if (!taskId || !status) return;
@@ -245,6 +298,7 @@
       card.ondragover = (event) => {
         event.preventDefault();
         card.classList.add("drag-over");
+        stopAutoScroll();
       };
       card.ondragleave = () => {
         card.classList.remove("drag-over");
@@ -252,6 +306,7 @@
       card.ondrop = (event) => {
         event.preventDefault();
         card.classList.remove("drag-over");
+        stopAutoScroll();
         const taskId = event.dataTransfer.getData("text/plain");
         if (!taskId) return;
         console.log("Cancelling task", taskId);
