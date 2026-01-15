@@ -327,6 +327,21 @@ def create_task(request: HttpRequest):
     )
 
 
+@require_POST
+def delete_task(request: HttpRequest, task_id: int):
+    task = get_object_or_404(Task, pk=task_id)
+    task.delete()
+
+    response = HttpResponse(status=204)
+    response["HX-Location"] = reverse("task_board")
+    add_toast(
+        response,
+        type="success",
+        message="Deleted task.",
+    )
+    return response
+
+
 def velocity_chart(request: HttpRequest):
     """
     Render the velocity chart page. Data is fetched from the JSON endpoint.
