@@ -3,19 +3,12 @@
       hx-post="{% url 'task_quick_add' %}"
       hx-swap="outerHTML"
       class="d-flex flex-column gap-3 flex-grow-1">
-  <div class="input-group">
-    <input type="text"
-           name="title"
-           id="title"
-           class="form-control"
-           placeholder="Quick add"
-           required>
-    <div class="input-group-append">
-      <button class="btn btn-outline-secondary" type="submit">Quick add</button>
-      <!-- <button id="speech" class="btn btn-outline-secondary" type="button">Voice</button> -->
-      <!-- <span id="diagnostic"></span> -->
-    </div>
-  </div>
+  <input type="text"
+         name="title"
+         id="title"
+         class="form-control"
+         placeholder="Quick add"
+         required>
 </form>
 {% if swap_board %}
   {% include "tasks/partials/board.html" with swap_oob=True %}

@@ -2,22 +2,22 @@
 {% load django_bootstrap5 %}
 {% block content %}
   <div class="container-fluid py-4">
-    <div class="d-flex flex-column flex-sm-row justify-content-between gap-3 mb-3">
-      <div>
+    <div class="d-flex flex-column flex-md-row justify-content-between gap-3 mb-3">
+      <div class="d-none d-md-block">
         <p class="text-uppercase text-muted small mb-1">Tasks</p>
         <h1 class="h3 mb-0">Kanban Board</h1>
-        <h2 class="small">
-          <a href="{% url 'task_checklist' %}">Switch to list</a>
-        </h2>
       </div>
       <div class="d-flex align-items-center gap-2">
         {% include "tasks/partials/quick_add_task_form.html" %}
-        <div class="dropdown d-sm-none">
+        <div class="dropdown d-md-none">
           <button class="btn btn-secondary dropdown-toggle"
                   type="button"
                   data-bs-toggle="dropdown"
                   aria-expanded="false">Menu</button>
           <ul class="dropdown-menu">
+            <li>
+              <a href="{% url 'task_checklist' %}" class="dropdown-item">Checklist</a>
+            </li>
             <li>
               <a hx-boost="true" href="{% url 'task_list' %}" class="dropdown-item">All tasks</a>
             </li>
@@ -50,7 +50,7 @@
           </ul>
         </div>
       </div>
-      <div class="gap-2 d-none d-sm-flex align-items-center">
+      <div class="gap-2 d-none d-md-flex align-items-center">
         <a hx-boost="true"
            href="{% url 'task_list' %}"
            class="btn btn-outline-secondary">All tasks</a>
@@ -355,7 +355,6 @@
   });
   {% endif %}
   </script>
-
   <style>
   @keyframes popIn {
     0% {
@@ -408,6 +407,19 @@
 
   #kanban-board .kanban-column .card-header {
     z-index: 10 !important;
+  }
+
+  .kanban-column-body {
+    overflow: auto;
+    height: calc(100dvh - 210px);
+  }
+  
+  @media (min-width: 768px) {
+    .kanban-column-body {
+      height: calc(100dvh - 220px);
+      background-color: blue;
+      border: 2px solid red !important;
+    }
   }
 
 
