@@ -3,10 +3,9 @@ from __future__ import annotations
 from datetime import date, datetime
 from typing import Iterable, List, Optional
 
-from django.db import models
 from django.utils import timezone
 
-from .models import Routine, RoutineStep, Task
+from .models import Routine, Task, TaskStatus
 
 
 def _weekday_sunday_first(target_date: date) -> int:
@@ -78,7 +77,7 @@ def generate_tasks_for_date(
                     routine=routine,
                     routine_step=step,
                     status__in=[TaskStatus.TODO, TaskStatus.IN_PROGRESS],
-                ).update(status=TaskStatus.CANCELLED)
+                ).update(status=TaskStatus.MISSED)
 
             task = Task.objects.create(
                 title=step.title,
