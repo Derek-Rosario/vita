@@ -8,7 +8,7 @@ primary_region = 'ewr'
 console_command = '/code/manage.py shell'
 
 [processes]
-  app = 'python -m gunicorn --bind :8000 --workers 2 vita.wsgi'
+  app = 'python -m daphne vita.asgi:application'
   worker = '/code/manage.py db_worker'
   cron = "supercronic /code/crontab"
 
