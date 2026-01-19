@@ -282,8 +282,7 @@ class Task(TimestampedModel):
             self._original_status = self.status
 
         super().save(*args, **kwargs)
-        print("sending event")
-        send_event("events", "task_updated", {"task_id": self.pk})
+        send_event("events", "task-updated", {"task_id": self.pk})
 
     @property
     def is_routine_task(self) -> bool:

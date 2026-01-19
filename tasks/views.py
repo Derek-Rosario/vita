@@ -15,7 +15,7 @@ from django.urls import reverse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
 
-from core.services import add_toast, add_voice_message
+from core.services import add_htmx_trigger, add_toast, add_voice_message
 from core.views import HttpRequest
 from tasks.models import Task, TaskStatus
 from tasks.models import Comment, Project, Routine, RoutineStep, Tag
@@ -216,12 +216,10 @@ def move_task(request: HttpRequest):
     valid_statuses.add(TaskStatus.CANCELLED)
     valid_statuses.add(TaskStatus.BACKLOG)
     if not task_id or not status or status not in valid_statuses:
-        return render(
-            request,
-            "tasks/partials/board.html",
-            {**_fetch_board_context(), "error": "Invalid request."},
-            status=400,
-        )
+        response = HttpResponse(status=204)
+        add_htmx_trigger(response, "task-updated")
+        add_toast(response, type="error", message="Invalid request.")
+        return response
 
     task = get_object_or_404(Task, pk=task_id)
     task.status = status
@@ -232,11 +230,8 @@ def move_task(request: HttpRequest):
         update_fields.append("completed_at")
     task.save(update_fields=update_fields)
 
-    response = render(
-        request,
-        "tasks/partials/board.html",
-        {**_fetch_board_context(), "dropped_task_pk": task.pk},
-    )
+    response = HttpResponse(status=204)
+    add_htmx_trigger(response, "task-updated")
 
     if just_completed:
         message = random.choice(TASK_COMPLETED_VOICE_MESSAGES)
@@ -262,21 +257,16 @@ def move_task(request: HttpRequest):
 def quick_add_task(request: HttpRequest):
     title = request.POST.get("title", "").strip()
     if not title:
-        return render(
-            request,
-            "tasks/partials/board.html",
-            {**_fetch_board_context(), "error": "Task title cannot be empty."},
-            status=400,
-        )
+        response = HttpResponse(status=204)
+        add_htmx_trigger(response, "task-updated")
+        add_toast(response, type="error", message="Task title cannot be empty.")
+        return response
 
     task = Task.from_text(title)
     task.save()
 
-    response = render(
-        request,
-        "tasks/partials/quick_add_task_form.html",
-        {**_fetch_board_context(), "swap_board": True, "dropped_task_pk": task.pk},
-    )
+    response = HttpResponse(status=204)
+    add_htmx_trigger(response, "task-updated")
     add_toast(
         response,
         type="success",
@@ -293,16 +283,8 @@ def create_task(request: HttpRequest):
         task = form.save(commit=False)
         task.save()
         form.save_m2m()
-        context = {
-            **_fetch_board_context(),
-            "form": TaskForm(),
-            "saved": True,
-            "swap_board": True,
-        }
-        template = (
-            "tasks/partials/add_task_form.html" if request.htmx else "tasks/board.html"
-        )
-        response = render(request, template, context, status=201)
+        response = HttpResponse(status=204)
+        add_htmx_trigger(response, "task-updated")
         add_toast(
             response,
             type="success",
@@ -310,21 +292,14 @@ def create_task(request: HttpRequest):
         )
 
         return response
-    context = {
-        **_fetch_board_context(),
-        "form": form,
-        "saved": False,
-        "swap_board": request.htmx,
-    }
-    template = (
-        "tasks/partials/add_task_form.html" if request.htmx else "tasks/board.html"
+    response = HttpResponse(status=204)
+    add_htmx_trigger(response, "task-updated")
+    add_toast(
+        response,
+        type="error",
+        message="Please check the form for errors.",
     )
-    return render(
-        request,
-        template,
-        context,
-        status=400 if form.errors else 200,
-    )
+    return response
 
 
 @require_POST

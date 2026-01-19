@@ -99,7 +99,11 @@
         </div>
       </div>
     </div>
-    {% include "tasks/partials/board.html" %}
+    <div
+     hx-get="{% url 'task_board_fragment' %}"
+     hx-trigger="task-updated from:body">
+      {% include "tasks/partials/board.html"%}
+    </div>
     <div class="fixed-bottom mb-3 ms-3 d-flex gap-1" id="drop-to-move-cards">
       <div class="card border-danger text-danger drop-to-move-card"
            id="cancel-card"
@@ -149,24 +153,6 @@
       <div class="p-3 text-muted small">Loading projects...</div>
     </div>
   </div>
-  <script src="{% static 'django_eventstream/eventsource.min.js' %}"></script>
-  <script src="{% static 'django_eventstream/reconnecting-eventsource.js' %}"></script>
-  <script>
-    const es = new ReconnectingEventSource('/events/');
-
-    es.addEventListener('open', function (e) {
-      console.log("Event stream opened.");
-    }, false);
-
-    console.log("Connecting to event stream...");
-    es.addEventListener('task_updated', function (e) {
-      console.log(e.data);
-    }, false);
-
-    es.addEventListener('stream-reset', function (e) {
-        // ... client fell behind, reinitialize ...
-    }, false);
-  </script>
   <script>
   let boardScrollLeft = 0;
 
@@ -266,36 +252,36 @@
     const moveUrl = board.dataset.moveUrl;
 
     board.querySelectorAll("[data-card]").forEach((card) => {
-      card.addEventListener("dragstart", (event) => {
+      card.ondragstart =  (event) => {
         event.dataTransfer.effectAllowed = "move";
         event.dataTransfer.setData("text/plain", card.dataset.taskId);
         card.classList.add("dragging");
         dropToMoveCardsContainer.classList.add("visible");
-      });
-      card.addEventListener("dragend", () => {
+      };
+      card.ondragend = () => {
         card.classList.remove("dragging");
         dropToMoveCardsContainer.classList.remove("visible");
         stopAutoScroll();
-      });
-      card.addEventListener("keydown", (event) => {
+      };
+      card.onkeydown = (event) => {
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
           const target = card.dataset.href;
           if (target) window.location.href = target;
         }
-      });
+      };
     });
 
     board.querySelectorAll("[data-column]").forEach((column) => {
-      column.addEventListener("dragover", (event) => {
+      column.ondragover = (event) => {
         event.preventDefault();
         column.classList.add("drop-target");
         startAutoScroll(board, event.clientX);
-      });
-      column.addEventListener("dragleave", () => {
+      };
+      column.ondragleave = () => {
         column.classList.remove("drop-target");
-      });
-      column.addEventListener("drop", (event) => {
+      };
+      column.ondrop =  (event) => {
         event.preventDefault();
         column.classList.remove("drop-target");
         stopAutoScroll();
@@ -309,7 +295,7 @@
           swap: "outerHTML",
           values: { task_id: taskId, status },
         });
-      });
+      };
     });
 
     dropToMoveCards.forEach((card) => {
@@ -342,10 +328,8 @@
   document.addEventListener("htmx:afterSwap", (event) => {
     restoreKanbanColumnScrollPositions();
     watchScrollPositions();
-    if (event.target && event.target.id === "kanban-board") {
-      event.target.scrollLeft = boardScrollLeft;
-      initKanbanDragAndDrop();
-    }
+    initKanbanDragAndDrop();
+    
     if (event.target && event.target.id === "add-task-form") {
       const modalEl = document.getElementById("addTaskModal");
       if (modalEl && event.detail.xhr && event.detail.xhr.status === 201) {
@@ -369,6 +353,37 @@
         if (!offcanvas._isShown) {
           offcanvas.show();
         }
+      }
+    }
+  });
+
+  document.addEventListener("htmx:afterRequest", (event) => {
+    const xhr = event.detail && event.detail.xhr;
+    if (!xhr || xhr.status !== 204) return;
+    let hasErrorToast = false;
+    const triggerHeader = xhr.getResponseHeader("HX-Trigger");
+    if (triggerHeader) {
+      try {
+        const triggerData = JSON.parse(triggerHeader);
+        if (triggerData.toastMessage && triggerData.toastMessage.type === "error") {
+          hasErrorToast = true;
+        }
+      } catch (error) {
+        console.warn("Failed to parse HX-Trigger header.", error);
+      }
+    }
+    const target = event.target;
+    if (target && target.id === "quick-add-form" && !hasErrorToast) {
+      target.reset();
+    }
+    if (target && target.closest && target.closest("#add-task-form") && !hasErrorToast) {
+      if (typeof target.reset === "function") {
+        target.reset();
+      }
+      const modalEl = document.getElementById("addTaskModal");
+      if (modalEl) {
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        if (modal) modal.hide();
       }
     }
   });
