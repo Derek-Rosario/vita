@@ -5,7 +5,7 @@ from typing import Iterable, List, Optional
 
 from django.utils import timezone
 
-from .models import Routine, Task, TaskStatus
+from .models import TASK_STATUS_CATEGORY_TO_STATUSES, Routine, Task, TaskStatus, TaskStatusCategory
 
 
 def _weekday_sunday_first(target_date: date) -> int:
@@ -76,7 +76,7 @@ def generate_tasks_for_date(
                 Task.objects.filter(
                     routine=routine,
                     routine_step=step,
-                    status__in=[TaskStatus.TODO, TaskStatus.IN_PROGRESS],
+                    status__in=TASK_STATUS_CATEGORY_TO_STATUSES[TaskStatusCategory.TODO] + TASK_STATUS_CATEGORY_TO_STATUSES[TaskStatusCategory.IN_PROGRESS],
                 ).update(status=TaskStatus.MISSED)
 
             task = Task.objects.create(

@@ -1,4 +1,5 @@
 from typing import Any, cast
+from django_eventstream import send_event
 
 from django.db import models
 from django.utils import timezone
@@ -281,6 +282,8 @@ class Task(TimestampedModel):
             self._original_status = self.status
 
         super().save(*args, **kwargs)
+        print("sending event")
+        send_event("events", "task_updated", {"task_id": self.pk})
 
     @property
     def is_routine_task(self) -> bool:

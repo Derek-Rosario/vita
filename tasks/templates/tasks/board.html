@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% load django_bootstrap5 %}
 {% block content %}
   <div class="container-fluid py-4">
@@ -148,6 +149,24 @@
       <div class="p-3 text-muted small">Loading projects...</div>
     </div>
   </div>
+  <script src="{% static 'django_eventstream/eventsource.min.js' %}"></script>
+  <script src="{% static 'django_eventstream/reconnecting-eventsource.js' %}"></script>
+  <script>
+    const es = new ReconnectingEventSource('/events/');
+
+    es.addEventListener('open', function (e) {
+      console.log("Event stream opened.");
+    }, false);
+
+    console.log("Connecting to event stream...");
+    es.addEventListener('task_updated', function (e) {
+      console.log(e.data);
+    }, false);
+
+    es.addEventListener('stream-reset', function (e) {
+        // ... client fell behind, reinitialize ...
+    }, false);
+  </script>
   <script>
   let boardScrollLeft = 0;
 

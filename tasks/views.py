@@ -1,9 +1,8 @@
-import json
 import random
 from typing import Dict, List
 from datetime import timedelta
 from datetime import datetime
-from django_bootstrap5.widgets import RadioSelectButtonGroup
+from django_eventstream import send_event
 
 from django import forms
 from django.forms import inlineformset_factory
@@ -283,6 +282,7 @@ def quick_add_task(request: HttpRequest):
         type="success",
         message="Added task.",
     )
+
     return response
 
 

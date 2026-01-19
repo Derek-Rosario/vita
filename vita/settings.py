@@ -60,6 +60,8 @@ SESSION_COOKIE_SECURE = True
 # Application definition
 
 INSTALLED_APPS = [
+    "daphne",
+    "django_eventstream",
     "django_extensions",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -81,6 +83,7 @@ INSTALLED_APPS = [
     "api",
 ]
 
+ASGI_APPLICATION = "vita.asgi.application"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

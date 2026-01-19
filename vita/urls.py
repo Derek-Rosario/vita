@@ -18,6 +18,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 from django.views.generic import RedirectView
+import django_eventstream
 
 from core import api as core_api
 
@@ -33,5 +34,6 @@ urlpatterns = [
     path("tasks/", include("tasks.urls")),
     path("api/", include("api.urls")),
     path("notifications/", include("notifications.urls")),
+    path("events/", include(django_eventstream.urls), {"channels": ["events"]}),
     path("__reload__/", include("django_browser_reload.urls")),
 ]
