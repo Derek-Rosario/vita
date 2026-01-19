@@ -101,7 +101,8 @@
     </div>
     <div
      hx-get="{% url 'task_board_fragment' %}"
-     hx-trigger="task-updated from:body">
+     hx-trigger="task-updated from:body"
+     hx-vals='js:{"updated_task_pk": event?.detail?.task_id }'>
       {% include "tasks/partials/board.html"%}
     </div>
     <div class="fixed-bottom mb-3 ms-3 d-flex gap-1" id="drop-to-move-cards">

@@ -204,7 +204,9 @@ def board_fragment(request: HttpRequest):
     return render(
         request,
         "tasks/partials/board.html",
-        {**_fetch_board_context()},
+        {**_fetch_board_context(),
+        "dropped_task_pk": int(request.GET.get("updated_task_pk")) if request.GET.get("updated_task_pk") else None
+        },
     )
 
 
@@ -217,7 +219,6 @@ def move_task(request: HttpRequest):
     valid_statuses.add(TaskStatus.BACKLOG)
     if not task_id or not status or status not in valid_statuses:
         response = HttpResponse(status=204)
-        add_htmx_trigger(response, "task-updated")
         add_toast(response, type="error", message="Invalid request.")
         return response
 
@@ -231,7 +232,6 @@ def move_task(request: HttpRequest):
     task.save(update_fields=update_fields)
 
     response = HttpResponse(status=204)
-    add_htmx_trigger(response, "task-updated")
 
     if just_completed:
         message = random.choice(TASK_COMPLETED_VOICE_MESSAGES)
@@ -258,7 +258,6 @@ def quick_add_task(request: HttpRequest):
     title = request.POST.get("title", "").strip()
     if not title:
         response = HttpResponse(status=204)
-        add_htmx_trigger(response, "task-updated")
         add_toast(response, type="error", message="Task title cannot be empty.")
         return response
 
@@ -266,7 +265,6 @@ def quick_add_task(request: HttpRequest):
     task.save()
 
     response = HttpResponse(status=204)
-    add_htmx_trigger(response, "task-updated")
     add_toast(
         response,
         type="success",
@@ -284,7 +282,6 @@ def create_task(request: HttpRequest):
         task.save()
         form.save_m2m()
         response = HttpResponse(status=204)
-        add_htmx_trigger(response, "task-updated")
         add_toast(
             response,
             type="success",
@@ -293,7 +290,6 @@ def create_task(request: HttpRequest):
 
         return response
     response = HttpResponse(status=204)
-    add_htmx_trigger(response, "task-updated")
     add_toast(
         response,
         type="error",
