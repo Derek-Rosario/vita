@@ -8,7 +8,7 @@ primary_region = 'ewr'
 console_command = '/code/manage.py shell'
 
 [processes]
-  app = 'python -m daphne vita.asgi:application'
+  app = 'python -m daphne vita.asgi:application -b 0.0.0.0 -p 8000'
   worker = '/code/manage.py db_worker'
   cron = "supercronic /code/crontab"
 
