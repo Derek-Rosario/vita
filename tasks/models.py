@@ -511,6 +511,16 @@ class RoutineStep(TimestampedModel):
         default=False,
         help_text="Whether multiple uncompleted tasks of this step can exist simultaneously.",
     )
+    is_available_away_from_home = models.BooleanField(
+        default=True,
+        help_text="Whether this step can be done away from home (e.g. not traveling)",
+    )
 
     def __str__(self):
         return f"{self.routine.name}: {self.title}"
+
+class IsAwayFromHome(models.Model):
+    is_away = models.BooleanField(
+        default=False,
+        help_text="Whether the user is currently away from home.",
+    )

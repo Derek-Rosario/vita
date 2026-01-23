@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 from datetime import date, datetime
-from typing import Iterable, List, Optional
+from typing import Iterable, List, Optional, cast
 
 from django.utils import timezone
+from django.db.models import BaseManager
 
-from .models import TASK_STATUS_CATEGORY_TO_STATUSES, Routine, Task, TaskStatus, TaskStatusCategory
+from .models import TASK_STATUS_CATEGORY_TO_STATUSES, Routine, RoutineStep, Task, TaskStatus, TaskStatusCategory, IsAwayFromHome
 
 
 def _weekday_sunday_first(target_date: date) -> int:
@@ -43,7 +44,7 @@ def routine_is_due(routine: Routine, target_datetime: datetime) -> bool:
 
 
 def generate_tasks_for_date(
-    routines: Optional[Iterable[Routine]] = None,
+    routines: Optional[BaseManager[Routine]] = None,
 ) -> List[Task]:
     """
     Create tasks for all due routines on the given date.
@@ -60,15 +61,24 @@ def generate_tasks_for_date(
         "steps__default_tags"
     )
 
+    # Check if there is an IsAwayFromHome instance and get its value
+    is_away_from_home = IsAwayFromHome.objects.get_or_create(pk=1)[0].is_away
+
     created: List[Task] = []
     for routine in routines_qs:
         if not routine_is_due(routine, run_at):
             continue
+        
+        all_steps = cast(List[RoutineStep], routine.steps.all().order_by("sort_order", "pk"))
 
-        for step in routine.steps.all().order_by("sort_order", "pk"):
+        for step in all_steps:
+
             if Task.objects.filter(
                 routine=routine, routine_step=step, routine_date=run_date
             ).exists():
+                continue
+
+            if not step.is_available_away_from_home and is_away_from_home:
                 continue
 
             # If task is not stackable, cancel any existing uncompleted tasks for this step before creating a new one
