@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}
+    Catch Up
+{% endblock title %}
+{% block content %}
+{% partialdef content inline %}
+<div id="content" class="container">
+
+    <h1 class="mt-4">Catch Up on {{ all_incomplete_board_tasks_not_recently_updated|length }} Tasks</h1>
+    {% if all_incomplete_board_tasks_not_recently_updated|length > 0 %}
+    {% with task=all_incomplete_board_tasks_not_recently_updated.0 %}
+    <form>
+        {% csrf_token %}
+        <input type="hidden" name="task_id" value="{{ task.pk }}">
+        {% include "tasks/partials/task_card.html" with task=task %}
+        <div class="status-buttons d-flex flex-column flex-md-row gap-2">
+            {% for key, status in statuses %}
+            <button hx-post="{% url 'catch_up' %}" hx-trigger="click, keyup[key=='{{forloop.counter}}'] from:body" hx-target="#content" hx-swap="outerHTML" name="status" value="{{ key }}" class="btn {% if key == task.status %}btn-outline-primary{% else %}btn-primary{% endif %}">{{ forloop.counter }} {{ status }}</button>
+            {% endfor %}
+        </div>
+    </form>
+    {% endwith %}
+    {% else %}
+    All caught up!
+    {% endif %}
+</div>
+
+{% endpartialdef %}
+{% endblock content %}
+{% block head %}
+<style>
+
+</style>
+{% endblock head %}

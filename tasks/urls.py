@@ -3,6 +3,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    path("catch-up/", views.catch_up, name="catch_up"),
     path("board/", views.task_board, name="task_board"),
     path("board/fragment/", views.board_fragment, name="task_board_fragment"),
     path("board/move/", views.move_task, name="task_move"),

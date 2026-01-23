@@ -183,6 +183,12 @@ class Task(TimestampedModel):
         help_text="Labels attached to this task.",
     )
 
+    status_last_confirmed_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="When the task's was last confirmed.",
+    )
+
     # Routine association
     routine = models.ForeignKey(
         "tasks.Routine",
@@ -274,6 +280,7 @@ class Task(TimestampedModel):
 
         if self.status != self._original_status:
             self.status_last_changed_at = timezone.now()
+            self.status_last_confirmed_at = timezone.now()
             update_fields = kwargs.get("update_fields")
             if update_fields is not None:
                 fields = set(update_fields)

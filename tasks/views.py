@@ -14,6 +14,7 @@ from django.views.decorators.http import require_POST
 from django.urls import reverse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
+from django.db.models import Q
 
 from core.services import add_htmx_trigger, add_toast, add_voice_message
 from core.views import HttpRequest
@@ -204,8 +205,11 @@ def board_fragment(request: HttpRequest):
     return render(
         request,
         "tasks/partials/board.html",
-        {**_fetch_board_context(),
-        "dropped_task_pk": int(request.GET.get("updated_task_pk")) if request.GET.get("updated_task_pk") else None
+        {
+            **_fetch_board_context(),
+            "dropped_task_pk": int(request.GET.get("updated_task_pk"))
+            if request.GET.get("updated_task_pk")
+            else None,
         },
     )
 
@@ -1049,3 +1053,29 @@ def routine_run(request: HttpRequest, routine_id: int | None = None):
         f"Created {len(created)} task(s) for {timezone.now().isoformat()}.",
     )
     return redirect("routine_list")
+
+
+def catch_up(request: HttpRequest):
+    if request.method == "POST":
+        # Mark all listed tasks as done
+        task_id = request.POST.get("task_id")
+        status = request.POST.get("status")
+        task = get_object_or_404(Task, pk=task_id)
+        task.status = status
+        task.status_last_confirmed_at = timezone.now()
+        task.save()
+
+    all_incomplete_board_tasks_not_recently_updated = Task.objects.filter(
+        Q(status_last_confirmed_at__lt=timezone.now() - timedelta(days=1))
+        | Q(status_last_confirmed_at__isnull=True),
+        status__in=[code for code, _ in BOARD_STATUSES if code != TaskStatus.DONE],
+    )
+
+    return render(
+        request,
+        "tasks/catch_up.html#content" if request.htmx else "tasks/catch_up.html",
+        {
+            "all_incomplete_board_tasks_not_recently_updated": all_incomplete_board_tasks_not_recently_updated,
+            "statuses": TaskStatus.choices,
+        },
+    )
