@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('tasks', '0016_alter_task_status'),
+        ("tasks", "0016_alter_task_status"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='task',
-            name='status_last_confirmed_at',
-            field=models.DateTimeField(blank=True, help_text="When the task's was last confirmed.", null=True),
+            model_name="task",
+            name="status_last_confirmed_at",
+            field=models.DateTimeField(
+                blank=True, help_text="When the task's was last confirmed.", null=True
+            ),
         ),
     ]

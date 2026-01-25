@@ -4,39 +4,92 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='JournalEntry',
+            name="JournalEntry",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, help_text='When the record was created.')),
-                ('updated_at', models.DateTimeField(auto_now=True, help_text='When the record was last updated.')),
-                ('title', models.CharField(max_length=200)),
-                ('date', models.DateField()),
-                ('content_markdown', models.TextField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, help_text="When the record was created."
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, help_text="When the record was last updated."
+                    ),
+                ),
+                ("title", models.CharField(max_length=200)),
+                ("date", models.DateField()),
+                ("content_markdown", models.TextField()),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='MoodEntry',
+            name="MoodEntry",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, help_text='When the record was created.')),
-                ('updated_at', models.DateTimeField(auto_now=True, help_text='When the record was last updated.')),
-                ('datetime', models.DateTimeField(auto_now_add=True)),
-                ('mood', models.CharField(choices=[('happy', 'Happy'), ('sad', 'Sad'), ('bored', 'Bored'), ('neutral', 'Neutral'), ('excited', 'Excited'), ('angry', 'Angry'), ('anxious', 'Anxious'), ('relaxed', 'Relaxed'), ('tired', 'Tired'), ('confused', 'Confused'), ('grateful', 'Grateful'), ('frustrated', 'Frustrated')], max_length=10)),
-                ('notes', models.TextField(blank=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, help_text="When the record was created."
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, help_text="When the record was last updated."
+                    ),
+                ),
+                ("datetime", models.DateTimeField(auto_now_add=True)),
+                (
+                    "mood",
+                    models.CharField(
+                        choices=[
+                            ("happy", "Happy"),
+                            ("sad", "Sad"),
+                            ("bored", "Bored"),
+                            ("neutral", "Neutral"),
+                            ("excited", "Excited"),
+                            ("angry", "Angry"),
+                            ("anxious", "Anxious"),
+                            ("relaxed", "Relaxed"),
+                            ("tired", "Tired"),
+                            ("confused", "Confused"),
+                            ("grateful", "Grateful"),
+                            ("frustrated", "Frustrated"),
+                        ],
+                        max_length=10,
+                    ),
+                ),
+                ("notes", models.TextField(blank=True)),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
     ]

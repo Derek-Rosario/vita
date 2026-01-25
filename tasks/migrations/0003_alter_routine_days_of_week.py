@@ -4,15 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('tasks', '0002_routine_routinestep'),
+        ("tasks", "0002_routine_routinestep"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='routine',
-            name='days_of_week',
-            field=models.JSONField(blank=True, default=list, help_text='List of integers representing days of the week (0=Sunday, 6=Saturday).', null=True),
+            model_name="routine",
+            name="days_of_week",
+            field=models.JSONField(
+                blank=True,
+                default=list,
+                help_text="List of integers representing days of the week (0=Sunday, 6=Saturday).",
+                null=True,
+            ),
         ),
     ]

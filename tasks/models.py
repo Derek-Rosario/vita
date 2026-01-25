@@ -79,7 +79,7 @@ TASK_STATUS_TO_CATEGORY = {
     TaskStatus.ON_DECK: TaskStatusCategory.TODO,
     TaskStatus.IN_PROGRESS: TaskStatusCategory.IN_PROGRESS,
     TaskStatus.BLOCKED: TaskStatusCategory.IN_PROGRESS,
-    TaskStatus.MISSED: TaskStatusCategory.IN_PROGRESS,
+    TaskStatus.MISSED: TaskStatusCategory.CLOSED,
     TaskStatus.CANCELLED: TaskStatusCategory.CLOSED,
     TaskStatus.DONE: TaskStatusCategory.DONE,
 }
@@ -518,6 +518,7 @@ class RoutineStep(TimestampedModel):
 
     def __str__(self):
         return f"{self.routine.name}: {self.title}"
+
 
 class IsAwayFromHome(models.Model):
     is_away = models.BooleanField(

@@ -4,15 +4,22 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('social', '0003_contact_check_in_frequency_days_and_more'),
+        ("social", "0003_contact_check_in_frequency_days_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='contacttouchpoint',
-            name='sentiment',
-            field=models.CharField(blank=True, choices=[('positive', 'Positive'), ('neutral', 'Neutral'), ('negative', 'Negative')], max_length=100),
+            model_name="contacttouchpoint",
+            name="sentiment",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("positive", "Positive"),
+                    ("neutral", "Neutral"),
+                    ("negative", "Negative"),
+                ],
+                max_length=100,
+            ),
         ),
     ]

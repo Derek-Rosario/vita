@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('tasks', '0007_task_project'),
+        ("tasks", "0007_task_project"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='tag',
-            name='color',
-            field=models.CharField(blank=True, help_text='Optional CSS color name for UI accents.'),
+            model_name="tag",
+            name="color",
+            field=models.CharField(
+                blank=True, help_text="Optional CSS color name for UI accents."
+            ),
         ),
     ]

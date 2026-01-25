@@ -5,15 +5,21 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('tasks', '0006_remove_task_ends_at_remove_task_starts_at'),
+        ("tasks", "0006_remove_task_ends_at_remove_task_starts_at"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='task',
-            name='project',
-            field=models.ForeignKey(blank=True, help_text='Project this task belongs to.', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='tasks', to='tasks.project'),
+            model_name="task",
+            name="project",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Project this task belongs to.",
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="tasks",
+                to="tasks.project",
+            ),
         ),
     ]

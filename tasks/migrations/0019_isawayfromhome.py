@@ -4,17 +4,30 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('tasks', '0018_routinestep_is_available_away_from_home'),
+        ("tasks", "0018_routinestep_is_available_away_from_home"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='IsAwayFromHome',
+            name="IsAwayFromHome",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('is_away', models.BooleanField(default=False, help_text='Whether the user is currently away from home.')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "is_away",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Whether the user is currently away from home.",
+                    ),
+                ),
             ],
         ),
     ]

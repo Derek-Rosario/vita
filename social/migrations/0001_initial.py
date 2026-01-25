@@ -5,74 +5,199 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Contact',
+            name="Contact",
             fields=[
-                ('created_at', models.DateTimeField(auto_now_add=True, help_text='When the record was created.')),
-                ('updated_at', models.DateTimeField(auto_now=True, help_text='When the record was last updated.')),
-                ('slug', models.SlugField(primary_key=True, serialize=False, unique=True)),
-                ('name', models.CharField(max_length=100)),
-                ('relationship_to_me', models.CharField(choices=[('partner', 'Partner'), ('sibling', 'Sibling'), ('child', 'Child'), ('parent', 'Parent'), ('family', 'Family'), ('friend', 'Friend'), ('colleague', 'Colleague'), ('acquaintance', 'Acquaintance'), ('other', 'Other')], max_length=20)),
-                ('birthday', models.DateField(blank=True, null=True)),
-                ('notes', models.TextField(blank=True)),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, help_text="When the record was created."
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, help_text="When the record was last updated."
+                    ),
+                ),
+                (
+                    "slug",
+                    models.SlugField(primary_key=True, serialize=False, unique=True),
+                ),
+                ("name", models.CharField(max_length=100)),
+                (
+                    "relationship_to_me",
+                    models.CharField(
+                        choices=[
+                            ("partner", "Partner"),
+                            ("sibling", "Sibling"),
+                            ("child", "Child"),
+                            ("parent", "Parent"),
+                            ("family", "Family"),
+                            ("friend", "Friend"),
+                            ("colleague", "Colleague"),
+                            ("acquaintance", "Acquaintance"),
+                            ("other", "Other"),
+                        ],
+                        max_length=20,
+                    ),
+                ),
+                ("birthday", models.DateField(blank=True, null=True)),
+                ("notes", models.TextField(blank=True)),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='Interest',
+            name="Interest",
             fields=[
-                ('created_at', models.DateTimeField(auto_now_add=True, help_text='When the record was created.')),
-                ('updated_at', models.DateTimeField(auto_now=True, help_text='When the record was last updated.')),
-                ('slug', models.SlugField(primary_key=True, serialize=False, unique=True)),
-                ('name', models.CharField(max_length=100, unique=True)),
-                ('description', models.TextField(blank=True)),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, help_text="When the record was created."
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, help_text="When the record was last updated."
+                    ),
+                ),
+                (
+                    "slug",
+                    models.SlugField(primary_key=True, serialize=False, unique=True),
+                ),
+                ("name", models.CharField(max_length=100, unique=True)),
+                ("description", models.TextField(blank=True)),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='ContactRelationship',
+            name="ContactRelationship",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, help_text='When the record was created.')),
-                ('updated_at', models.DateTimeField(auto_now=True, help_text='When the record was last updated.')),
-                ('relationship_type', models.CharField(choices=[('partner', 'Partner'), ('sibling', 'Sibling'), ('child', 'Child'), ('parent', 'Parent'), ('family', 'Family'), ('friend', 'Friend'), ('colleague', 'Colleague'), ('acquaintance', 'Acquaintance'), ('other', 'Other')], max_length=20)),
-                ('details', models.TextField(blank=True)),
-                ('from_contact', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='social.contact')),
-                ('to_contact', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='related_to', to='social.contact')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, help_text="When the record was created."
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, help_text="When the record was last updated."
+                    ),
+                ),
+                (
+                    "relationship_type",
+                    models.CharField(
+                        choices=[
+                            ("partner", "Partner"),
+                            ("sibling", "Sibling"),
+                            ("child", "Child"),
+                            ("parent", "Parent"),
+                            ("family", "Family"),
+                            ("friend", "Friend"),
+                            ("colleague", "Colleague"),
+                            ("acquaintance", "Acquaintance"),
+                            ("other", "Other"),
+                        ],
+                        max_length=20,
+                    ),
+                ),
+                ("details", models.TextField(blank=True)),
+                (
+                    "from_contact",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="social.contact"
+                    ),
+                ),
+                (
+                    "to_contact",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="related_to",
+                        to="social.contact",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='ContactTouchpoint',
+            name="ContactTouchpoint",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, help_text='When the record was created.')),
-                ('updated_at', models.DateTimeField(auto_now=True, help_text='When the record was last updated.')),
-                ('date', models.DateField()),
-                ('channel', models.CharField(choices=[('phone', 'Phone'), ('email', 'Email'), ('in_person', 'In Person'), ('video_call', 'Video Call'), ('text_message', 'Text Message'), ('social_media', 'Social Media'), ('other', 'Other')], max_length=100)),
-                ('notes', models.TextField(blank=True)),
-                ('contact', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='social.contact')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, help_text="When the record was created."
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, help_text="When the record was last updated."
+                    ),
+                ),
+                ("date", models.DateField()),
+                (
+                    "channel",
+                    models.CharField(
+                        choices=[
+                            ("phone", "Phone"),
+                            ("email", "Email"),
+                            ("in_person", "In Person"),
+                            ("video_call", "Video Call"),
+                            ("text_message", "Text Message"),
+                            ("social_media", "Social Media"),
+                            ("other", "Other"),
+                        ],
+                        max_length=100,
+                    ),
+                ),
+                ("notes", models.TextField(blank=True)),
+                (
+                    "contact",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="social.contact"
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.AddField(
-            model_name='contact',
-            name='interests',
-            field=models.ManyToManyField(blank=True, related_name='contacts', to='social.interest'),
+            model_name="contact",
+            name="interests",
+            field=models.ManyToManyField(
+                blank=True, related_name="contacts", to="social.interest"
+            ),
         ),
     ]

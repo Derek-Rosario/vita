@@ -1,12 +1,20 @@
 from __future__ import annotations
 
 from datetime import date, datetime
-from typing import Iterable, List, Optional, cast
+from typing import List, Optional, cast
 
 from django.utils import timezone
-from django.db.models import BaseManager
+from django.db.models.manager import BaseManager
 
-from .models import TASK_STATUS_CATEGORY_TO_STATUSES, Routine, RoutineStep, Task, TaskStatus, TaskStatusCategory, IsAwayFromHome
+from .models import (
+    TASK_STATUS_CATEGORY_TO_STATUSES,
+    Routine,
+    RoutineStep,
+    Task,
+    TaskStatus,
+    TaskStatusCategory,
+    IsAwayFromHome,
+)
 
 
 def _weekday_sunday_first(target_date: date) -> int:
@@ -68,11 +76,12 @@ def generate_tasks_for_date(
     for routine in routines_qs:
         if not routine_is_due(routine, run_at):
             continue
-        
-        all_steps = cast(List[RoutineStep], routine.steps.all().order_by("sort_order", "pk"))
+
+        all_steps = cast(
+            List[RoutineStep], routine.steps.all().order_by("sort_order", "pk")
+        )
 
         for step in all_steps:
-
             if Task.objects.filter(
                 routine=routine, routine_step=step, routine_date=run_date
             ).exists():
@@ -86,7 +95,8 @@ def generate_tasks_for_date(
                 Task.objects.filter(
                     routine=routine,
                     routine_step=step,
-                    status__in=TASK_STATUS_CATEGORY_TO_STATUSES[TaskStatusCategory.TODO] + TASK_STATUS_CATEGORY_TO_STATUSES[TaskStatusCategory.IN_PROGRESS],
+                    status__in=TASK_STATUS_CATEGORY_TO_STATUSES[TaskStatusCategory.TODO]
+                    + TASK_STATUS_CATEGORY_TO_STATUSES[TaskStatusCategory.IN_PROGRESS],
                 ).update(status=TaskStatus.MISSED)
 
             task = Task.objects.create(

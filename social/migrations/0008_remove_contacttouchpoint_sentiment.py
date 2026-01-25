@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("social", "0007_contact_strength_alter_contacttouchpoint_contact_and_more"),
     ]

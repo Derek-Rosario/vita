@@ -4,15 +4,17 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('tasks', '0017_task_status_last_confirmed_at'),
+        ("tasks", "0017_task_status_last_confirmed_at"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='routinestep',
-            name='is_available_away_from_home',
-            field=models.BooleanField(default=True, help_text='Whether this step can be done away from home (e.g. not traveling)'),
+            model_name="routinestep",
+            name="is_available_away_from_home",
+            field=models.BooleanField(
+                default=True,
+                help_text="Whether this step can be done away from home (e.g. not traveling)",
+            ),
         ),
     ]

@@ -4,18 +4,17 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('tasks', '0008_alter_tag_color'),
+        ("tasks", "0008_alter_tag_color"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='task',
-            options={'ordering': ['status', '-priority', 'due_at', '-created_at']},
+            name="task",
+            options={"ordering": ["status", "-priority", "due_at", "-created_at"]},
         ),
         migrations.RemoveField(
-            model_name='task',
-            name='order',
+            model_name="task",
+            name="order",
         ),
     ]

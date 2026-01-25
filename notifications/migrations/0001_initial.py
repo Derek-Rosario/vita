@@ -3,7 +3,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -14,7 +13,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="WebPushSubscription",
             fields=[
-                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
                 ("endpoint", models.URLField(unique=True)),
                 ("p256dh", models.CharField(max_length=255)),
                 ("auth", models.CharField(max_length=255)),
@@ -22,7 +29,12 @@ class Migration(migrations.Migration):
                 ("active", models.BooleanField(default=True)),
                 (
                     "user",
-                    models.ForeignKey(blank=True, null=True, on_delete=models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
                 ),
             ],
         ),

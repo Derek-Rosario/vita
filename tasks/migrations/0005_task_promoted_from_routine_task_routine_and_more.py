@@ -5,275 +5,419 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('tasks', '0004_routine_tags_routinestep_default_energy_and_more'),
+        ("tasks", "0004_routine_tags_routinestep_default_energy_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='task',
-            name='promoted_from_routine',
-            field=models.BooleanField(default=False, help_text='True if explicitly kept from the routine.'),
+            model_name="task",
+            name="promoted_from_routine",
+            field=models.BooleanField(
+                default=False, help_text="True if explicitly kept from the routine."
+            ),
         ),
         migrations.AddField(
-            model_name='task',
-            name='routine',
-            field=models.ForeignKey(blank=True, help_text='Routine that produced this task.', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='generated_tasks', to='tasks.routine'),
+            model_name="task",
+            name="routine",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Routine that produced this task.",
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="generated_tasks",
+                to="tasks.routine",
+            ),
         ),
         migrations.AddField(
-            model_name='task',
-            name='routine_date',
-            field=models.DateField(blank=True, help_text='Day the routine instance belongs to.', null=True),
+            model_name="task",
+            name="routine_date",
+            field=models.DateField(
+                blank=True, help_text="Day the routine instance belongs to.", null=True
+            ),
         ),
         migrations.AddField(
-            model_name='task',
-            name='routine_step',
-            field=models.ForeignKey(blank=True, help_text='Routine step that produced this task.', null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='generated_tasks', to='tasks.routinestep'),
+            model_name="task",
+            name="routine_step",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Routine step that produced this task.",
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="generated_tasks",
+                to="tasks.routinestep",
+            ),
         ),
         migrations.AlterField(
-            model_name='comment',
-            name='content',
-            field=models.TextField(help_text='Comment text.'),
+            model_name="comment",
+            name="content",
+            field=models.TextField(help_text="Comment text."),
         ),
         migrations.AlterField(
-            model_name='comment',
-            name='created_at',
-            field=models.DateTimeField(auto_now_add=True, help_text='When the record was created.'),
+            model_name="comment",
+            name="created_at",
+            field=models.DateTimeField(
+                auto_now_add=True, help_text="When the record was created."
+            ),
         ),
         migrations.AlterField(
-            model_name='comment',
-            name='task',
-            field=models.ForeignKey(help_text='Task this comment belongs to.', on_delete=django.db.models.deletion.CASCADE, related_name='comments', to='tasks.task'),
+            model_name="comment",
+            name="task",
+            field=models.ForeignKey(
+                help_text="Task this comment belongs to.",
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="comments",
+                to="tasks.task",
+            ),
         ),
         migrations.AlterField(
-            model_name='comment',
-            name='updated_at',
-            field=models.DateTimeField(auto_now=True, help_text='When the record was last updated.'),
+            model_name="comment",
+            name="updated_at",
+            field=models.DateTimeField(
+                auto_now=True, help_text="When the record was last updated."
+            ),
         ),
         migrations.AlterField(
-            model_name='project',
-            name='archived_at',
-            field=models.DateTimeField(blank=True, help_text='When the project was archived.', null=True),
+            model_name="project",
+            name="archived_at",
+            field=models.DateTimeField(
+                blank=True, help_text="When the project was archived.", null=True
+            ),
         ),
         migrations.AlterField(
-            model_name='project',
-            name='created_at',
-            field=models.DateTimeField(auto_now_add=True, help_text='When the record was created.'),
+            model_name="project",
+            name="created_at",
+            field=models.DateTimeField(
+                auto_now_add=True, help_text="When the record was created."
+            ),
         ),
         migrations.AlterField(
-            model_name='project',
-            name='description',
-            field=models.TextField(blank=True, help_text='Brief project description.'),
+            model_name="project",
+            name="description",
+            field=models.TextField(blank=True, help_text="Brief project description."),
         ),
         migrations.AlterField(
-            model_name='project',
-            name='is_active',
-            field=models.BooleanField(default=True, help_text='Whether the project is currently in use.'),
+            model_name="project",
+            name="is_active",
+            field=models.BooleanField(
+                default=True, help_text="Whether the project is currently in use."
+            ),
         ),
         migrations.AlterField(
-            model_name='project',
-            name='name',
-            field=models.CharField(help_text='Project name.', max_length=255),
+            model_name="project",
+            name="name",
+            field=models.CharField(help_text="Project name.", max_length=255),
         ),
         migrations.AlterField(
-            model_name='project',
-            name='tags',
-            field=models.ManyToManyField(blank=True, help_text='Labels for this project.', related_name='projects', to='tasks.tag'),
+            model_name="project",
+            name="tags",
+            field=models.ManyToManyField(
+                blank=True,
+                help_text="Labels for this project.",
+                related_name="projects",
+                to="tasks.tag",
+            ),
         ),
         migrations.AlterField(
-            model_name='project',
-            name='updated_at',
-            field=models.DateTimeField(auto_now=True, help_text='When the record was last updated.'),
+            model_name="project",
+            name="updated_at",
+            field=models.DateTimeField(
+                auto_now=True, help_text="When the record was last updated."
+            ),
         ),
         migrations.AlterField(
-            model_name='routine',
-            name='anchor_time',
-            field=models.TimeField(blank=True, help_text='Optional anchor time (e.g., 08:00).', null=True),
+            model_name="routine",
+            name="anchor_time",
+            field=models.TimeField(
+                blank=True, help_text="Optional anchor time (e.g., 08:00).", null=True
+            ),
         ),
         migrations.AlterField(
-            model_name='routine',
-            name='created_at',
-            field=models.DateTimeField(auto_now_add=True, help_text='When the record was created.'),
+            model_name="routine",
+            name="created_at",
+            field=models.DateTimeField(
+                auto_now_add=True, help_text="When the record was created."
+            ),
         ),
         migrations.AlterField(
-            model_name='routine',
-            name='day_of_month',
-            field=models.PositiveSmallIntegerField(blank=True, help_text='Day of month (1-31) for monthly routines.', null=True),
+            model_name="routine",
+            name="day_of_month",
+            field=models.PositiveSmallIntegerField(
+                blank=True,
+                help_text="Day of month (1-31) for monthly routines.",
+                null=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='routine',
-            name='days_of_week',
-            field=models.JSONField(blank=True, default=list, help_text='Day indexes for recurrence (0=Sun, 6=Sat).', null=True),
+            model_name="routine",
+            name="days_of_week",
+            field=models.JSONField(
+                blank=True,
+                default=list,
+                help_text="Day indexes for recurrence (0=Sun, 6=Sat).",
+                null=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='routine',
-            name='description',
-            field=models.TextField(blank=True, help_text='What the routine covers.'),
+            model_name="routine",
+            name="description",
+            field=models.TextField(blank=True, help_text="What the routine covers."),
         ),
         migrations.AlterField(
-            model_name='routine',
-            name='interval',
-            field=models.PositiveSmallIntegerField(default=1, help_text='Frequency interval (e.g., every 2 days).'),
+            model_name="routine",
+            name="interval",
+            field=models.PositiveSmallIntegerField(
+                default=1, help_text="Frequency interval (e.g., every 2 days)."
+            ),
         ),
         migrations.AlterField(
-            model_name='routine',
-            name='is_active',
-            field=models.BooleanField(default=True, help_text='Whether the routine is currently used.'),
+            model_name="routine",
+            name="is_active",
+            field=models.BooleanField(
+                default=True, help_text="Whether the routine is currently used."
+            ),
         ),
         migrations.AlterField(
-            model_name='routine',
-            name='name',
-            field=models.CharField(help_text='Routine name.', max_length=255),
+            model_name="routine",
+            name="name",
+            field=models.CharField(help_text="Routine name.", max_length=255),
         ),
         migrations.AlterField(
-            model_name='routine',
-            name='tags',
-            field=models.ManyToManyField(blank=True, help_text='Labels applied to this routine.', related_name='routines', to='tasks.tag'),
+            model_name="routine",
+            name="tags",
+            field=models.ManyToManyField(
+                blank=True,
+                help_text="Labels applied to this routine.",
+                related_name="routines",
+                to="tasks.tag",
+            ),
         ),
         migrations.AlterField(
-            model_name='routine',
-            name='updated_at',
-            field=models.DateTimeField(auto_now=True, help_text='When the record was last updated.'),
+            model_name="routine",
+            name="updated_at",
+            field=models.DateTimeField(
+                auto_now=True, help_text="When the record was last updated."
+            ),
         ),
         migrations.AlterField(
-            model_name='routinestep',
-            name='created_at',
-            field=models.DateTimeField(auto_now_add=True, help_text='When the record was created.'),
+            model_name="routinestep",
+            name="created_at",
+            field=models.DateTimeField(
+                auto_now_add=True, help_text="When the record was created."
+            ),
         ),
         migrations.AlterField(
-            model_name='routinestep',
-            name='default_energy',
-            field=models.CharField(choices=[('LOW', 'Low'), ('MEDIUM', 'Medium'), ('HIGH', 'High')], default='MEDIUM', help_text='Default energy level for generated tasks.', max_length=8),
+            model_name="routinestep",
+            name="default_energy",
+            field=models.CharField(
+                choices=[("LOW", "Low"), ("MEDIUM", "Medium"), ("HIGH", "High")],
+                default="MEDIUM",
+                help_text="Default energy level for generated tasks.",
+                max_length=8,
+            ),
         ),
         migrations.AlterField(
-            model_name='routinestep',
-            name='default_estimate_minutes',
-            field=models.PositiveSmallIntegerField(blank=True, help_text='Default estimate in minutes.', null=True),
+            model_name="routinestep",
+            name="default_estimate_minutes",
+            field=models.PositiveSmallIntegerField(
+                blank=True, help_text="Default estimate in minutes.", null=True
+            ),
         ),
         migrations.AlterField(
-            model_name='routinestep',
-            name='default_priority',
-            field=models.IntegerField(choices=[(1, 'Low'), (2, 'Normal'), (3, 'High'), (4, 'Urgent')], default=2, help_text='Default priority for generated tasks.'),
+            model_name="routinestep",
+            name="default_priority",
+            field=models.IntegerField(
+                choices=[(1, "Low"), (2, "Normal"), (3, "High"), (4, "Urgent")],
+                default=2,
+                help_text="Default priority for generated tasks.",
+            ),
         ),
         migrations.AlterField(
-            model_name='routinestep',
-            name='default_tags',
-            field=models.ManyToManyField(blank=True, help_text='Default tags for generated tasks.', related_name='routine_steps', to='tasks.tag'),
+            model_name="routinestep",
+            name="default_tags",
+            field=models.ManyToManyField(
+                blank=True,
+                help_text="Default tags for generated tasks.",
+                related_name="routine_steps",
+                to="tasks.tag",
+            ),
         ),
         migrations.AlterField(
-            model_name='routinestep',
-            name='description',
-            field=models.TextField(blank=True, help_text='What happens in this step.'),
+            model_name="routinestep",
+            name="description",
+            field=models.TextField(blank=True, help_text="What happens in this step."),
         ),
         migrations.AlterField(
-            model_name='routinestep',
-            name='estimate_minutes',
-            field=models.PositiveSmallIntegerField(blank=True, help_text='Estimated minutes for this step.', null=True),
+            model_name="routinestep",
+            name="estimate_minutes",
+            field=models.PositiveSmallIntegerField(
+                blank=True, help_text="Estimated minutes for this step.", null=True
+            ),
         ),
         migrations.AlterField(
-            model_name='routinestep',
-            name='routine',
-            field=models.ForeignKey(help_text='Routine this step belongs to.', on_delete=django.db.models.deletion.CASCADE, related_name='steps', to='tasks.routine'),
+            model_name="routinestep",
+            name="routine",
+            field=models.ForeignKey(
+                help_text="Routine this step belongs to.",
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="steps",
+                to="tasks.routine",
+            ),
         ),
         migrations.AlterField(
-            model_name='routinestep',
-            name='sort_order',
-            field=models.PositiveSmallIntegerField(default=0, help_text='Display order within the routine.'),
+            model_name="routinestep",
+            name="sort_order",
+            field=models.PositiveSmallIntegerField(
+                default=0, help_text="Display order within the routine."
+            ),
         ),
         migrations.AlterField(
-            model_name='routinestep',
-            name='title',
-            field=models.CharField(help_text='Step title.', max_length=255),
+            model_name="routinestep",
+            name="title",
+            field=models.CharField(help_text="Step title.", max_length=255),
         ),
         migrations.AlterField(
-            model_name='routinestep',
-            name='updated_at',
-            field=models.DateTimeField(auto_now=True, help_text='When the record was last updated.'),
+            model_name="routinestep",
+            name="updated_at",
+            field=models.DateTimeField(
+                auto_now=True, help_text="When the record was last updated."
+            ),
         ),
         migrations.AlterField(
-            model_name='tag',
-            name='created_at',
-            field=models.DateTimeField(auto_now_add=True, help_text='When the record was created.'),
+            model_name="tag",
+            name="created_at",
+            field=models.DateTimeField(
+                auto_now_add=True, help_text="When the record was created."
+            ),
         ),
         migrations.AlterField(
-            model_name='tag',
-            name='name',
-            field=models.CharField(help_text='Label name.', max_length=50, unique=True),
+            model_name="tag",
+            name="name",
+            field=models.CharField(help_text="Label name.", max_length=50, unique=True),
         ),
         migrations.AlterField(
-            model_name='tag',
-            name='updated_at',
-            field=models.DateTimeField(auto_now=True, help_text='When the record was last updated.'),
+            model_name="tag",
+            name="updated_at",
+            field=models.DateTimeField(
+                auto_now=True, help_text="When the record was last updated."
+            ),
         ),
         migrations.AlterField(
-            model_name='task',
-            name='completed_at',
-            field=models.DateTimeField(blank=True, help_text='When the task was completed.', null=True),
+            model_name="task",
+            name="completed_at",
+            field=models.DateTimeField(
+                blank=True, help_text="When the task was completed.", null=True
+            ),
         ),
         migrations.AlterField(
-            model_name='task',
-            name='created_at',
-            field=models.DateTimeField(auto_now_add=True, help_text='When the record was created.'),
+            model_name="task",
+            name="created_at",
+            field=models.DateTimeField(
+                auto_now_add=True, help_text="When the record was created."
+            ),
         ),
         migrations.AlterField(
-            model_name='task',
-            name='description',
-            field=models.TextField(blank=True, help_text='Details or context for the task.'),
+            model_name="task",
+            name="description",
+            field=models.TextField(
+                blank=True, help_text="Details or context for the task."
+            ),
         ),
         migrations.AlterField(
-            model_name='task',
-            name='due_at',
-            field=models.DateField(blank=True, help_text='Due date for completion.', null=True),
+            model_name="task",
+            name="due_at",
+            field=models.DateField(
+                blank=True, help_text="Due date for completion.", null=True
+            ),
         ),
         migrations.AlterField(
-            model_name='task',
-            name='ends_at',
-            field=models.DateTimeField(blank=True, help_text='Planned end date and time.', null=True),
+            model_name="task",
+            name="ends_at",
+            field=models.DateTimeField(
+                blank=True, help_text="Planned end date and time.", null=True
+            ),
         ),
         migrations.AlterField(
-            model_name='task',
-            name='energy',
-            field=models.CharField(choices=[('LOW', 'Low'), ('MEDIUM', 'Medium'), ('HIGH', 'High')], default='MEDIUM', help_text='Energy level needed.', max_length=8),
+            model_name="task",
+            name="energy",
+            field=models.CharField(
+                choices=[("LOW", "Low"), ("MEDIUM", "Medium"), ("HIGH", "High")],
+                default="MEDIUM",
+                help_text="Energy level needed.",
+                max_length=8,
+            ),
         ),
         migrations.AlterField(
-            model_name='task',
-            name='estimate_minutes',
-            field=models.PositiveSmallIntegerField(blank=True, help_text='Estimated effort in minutes.', null=True),
+            model_name="task",
+            name="estimate_minutes",
+            field=models.PositiveSmallIntegerField(
+                blank=True, help_text="Estimated effort in minutes.", null=True
+            ),
         ),
         migrations.AlterField(
-            model_name='task',
-            name='parent',
-            field=models.ForeignKey(blank=True, help_text='Parent task when nested.', null=True, on_delete=django.db.models.deletion.CASCADE, related_name='subtasks', to='tasks.task'),
+            model_name="task",
+            name="parent",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Parent task when nested.",
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="subtasks",
+                to="tasks.task",
+            ),
         ),
         migrations.AlterField(
-            model_name='task',
-            name='priority',
-            field=models.PositiveSmallIntegerField(choices=[(1, 'Low'), (2, 'Normal'), (3, 'High'), (4, 'Urgent')], default=2, help_text='Importance level.'),
+            model_name="task",
+            name="priority",
+            field=models.PositiveSmallIntegerField(
+                choices=[(1, "Low"), (2, "Normal"), (3, "High"), (4, "Urgent")],
+                default=2,
+                help_text="Importance level.",
+            ),
         ),
         migrations.AlterField(
-            model_name='task',
-            name='starts_at',
-            field=models.DateTimeField(blank=True, help_text='Planned start date and time.', null=True),
+            model_name="task",
+            name="starts_at",
+            field=models.DateTimeField(
+                blank=True, help_text="Planned start date and time.", null=True
+            ),
         ),
         migrations.AlterField(
-            model_name='task',
-            name='status',
-            field=models.CharField(choices=[('todo', 'To do'), ('in_progress', 'In progress'), ('blocked', 'Blocked'), ('cancelled', 'Cancelled'), ('done', 'Done')], default='todo', help_text='Current workflow state.', max_length=20),
+            model_name="task",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("todo", "To do"),
+                    ("in_progress", "In progress"),
+                    ("blocked", "Blocked"),
+                    ("cancelled", "Cancelled"),
+                    ("done", "Done"),
+                ],
+                default="todo",
+                help_text="Current workflow state.",
+                max_length=20,
+            ),
         ),
         migrations.AlterField(
-            model_name='task',
-            name='tags',
-            field=models.ManyToManyField(blank=True, help_text='Labels attached to this task.', related_name='tasks', to='tasks.tag'),
+            model_name="task",
+            name="tags",
+            field=models.ManyToManyField(
+                blank=True,
+                help_text="Labels attached to this task.",
+                related_name="tasks",
+                to="tasks.tag",
+            ),
         ),
         migrations.AlterField(
-            model_name='task',
-            name='title',
-            field=models.CharField(help_text='Short task title.', max_length=255),
+            model_name="task",
+            name="title",
+            field=models.CharField(help_text="Short task title.", max_length=255),
         ),
         migrations.AlterField(
-            model_name='task',
-            name='updated_at',
-            field=models.DateTimeField(auto_now=True, help_text='When the record was last updated.'),
+            model_name="task",
+            name="updated_at",
+            field=models.DateTimeField(
+                auto_now=True, help_text="When the record was last updated."
+            ),
         ),
     ]

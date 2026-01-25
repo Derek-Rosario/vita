@@ -4,18 +4,17 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('tasks', '0005_task_promoted_from_routine_task_routine_and_more'),
+        ("tasks", "0005_task_promoted_from_routine_task_routine_and_more"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='task',
-            name='ends_at',
+            model_name="task",
+            name="ends_at",
         ),
         migrations.RemoveField(
-            model_name='task',
-            name='starts_at',
+            model_name="task",
+            name="starts_at",
         ),
     ]

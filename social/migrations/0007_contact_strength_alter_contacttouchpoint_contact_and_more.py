@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("social", "0006_rename_name_contact_first_name_contact_last_name_and_more"),
     ]

@@ -4,30 +4,41 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('social', '0002_contact_priority'),
+        ("social", "0002_contact_priority"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='contact',
-            name='check_in_frequency_days',
+            model_name="contact",
+            name="check_in_frequency_days",
             field=models.PositiveIntegerField(default=30),
         ),
         migrations.AddField(
-            model_name='contact',
-            name='last_contacted_at',
+            model_name="contact",
+            name="last_contacted_at",
             field=models.DateField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='contact',
-            name='preferred_channel',
-            field=models.CharField(blank=True, choices=[('phone', 'Phone'), ('email', 'Email'), ('in_person', 'In Person'), ('video_call', 'Video Call'), ('text_message', 'Text Message'), ('social_media', 'Social Media'), ('other', 'Other')], max_length=100),
+            model_name="contact",
+            name="preferred_channel",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("phone", "Phone"),
+                    ("email", "Email"),
+                    ("in_person", "In Person"),
+                    ("video_call", "Video Call"),
+                    ("text_message", "Text Message"),
+                    ("social_media", "Social Media"),
+                    ("other", "Other"),
+                ],
+                max_length=100,
+            ),
         ),
         migrations.AddField(
-            model_name='contact',
-            name='timezone',
-            field=models.CharField(default='America/New_York', max_length=50),
+            model_name="contact",
+            name="timezone",
+            field=models.CharField(default="America/New_York", max_length=50),
         ),
     ]

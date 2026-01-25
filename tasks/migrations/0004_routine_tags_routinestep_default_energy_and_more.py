@@ -4,25 +4,30 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('tasks', '0003_alter_routine_days_of_week'),
+        ("tasks", "0003_alter_routine_days_of_week"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='routine',
-            name='tags',
-            field=models.ManyToManyField(blank=True, related_name='routines', to='tasks.tag'),
+            model_name="routine",
+            name="tags",
+            field=models.ManyToManyField(
+                blank=True, related_name="routines", to="tasks.tag"
+            ),
         ),
         migrations.AddField(
-            model_name='routinestep',
-            name='default_energy',
-            field=models.CharField(choices=[('LOW', 'Low'), ('MEDIUM', 'Medium'), ('HIGH', 'High')], default='MEDIUM', max_length=8),
+            model_name="routinestep",
+            name="default_energy",
+            field=models.CharField(
+                choices=[("LOW", "Low"), ("MEDIUM", "Medium"), ("HIGH", "High")],
+                default="MEDIUM",
+                max_length=8,
+            ),
         ),
         migrations.AddField(
-            model_name='routinestep',
-            name='default_estimate_minutes',
+            model_name="routinestep",
+            name="default_estimate_minutes",
             field=models.PositiveSmallIntegerField(blank=True, null=True),
         ),
     ]

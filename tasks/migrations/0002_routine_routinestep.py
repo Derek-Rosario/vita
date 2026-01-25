@@ -5,46 +5,103 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('tasks', '0001_initial'),
+        ("tasks", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Routine',
+            name="Routine",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('name', models.CharField(max_length=255)),
-                ('description', models.TextField(blank=True)),
-                ('days_of_week', models.JSONField(blank=True, default=[], help_text='List of integers representing days of the week (0=Sunday, 6=Saturday).', null=True)),
-                ('day_of_month', models.PositiveSmallIntegerField(blank=True, help_text='Day of the month (1-31) for monthly routines.', null=True)),
-                ('interval', models.PositiveSmallIntegerField(default=1, help_text='Interval for the routine frequency (e.g., every 2 days).')),
-                ('anchor_time', models.TimeField(blank=True, null=True)),
-                ('is_active', models.BooleanField(default=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("name", models.CharField(max_length=255)),
+                ("description", models.TextField(blank=True)),
+                (
+                    "days_of_week",
+                    models.JSONField(
+                        blank=True,
+                        default=[],
+                        help_text="List of integers representing days of the week (0=Sunday, 6=Saturday).",
+                        null=True,
+                    ),
+                ),
+                (
+                    "day_of_month",
+                    models.PositiveSmallIntegerField(
+                        blank=True,
+                        help_text="Day of the month (1-31) for monthly routines.",
+                        null=True,
+                    ),
+                ),
+                (
+                    "interval",
+                    models.PositiveSmallIntegerField(
+                        default=1,
+                        help_text="Interval for the routine frequency (e.g., every 2 days).",
+                    ),
+                ),
+                ("anchor_time", models.TimeField(blank=True, null=True)),
+                ("is_active", models.BooleanField(default=True)),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='RoutineStep',
+            name="RoutineStep",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('title', models.CharField(max_length=255)),
-                ('description', models.TextField(blank=True)),
-                ('estimate_minutes', models.PositiveSmallIntegerField(blank=True, null=True)),
-                ('sort_order', models.PositiveSmallIntegerField(default=0)),
-                ('default_priority', models.IntegerField(choices=[(1, 'Low'), (2, 'Normal'), (3, 'High'), (4, 'Urgent')], default=2)),
-                ('default_tags', models.ManyToManyField(blank=True, related_name='routine_steps', to='tasks.tag')),
-                ('routine', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='steps', to='tasks.routine')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("title", models.CharField(max_length=255)),
+                ("description", models.TextField(blank=True)),
+                (
+                    "estimate_minutes",
+                    models.PositiveSmallIntegerField(blank=True, null=True),
+                ),
+                ("sort_order", models.PositiveSmallIntegerField(default=0)),
+                (
+                    "default_priority",
+                    models.IntegerField(
+                        choices=[(1, "Low"), (2, "Normal"), (3, "High"), (4, "Urgent")],
+                        default=2,
+                    ),
+                ),
+                (
+                    "default_tags",
+                    models.ManyToManyField(
+                        blank=True, related_name="routine_steps", to="tasks.tag"
+                    ),
+                ),
+                (
+                    "routine",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="steps",
+                        to="tasks.routine",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
     ]

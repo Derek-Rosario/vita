@@ -18,7 +18,6 @@ class MoodChoices(models.TextChoices):
 
 
 class MoodEntry(TimestampedModel):
-
     datetime = models.DateTimeField(auto_now_add=True)
     mood = models.CharField(max_length=10, choices=MoodChoices.choices)
     notes = models.TextField(blank=True)
@@ -35,10 +34,12 @@ class JournalEntry(TimestampedModel):
     def __str__(self):
         return f"{self.date} - {self.title}"
 
+
 class DreamTypeChoices(models.TextChoices):
     NIGHTMARE = "nightmare", "Nightmare"
     NEUTRAL = "neutral", "Neutral"
     HAPPY = "happy", "Happy"
+
 
 class DreamEntry(TimestampedModel):
     date = models.DateField(auto_now_add=True)

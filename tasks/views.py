@@ -2,7 +2,6 @@ import random
 from typing import Dict, List
 from datetime import timedelta
 from datetime import datetime
-from django_eventstream import send_event
 
 from django import forms
 from django.forms import inlineformset_factory
@@ -16,9 +15,14 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
 from django.db.models import Q
 
-from core.services import add_htmx_trigger, add_toast, add_voice_message
+from core.services import add_toast, add_voice_message
 from core.views import HttpRequest
-from tasks.models import Task, TaskStatus
+from tasks.models import (
+    TASK_STATUS_CATEGORY_TO_STATUSES,
+    Task,
+    TaskStatus,
+    TaskStatusCategory,
+)
 from tasks.models import Comment, Project, Routine, RoutineStep, Tag
 from tasks.services import generate_tasks_for_date
 from tasks.voice import (
@@ -26,8 +30,8 @@ from tasks.voice import (
     TASK_CANCELLED_VOICE_MESSAGES,
     TASK_COMPLETED_VOICE_MESSAGES,
 )
-from django.db.models import Count, Sum, F, IntegerField, Value, Case, When
-from django.db.models.functions import TruncWeek, Coalesce
+from django.db.models import Count
+from django.db.models.functions import TruncWeek
 
 BOARD_STATUSES = [
     (TaskStatus.TODO, "To do"),
@@ -150,7 +154,10 @@ def task_checklist(request: HttpRequest):
             return HttpResponse(status=200)
 
     tasks_qs = (
-        Task.objects.filter(status__in=[TaskStatus.TODO, TaskStatus.IN_PROGRESS])
+        Task.objects.filter(
+            status__in=TASK_STATUS_CATEGORY_TO_STATUSES[TaskStatusCategory.TODO]
+            + TASK_STATUS_CATEGORY_TO_STATUSES[TaskStatusCategory.IN_PROGRESS]
+        )
         .select_related("project", "parent")
         .prefetch_related("tags")
         .order_by("-priority", "due_at", "-created_at")

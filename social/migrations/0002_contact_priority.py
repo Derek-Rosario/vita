@@ -5,15 +5,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('social', '0001_initial'),
+        ("social", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='contact',
-            name='priority',
-            field=models.PositiveSmallIntegerField(default=1, validators=[django.core.validators.MaxValueValidator(10)]),
+            model_name="contact",
+            name="priority",
+            field=models.PositiveSmallIntegerField(
+                default=1, validators=[django.core.validators.MaxValueValidator(10)]
+            ),
         ),
     ]

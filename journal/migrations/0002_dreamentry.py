@@ -4,24 +4,51 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('journal', '0001_initial'),
+        ("journal", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='DreamEntry',
+            name="DreamEntry",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, help_text='When the record was created.')),
-                ('updated_at', models.DateTimeField(auto_now=True, help_text='When the record was last updated.')),
-                ('date', models.DateField(auto_now_add=True)),
-                ('type', models.CharField(choices=[('nightmare', 'Nightmare'), ('neutral', 'Neutral'), ('happy', 'Happy')], max_length=10)),
-                ('content_markdown', models.TextField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, help_text="When the record was created."
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(
+                        auto_now=True, help_text="When the record was last updated."
+                    ),
+                ),
+                ("date", models.DateField(auto_now_add=True)),
+                (
+                    "type",
+                    models.CharField(
+                        choices=[
+                            ("nightmare", "Nightmare"),
+                            ("neutral", "Neutral"),
+                            ("happy", "Happy"),
+                        ],
+                        max_length=10,
+                    ),
+                ),
+                ("content_markdown", models.TextField()),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
     ]

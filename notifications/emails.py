@@ -5,8 +5,9 @@ from django.conf import settings
 from django.template.loader import render_to_string
 from mjml import mjml_to_html
 from django.utils.html import strip_tags
+from django.db.models.manager import BaseManager
 
-from tasks.models import Task, TaskStatus
+from tasks.models import Task
 
 
 def send_mail(to_address, subject, body_html):

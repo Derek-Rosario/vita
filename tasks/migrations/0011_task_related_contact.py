@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("social", "0007_contact_strength_alter_contacttouchpoint_contact_and_more"),
         ("tasks", "0010_alter_task_status_alter_task_title"),
