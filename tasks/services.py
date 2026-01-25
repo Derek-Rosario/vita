@@ -95,7 +95,7 @@ def generate_tasks_for_date(
                 Task.objects.filter(
                     routine=routine,
                     routine_step=step,
-                    status__in=TASK_STATUS_CATEGORY_TO_STATUSES[TaskStatusCategory.TODO]
+                    status__in=[TaskStatus.TODO, TaskStatus.ON_DECK]
                     + TASK_STATUS_CATEGORY_TO_STATUSES[TaskStatusCategory.IN_PROGRESS],
                 ).update(status=TaskStatus.MISSED)
 
