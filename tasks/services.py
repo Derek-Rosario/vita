@@ -13,7 +13,7 @@ from .models import (
     Task,
     TaskStatus,
     TaskStatusCategory,
-    IsAwayFromHome,
+    ScheduledAwayTrip,
 )
 
 
@@ -69,8 +69,7 @@ def generate_tasks_for_date(
         "steps__default_tags"
     )
 
-    # Check if there is an IsAwayFromHome instance and get its value
-    is_away_from_home = IsAwayFromHome.objects.get_or_create(pk=1)[0].is_away
+    is_on_trip = ScheduledAwayTrip.is_active_now()
 
     created: List[Task] = []
     for routine in routines_qs:
@@ -87,7 +86,7 @@ def generate_tasks_for_date(
             ).exists():
                 continue
 
-            if not step.is_available_away_from_home and is_away_from_home:
+            if not step.is_available_away_from_home and is_on_trip:
                 continue
 
             # If task is not stackable, cancel any existing uncompleted tasks for this step before creating a new one

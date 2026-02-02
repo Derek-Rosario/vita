@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Comment, Project, Routine, RoutineStep, Tag, Task
+from .models import Comment, Project, Routine, RoutineStep, Tag, Task, ScheduledAwayTrip
 
 
 @admin.register(Tag)
@@ -77,3 +77,9 @@ class CommentAdmin(admin.ModelAdmin):
     list_display = ("task", "content", "created_at")
     search_fields = ("content",)
     autocomplete_fields = ("task",)
+
+
+@admin.register(ScheduledAwayTrip)
+class ScheduledAwayTripAdmin(admin.ModelAdmin):
+    list_display = ("title", "start_date", "end_date")
+    search_fields = ("title",)

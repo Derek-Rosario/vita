@@ -520,8 +520,23 @@ class RoutineStep(TimestampedModel):
         return f"{self.routine.name}: {self.title}"
 
 
-class IsAwayFromHome(models.Model):
-    is_away = models.BooleanField(
-        default=False,
-        help_text="Whether the user is currently away from home.",
+class ScheduledAwayTrip(models.Model):
+    start_date = models.DateField(
+        help_text="Start date of the away period.",
     )
+    end_date = models.DateField(
+        help_text="End date of the away period.",
+    )
+    title = models.CharField(
+        max_length=255,
+        help_text="Title for the away period.",
+    )
+
+    def __str__(self):
+        return f"{self.title} ({self.start_date} to {self.end_date})"
+
+    @classmethod
+    def is_active_now(cls) -> bool:
+        """Returns True if today falls within any trip's date range."""
+        today = timezone.localdate()
+        return cls.objects.filter(start_date__lte=today, end_date__gte=today).exists()
