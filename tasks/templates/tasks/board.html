@@ -49,6 +49,7 @@
         </ul>
       </div>
       <div class="gap-2 d-none d-lg-flex align-items-center">
+        {% if is_away_from_home == False %}<span class="badge rounded-pill text-bg-warning">Not Home</span>{% endif %}
         <a hx-boost="true"
            href="{% url 'task_list' %}"
            class="btn btn-outline-secondary">All tasks</a>
@@ -99,12 +100,9 @@
         </div>
       </div>
     </div>
-    <div
-     hx-get="{% url 'task_board_fragment' %}"
-     hx-trigger="task-updated from:body"
-     hx-vals='js:{"updated_task_pk": event?.detail?.task_id }'>
-      {% include "tasks/partials/board.html"%}
-    </div>
+    <div hx-get="{% url 'task_board_fragment' %}"
+         hx-trigger="task-updated from:body"
+         hx-vals='js:{"updated_task_pk": event?.detail?.task_id }'>{% include "tasks/partials/board.html" %}</div>
     <div class="fixed-bottom mb-3 ms-3 d-flex gap-1" id="drop-to-move-cards">
       <div class="card border-danger text-danger drop-to-move-card"
            id="cancel-card"

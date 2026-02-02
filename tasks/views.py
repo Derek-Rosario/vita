@@ -15,7 +15,8 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
 from django.db.models import Q
 
-from core.services import add_toast, add_voice_message
+from core.models import LastGeolocation
+from core.services import add_toast, add_voice_message, is_close_to_home
 from core.views import HttpRequest
 from tasks.models import (
     TASK_STATUS_CATEGORY_TO_STATUSES,
@@ -455,6 +456,17 @@ def _fetch_board_context():
         .prefetch_related("tags")
         .order_by("-priority", "due_at", "-created_at")
     )
+
+    is_away_from_home: bool | None = None
+    last_geolocation = LastGeolocation.objects.first()
+    if last_geolocation and last_geolocation.is_fresh:
+        # Check if home
+        is_away_from_home = is_close_to_home(
+            last_geolocation.latitude, last_geolocation.longitude
+        )
+        if not is_away_from_home:
+            tasks = tasks.exclude(routine_step__is_available_away_from_home=False)
+
     grouped: Dict[TaskStatus | str, List[Task]] = {
         code: [] for code, _ in BOARD_STATUSES
     }
@@ -475,7 +487,10 @@ def _fetch_board_context():
         }
         for code, label in BOARD_STATUSES
     ]
-    return {"columns": columns}
+    return {
+        "columns": columns,
+        "is_away_from_home": is_away_from_home,
+    }
 
 
 class TaskForm(forms.ModelForm):
@@ -605,6 +620,7 @@ class RoutineStepForm(forms.ModelForm):
             "default_estimate_minutes",
             "default_tags",
             "is_stackable",
+            "is_available_away_from_home",
         ]
         widgets = {
             "title": forms.TextInput(attrs={"class": "form-control"}),

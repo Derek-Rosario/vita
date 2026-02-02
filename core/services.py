@@ -2,6 +2,8 @@ import json
 from typing import Literal
 from django.http import HttpResponse
 
+from core.constants import HOME_COORDINATES
+
 
 def add_htmx_trigger(
     response: HttpResponse,
@@ -34,3 +36,14 @@ def add_voice_message(
     message: str,
 ):
     add_htmx_trigger(response, "speak", {"message": message})
+
+
+def is_close_to_home(latitude: float, longitude: float) -> bool:
+    """Determine if the given latitude and longitude are close to home location."""
+
+    THRESHOLD = 0.01  # Approx ~1km
+
+    lat_diff = abs(latitude - HOME_COORDINATES["latitude"])
+    lon_diff = abs(longitude - HOME_COORDINATES["longitude"])
+
+    return lat_diff <= THRESHOLD and lon_diff <= THRESHOLD
