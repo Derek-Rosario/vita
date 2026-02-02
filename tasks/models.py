@@ -355,7 +355,7 @@ class Task(TimestampedModel):
         Calculate a weighted score for task completion based on priority and energy.
         Higher priority and higher energy tasks are worth more points.
 
-        Returns a value between 1 (low priority, low energy) and 12 (urgent, high energy).
+        Returns a value between 1 (low priority, low energy) and 7 (urgent, high energy).
         """
         # Energy multiplier
         energy_multiplier = {

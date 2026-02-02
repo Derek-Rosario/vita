@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timedelta
 from typing import List, Optional, cast
 
 from django.utils import timezone
@@ -119,3 +119,42 @@ def generate_tasks_for_date(
             created.append(task)
 
     return created
+
+
+def get_average_daily_completed_tasks_weight():
+    days = 30
+    yesterday = timezone.now() - timedelta(days=1)
+    cutoff = yesterday - timedelta(days=days)
+    completed = Task.objects.filter(
+        status=TaskStatus.DONE,
+        completed_at__gte=cutoff,
+        completed_at__lte=yesterday,
+    )
+
+    buckets: dict[date, int] = {}
+    for task in completed:
+        if not task.completed_at:
+            continue
+        completed_date = timezone.localtime(task.completed_at).date()
+        buckets[completed_date] = (
+            buckets.get(completed_date, 0) + task.completion_weight
+        )
+
+    print(buckets)
+    if len(buckets) == 0:
+        return 0
+    return round(sum(buckets.values()) / len(buckets))
+
+
+def get_today_completed_tasks_weight():
+    today = timezone.localdate()
+    completed = Task.objects.filter(
+        status=TaskStatus.DONE,
+        completed_at__date=today,
+    )
+
+    total_weight = 0
+    for task in completed:
+        total_weight += task.completion_weight
+
+    return total_weight

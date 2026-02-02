@@ -1,3 +1,13 @@
+<div title="{{ today_completed_tasks_weight }} today out of an daily average of {{ average_daily_completed_tasks_weight }}"
+     class="progress mb-4"
+     role="progressbar"
+     aria-label="Animated striped example"
+     aria-valuenow="{{ today_completed_tasks_weight }}"
+     aria-valuemin="0"
+     aria-valuemax="{{ average_daily_completed_tasks_weight }}">
+    <div class="progress-bar bg-success progress-bar-striped progress-bar-animated"
+         style="width: {{ today_completed_tasks_weight_percent }}%"></div>
+</div>
 <div id="kanban-board"
      class="d-flex gap-3 flex-nowrap overflow-auto"
      data-move-url="{% url 'task_move' %}"

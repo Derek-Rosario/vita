@@ -25,7 +25,11 @@ from tasks.models import (
     TaskStatusCategory,
 )
 from tasks.models import Comment, Project, Routine, RoutineStep, Tag
-from tasks.services import generate_tasks_for_date
+from tasks.services import (
+    generate_tasks_for_date,
+    get_average_daily_completed_tasks_weight,
+    get_today_completed_tasks_weight,
+)
 from tasks.voice import (
     TASK_BACKLOGGED_VOICE_MESSAGES,
     TASK_CANCELLED_VOICE_MESSAGES,
@@ -487,8 +491,20 @@ def _fetch_board_context():
         }
         for code, label in BOARD_STATUSES
     ]
+
+    today_completed_tasks_weight = get_today_completed_tasks_weight()
+
+    average_daily_completed_tasks_weight = get_average_daily_completed_tasks_weight()
+
     return {
         "columns": columns,
+        "today_completed_tasks_weight": today_completed_tasks_weight,
+        "average_daily_completed_tasks_weight": average_daily_completed_tasks_weight,
+        "today_completed_tasks_weight_percent": (
+            today_completed_tasks_weight / average_daily_completed_tasks_weight * 100
+        )
+        if average_daily_completed_tasks_weight
+        else 0,
         "is_away_from_home": is_away_from_home,
     }
 
@@ -1102,3 +1118,7 @@ def catch_up(request: HttpRequest):
             "statuses": TaskStatus.choices,
         },
     )
+
+
+def stats_index(request: HttpRequest):
+    return {}
