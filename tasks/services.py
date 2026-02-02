@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import date, datetime
+from datetime import date, datetime, time
 from typing import List, Optional, cast
 
 from django.utils import timezone
@@ -31,10 +31,10 @@ def routine_is_due(routine: Routine, target_datetime: datetime) -> bool:
     if not routine.is_active:
         return False
 
-    # Skip if target_date is before anchor time of day, if set
-    if routine.anchor_time:
-        if target_datetime.time() < routine.anchor_time:
-            return False
+    # Skip if target_date is before anchor time of day
+    anchor_time = routine.anchor_time or time(6, 0)
+    if target_datetime.time() < anchor_time:
+        return False
 
     # Explicit monthly day
     if routine.day_of_month:
@@ -86,17 +86,21 @@ def generate_tasks_for_date(
             ).exists():
                 continue
 
-            if not step.is_available_away_from_home and is_on_trip:
-                continue
-
             # If task is not stackable, cancel any existing uncompleted tasks for this step before creating a new one
             if not step.is_stackable:
                 Task.objects.filter(
                     routine=routine,
                     routine_step=step,
-                    status__in=[TaskStatus.TODO, TaskStatus.ON_DECK]
-                    + TASK_STATUS_CATEGORY_TO_STATUSES[TaskStatusCategory.IN_PROGRESS],
+                    status__in=[
+                        TaskStatus.TODO,
+                        TaskStatus.ON_DECK,
+                        TaskStatus.IN_PROGRESS,
+                        TaskStatus.BLOCKED,
+                    ],
                 ).update(status=TaskStatus.MISSED)
+
+            if not step.is_available_away_from_home and is_on_trip:
+                continue
 
             task = Task.objects.create(
                 title=step.title,

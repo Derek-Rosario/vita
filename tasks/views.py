@@ -353,7 +353,7 @@ def velocity_data(request: HttpRequest):
     )
 
     cancelled_qs = Task.objects.filter(
-        status=TaskStatus.CANCELLED,
+        status__in=[TaskStatus.CANCELLED, TaskStatus.MISSED],
         status_last_changed_at__isnull=False,
         status_last_changed_at__gte=start,
     )
