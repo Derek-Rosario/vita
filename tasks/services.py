@@ -140,7 +140,6 @@ def get_average_daily_completed_tasks_weight():
             buckets.get(completed_date, 0) + task.completion_weight
         )
 
-    print(buckets)
     if len(buckets) == 0:
         return 0
     return round(sum(buckets.values()) / len(buckets))
