@@ -50,6 +50,10 @@ class Contact(TimestampedModel):
     last_contacted_at = models.DateField(null=True, blank=True)
     strength = models.PositiveSmallIntegerField(default=0, db_index=True)
 
+    is_ever_contacted = models.BooleanField(
+        default=False, help_text="Indicates if this contact has ever been contacted."
+    )
+
     @property
     def name(self):
         return self.nickname if self.nickname else f"{self.first_name} {self.last_name}"
@@ -160,6 +164,9 @@ class ContactTouchpoint(TimestampedModel):
             or self.date > self.contact.last_contacted_at
         ):
             self.contact.last_contacted_at = self.date
+
+        # Mark contact as ever contacted
+        self.contact.is_ever_contacted = True
 
         # Update contact strength and save
         self.contact.save()

@@ -22,6 +22,7 @@ dependencies = [
     "mjml>=0.11.1",
     "django-eventstream>=5.3.3",
     "daphne>=4.2.1",
+    "faker>=37.0.0",
 ]
 
 [tool.djlint]
@@ -34,4 +35,5 @@ dev = [
     "ipython==8.10.0",
     "ruff>=0.14.8",
     "setuptools>=80.9.0",
+    "faker>=40.1.2",
 ]

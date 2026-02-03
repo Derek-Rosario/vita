@@ -52,3 +52,42 @@ body {
   background: #fdecea;
   color: #c92a2a;
 }
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 0.6rem;
+}
+
+.contact-tile {
+  aspect-ratio: 1 / 1;
+  border-radius: 0.6rem;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+  overflow: hidden;
+}
+
+.contact-tile--never {
+  background: transparent;
+  color: #495057;
+  box-shadow: none;
+}
+
+.contact-tile__name {
+  font-weight: 600;
+  line-height: 1.1;
+  max-height: 2.2em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.contact-tile__strength {
+  font-size: 0.7rem;
+  opacity: 0.9;
+}

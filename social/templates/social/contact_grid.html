@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="container py-4">
+        <div class="mb-3">
+            <a href="{% url 'social:index' %}" class="text-decoration-none">← Back to home</a>
+        </div>
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <h1 class="h2 m-0">Contact Grid</h1>
+            <a href="{% url 'social:list_contacts' %}"
+               class="btn btn-outline-secondary btn-sm">List view</a>
+        </div>
+        <div class="contact-grid">
+            {% for item in contact_tiles %}
+                {% with contact=item.contact %}
+                    <div class="contact-tile {% if not contact.is_ever_contacted %}contact-tile--never{% else %}contact-tile--contacted{% endif %}"
+                         {% if contact.is_ever_contacted %}style="background-color: hsl({{ item.hue }} 75% 45%);"{% endif %}>
+                        <div class="contact-tile__name" title="{{ contact.name }}">{{ contact.name }}</div>
+                        <div class="contact-tile__strength">
+                            {% if contact.is_ever_contacted %}
+                                {{ contact.strength }}%
+                            {% else %}
+                                —
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endwith %}
+            {% endfor %}
+        </div>
+    </div>
+{% endblock content %}

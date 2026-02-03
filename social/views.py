@@ -107,6 +107,23 @@ def list_contacts(request: HttpRequest):
     )
 
 
+def contact_grid(request: HttpRequest):
+    contacts = Contact.objects.all().order_by(
+        "priority", Lower("first_name"), Lower("last_name")
+    )
+    contact_tiles = []
+    for contact in contacts:
+        strength = contact.strength or 0
+        hue = round(strength * 1.2, 1)
+        contact_tiles.append({"contact": contact, "hue": hue})
+
+    return render(
+        request,
+        "social/contact_grid.html",
+        {"contact_tiles": contact_tiles},
+    )
+
+
 def log_contact_touchpoint_modal(request: HttpRequest):
     if request.method == "POST":
         form = ContactTouchpointForm(request.POST)

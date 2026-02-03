@@ -1,0 +1,3746 @@
+[
+  {
+    "model": "social.contact",
+    "pk": "contact-001",
+    "fields": {
+      "created_at": "2025-11-16T05:48:51.165312",
+      "updated_at": "2026-02-03T05:04:13.281008+00:00",
+      "first_name": "Danielle",
+      "last_name": "Johnson",
+      "nickname": "Joshua",
+      "priority": 2,
+      "relationship_to_me": "sibling",
+      "birthday": "1959-09-12",
+      "notes": "Fixture contact 001.",
+      "timezone": "America/Chicago",
+      "preferred_channel": "text_message",
+      "check_in_frequency_days": 90,
+      "last_contacted_at": "2025-10-29",
+      "strength": 4,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-002",
+    "fields": {
+      "created_at": "2024-02-22T21:45:58.179635",
+      "updated_at": "2026-02-03T05:04:13.281436+00:00",
+      "first_name": "Robert",
+      "last_name": "Johnson",
+      "nickname": "Jeffery",
+      "priority": 3,
+      "relationship_to_me": "parent",
+      "birthday": "1965-08-18",
+      "notes": "Fixture contact 002.",
+      "timezone": "America/New_York",
+      "preferred_channel": "text_message",
+      "check_in_frequency_days": 30,
+      "last_contacted_at": "2025-08-06",
+      "strength": 91,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-003",
+    "fields": {
+      "created_at": "2025-04-08T23:16:24.239863",
+      "updated_at": "2026-02-03T05:04:13.281719+00:00",
+      "first_name": "Debra",
+      "last_name": "Gardner",
+      "nickname": "Jeffrey",
+      "priority": 4,
+      "relationship_to_me": "other",
+      "birthday": "1997-12-27",
+      "notes": "Fixture contact 003.",
+      "timezone": "Asia/Tokyo",
+      "preferred_channel": "email",
+      "check_in_frequency_days": 120,
+      "last_contacted_at": null,
+      "strength": 75,
+      "is_ever_contacted": false
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-004",
+    "fields": {
+      "created_at": "2026-01-02T17:57:01.430757",
+      "updated_at": "2026-02-03T05:04:13.282082+00:00",
+      "first_name": "Adam",
+      "last_name": "Shaffer",
+      "nickname": "Helen",
+      "priority": 5,
+      "relationship_to_me": "colleague",
+      "birthday": "1972-12-05",
+      "notes": "Fixture contact 004.",
+      "timezone": "Europe/Berlin",
+      "preferred_channel": "in_person",
+      "check_in_frequency_days": 21,
+      "last_contacted_at": "2025-06-07",
+      "strength": 27,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-005",
+    "fields": {
+      "created_at": "2025-09-15T02:44:08.675711",
+      "updated_at": "2026-02-03T05:04:13.282361+00:00",
+      "first_name": "Christopher",
+      "last_name": "Davis",
+      "nickname": "",
+      "priority": 6,
+      "relationship_to_me": "friend",
+      "birthday": "1993-10-07",
+      "notes": "Fixture contact 005.",
+      "timezone": "Europe/Berlin",
+      "preferred_channel": "text_message",
+      "check_in_frequency_days": 45,
+      "last_contacted_at": "2025-12-09",
+      "strength": 5,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-006",
+    "fields": {
+      "created_at": "2025-03-12T18:39:41.924725",
+      "updated_at": "2026-02-03T05:04:13.282621+00:00",
+      "first_name": "Amanda",
+      "last_name": "Dudley",
+      "nickname": "Nicholas",
+      "priority": 7,
+      "relationship_to_me": "acquaintance",
+      "birthday": "1999-01-18",
+      "notes": "Fixture contact 006.",
+      "timezone": "America/Chicago",
+      "preferred_channel": "video_call",
+      "check_in_frequency_days": 14,
+      "last_contacted_at": null,
+      "strength": 70,
+      "is_ever_contacted": false
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-007",
+    "fields": {
+      "created_at": "2024-07-18T23:57:12.439182",
+      "updated_at": "2026-02-03T05:04:13.282949+00:00",
+      "first_name": "Christine",
+      "last_name": "Hensley",
+      "nickname": "Barbara",
+      "priority": 8,
+      "relationship_to_me": "parent",
+      "birthday": "1970-06-05",
+      "notes": "Fixture contact 007.",
+      "timezone": "America/Chicago",
+      "preferred_channel": "phone",
+      "check_in_frequency_days": 30,
+      "last_contacted_at": "2025-10-18",
+      "strength": 98,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-008",
+    "fields": {
+      "created_at": "2024-10-27T00:36:46.512127",
+      "updated_at": "2026-02-03T05:04:13.283278+00:00",
+      "first_name": "Christopher",
+      "last_name": "Hall",
+      "nickname": "Craig",
+      "priority": 9,
+      "relationship_to_me": "sibling",
+      "birthday": "1974-09-16",
+      "notes": "Fixture contact 008.",
+      "timezone": "Asia/Tokyo",
+      "preferred_channel": "",
+      "check_in_frequency_days": 45,
+      "last_contacted_at": "2025-09-22",
+      "strength": 58,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-009",
+    "fields": {
+      "created_at": "2025-05-21T21:35:44.141770",
+      "updated_at": "2026-02-03T05:04:13.283514+00:00",
+      "first_name": "Jason",
+      "last_name": "Adams",
+      "nickname": "Sharon",
+      "priority": 10,
+      "relationship_to_me": "friend",
+      "birthday": "1987-05-17",
+      "notes": "Fixture contact 009.",
+      "timezone": "America/Denver",
+      "preferred_channel": "in_person",
+      "check_in_frequency_days": 60,
+      "last_contacted_at": null,
+      "strength": 26,
+      "is_ever_contacted": false
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-010",
+    "fields": {
+      "created_at": "2025-05-16T00:43:07.923558",
+      "updated_at": "2026-02-03T05:04:13.283805+00:00",
+      "first_name": "George",
+      "last_name": "Daniel",
+      "nickname": "",
+      "priority": 1,
+      "relationship_to_me": "child",
+      "birthday": "1984-08-10",
+      "notes": "Fixture contact 010.",
+      "timezone": "America/Los_Angeles",
+      "preferred_channel": "email",
+      "check_in_frequency_days": 120,
+      "last_contacted_at": "2026-01-30",
+      "strength": 48,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-011",
+    "fields": {
+      "created_at": "2024-09-20T22:55:18.115992",
+      "updated_at": "2026-02-03T05:04:13.284142+00:00",
+      "first_name": "Gabrielle",
+      "last_name": "Cameron",
+      "nickname": "Kimberly",
+      "priority": 2,
+      "relationship_to_me": "friend",
+      "birthday": "1969-04-12",
+      "notes": "Fixture contact 011.",
+      "timezone": "America/New_York",
+      "preferred_channel": "email",
+      "check_in_frequency_days": 7,
+      "last_contacted_at": "2025-04-27",
+      "strength": 40,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-012",
+    "fields": {
+      "created_at": "2024-09-20T09:19:54.618794",
+      "updated_at": "2026-02-03T05:04:13.284383+00:00",
+      "first_name": "Jason",
+      "last_name": "Hahn",
+      "nickname": "Nancy",
+      "priority": 3,
+      "relationship_to_me": "colleague",
+      "birthday": "1989-10-29",
+      "notes": "Fixture contact 012.",
+      "timezone": "Europe/London",
+      "preferred_channel": "phone",
+      "check_in_frequency_days": 30,
+      "last_contacted_at": null,
+      "strength": 72,
+      "is_ever_contacted": false
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-013",
+    "fields": {
+      "created_at": "2024-08-13T10:48:36.152747",
+      "updated_at": "2026-02-03T05:04:13.284728+00:00",
+      "first_name": "Randall",
+      "last_name": "Rocha",
+      "nickname": "Stephen",
+      "priority": 4,
+      "relationship_to_me": "acquaintance",
+      "birthday": "1986-01-27",
+      "notes": "Fixture contact 013.",
+      "timezone": "America/Denver",
+      "preferred_channel": "in_person",
+      "check_in_frequency_days": 21,
+      "last_contacted_at": "2025-08-26",
+      "strength": 31,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-014",
+    "fields": {
+      "created_at": "2024-03-08T22:34:19.041111",
+      "updated_at": "2026-02-03T05:04:13.285080+00:00",
+      "first_name": "Rachael",
+      "last_name": "Ross",
+      "nickname": "Jeffrey",
+      "priority": 5,
+      "relationship_to_me": "colleague",
+      "birthday": "1960-11-25",
+      "notes": "Fixture contact 014.",
+      "timezone": "Europe/Berlin",
+      "preferred_channel": "email",
+      "check_in_frequency_days": 21,
+      "last_contacted_at": "2026-02-02",
+      "strength": 65,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-015",
+    "fields": {
+      "created_at": "2024-12-07T21:39:22.244133",
+      "updated_at": "2026-02-03T05:04:13.285267+00:00",
+      "first_name": "Courtney",
+      "last_name": "Conner",
+      "nickname": "",
+      "priority": 6,
+      "relationship_to_me": "acquaintance",
+      "birthday": "1958-06-16",
+      "notes": "Fixture contact 015.",
+      "timezone": "America/Chicago",
+      "preferred_channel": "other",
+      "check_in_frequency_days": 7,
+      "last_contacted_at": null,
+      "strength": 14,
+      "is_ever_contacted": false
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-016",
+    "fields": {
+      "created_at": "2025-10-24T07:19:36.635145",
+      "updated_at": "2026-02-03T05:04:13.285544+00:00",
+      "first_name": "Patrick",
+      "last_name": "Ferrell",
+      "nickname": "Allison",
+      "priority": 7,
+      "relationship_to_me": "colleague",
+      "birthday": "1955-09-13",
+      "notes": "Fixture contact 016.",
+      "timezone": "America/Chicago",
+      "preferred_channel": "",
+      "check_in_frequency_days": 90,
+      "last_contacted_at": "2026-01-23",
+      "strength": 48,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-017",
+    "fields": {
+      "created_at": "2024-12-17T02:38:45.474678",
+      "updated_at": "2026-02-03T05:04:13.285895+00:00",
+      "first_name": "Jennifer",
+      "last_name": "Maldonado",
+      "nickname": "Amanda",
+      "priority": 8,
+      "relationship_to_me": "sibling",
+      "birthday": "1979-02-20",
+      "notes": "Fixture contact 017.",
+      "timezone": "Europe/London",
+      "preferred_channel": "other",
+      "check_in_frequency_days": 60,
+      "last_contacted_at": "2025-09-24",
+      "strength": 14,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-018",
+    "fields": {
+      "created_at": "2025-02-03T04:35:08.629589",
+      "updated_at": "2026-02-03T05:04:13.286150+00:00",
+      "first_name": "Stephanie",
+      "last_name": "Liu",
+      "nickname": "Jose",
+      "priority": 9,
+      "relationship_to_me": "family",
+      "birthday": "1964-07-23",
+      "notes": "Fixture contact 018.",
+      "timezone": "Asia/Tokyo",
+      "preferred_channel": "email",
+      "check_in_frequency_days": 120,
+      "last_contacted_at": null,
+      "strength": 0,
+      "is_ever_contacted": false
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-019",
+    "fields": {
+      "created_at": "2025-08-13T12:31:25.030241",
+      "updated_at": "2026-02-03T05:04:13.286486+00:00",
+      "first_name": "Rita",
+      "last_name": "Harrell",
+      "nickname": "Kenneth",
+      "priority": 10,
+      "relationship_to_me": "family",
+      "birthday": "1983-09-05",
+      "notes": "Fixture contact 019.",
+      "timezone": "America/Los_Angeles",
+      "preferred_channel": "email",
+      "check_in_frequency_days": 60,
+      "last_contacted_at": "2025-09-24",
+      "strength": 97,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-020",
+    "fields": {
+      "created_at": "2024-09-27T07:29:55.227395",
+      "updated_at": "2026-02-03T05:04:13.286713+00:00",
+      "first_name": "Kimberly",
+      "last_name": "Moreno",
+      "nickname": "",
+      "priority": 1,
+      "relationship_to_me": "other",
+      "birthday": "1956-02-15",
+      "notes": "Fixture contact 020.",
+      "timezone": "America/New_York",
+      "preferred_channel": "text_message",
+      "check_in_frequency_days": 60,
+      "last_contacted_at": "2025-02-02",
+      "strength": 62,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-021",
+    "fields": {
+      "created_at": "2024-09-15T03:44:25.143205",
+      "updated_at": "2026-02-03T05:04:13.286965+00:00",
+      "first_name": "Sarah",
+      "last_name": "Koch",
+      "nickname": "Marie",
+      "priority": 2,
+      "relationship_to_me": "partner",
+      "birthday": "1958-02-28",
+      "notes": "Fixture contact 021.",
+      "timezone": "America/Chicago",
+      "preferred_channel": "in_person",
+      "check_in_frequency_days": 45,
+      "last_contacted_at": null,
+      "strength": 30,
+      "is_ever_contacted": false
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-022",
+    "fields": {
+      "created_at": "2024-03-25T01:57:03.346404",
+      "updated_at": "2026-02-03T05:04:13.287239+00:00",
+      "first_name": "Natalie",
+      "last_name": "Arroyo",
+      "nickname": "Christopher",
+      "priority": 3,
+      "relationship_to_me": "sibling",
+      "birthday": "1995-05-27",
+      "notes": "Fixture contact 022.",
+      "timezone": "America/Chicago",
+      "preferred_channel": "social_media",
+      "check_in_frequency_days": 120,
+      "last_contacted_at": "2025-07-30",
+      "strength": 8,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-023",
+    "fields": {
+      "created_at": "2024-12-08T14:48:05.541006",
+      "updated_at": "2026-02-03T05:04:13.287585+00:00",
+      "first_name": "Katie",
+      "last_name": "Anderson",
+      "nickname": "Thomas",
+      "priority": 4,
+      "relationship_to_me": "family",
+      "birthday": "1966-04-25",
+      "notes": "Fixture contact 023.",
+      "timezone": "Asia/Tokyo",
+      "preferred_channel": "email",
+      "check_in_frequency_days": 180,
+      "last_contacted_at": "2025-12-18",
+      "strength": 96,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-024",
+    "fields": {
+      "created_at": "2024-09-18T05:24:38.422963",
+      "updated_at": "2026-02-03T05:04:13.287827+00:00",
+      "first_name": "Amber",
+      "last_name": "Blair",
+      "nickname": "James",
+      "priority": 5,
+      "relationship_to_me": "parent",
+      "birthday": "2007-11-01",
+      "notes": "Fixture contact 024.",
+      "timezone": "Europe/London",
+      "preferred_channel": "",
+      "check_in_frequency_days": 90,
+      "last_contacted_at": null,
+      "strength": 85,
+      "is_ever_contacted": false
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-025",
+    "fields": {
+      "created_at": "2024-10-07T11:42:14.660198",
+      "updated_at": "2026-02-03T05:04:13.288114+00:00",
+      "first_name": "Debra",
+      "last_name": "Kim",
+      "nickname": "",
+      "priority": 6,
+      "relationship_to_me": "parent",
+      "birthday": "1986-04-09",
+      "notes": "Fixture contact 025.",
+      "timezone": "America/Chicago",
+      "preferred_channel": "in_person",
+      "check_in_frequency_days": 7,
+      "last_contacted_at": "2025-08-10",
+      "strength": 75,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-026",
+    "fields": {
+      "created_at": "2025-10-23T11:15:55.764124",
+      "updated_at": "2026-02-03T05:04:13.288454+00:00",
+      "first_name": "Jerry",
+      "last_name": "Robinson",
+      "nickname": "Chad",
+      "priority": 7,
+      "relationship_to_me": "partner",
+      "birthday": "1958-11-05",
+      "notes": "Fixture contact 026.",
+      "timezone": "America/Los_Angeles",
+      "preferred_channel": "phone",
+      "check_in_frequency_days": 7,
+      "last_contacted_at": "2025-12-30",
+      "strength": 42,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-027",
+    "fields": {
+      "created_at": "2024-05-10T04:10:41.159775",
+      "updated_at": "2026-02-03T05:04:13.288708+00:00",
+      "first_name": "John",
+      "last_name": "Caldwell",
+      "nickname": "Jason",
+      "priority": 8,
+      "relationship_to_me": "sibling",
+      "birthday": "2004-09-02",
+      "notes": "Fixture contact 027.",
+      "timezone": "America/Los_Angeles",
+      "preferred_channel": "in_person",
+      "check_in_frequency_days": 120,
+      "last_contacted_at": null,
+      "strength": 27,
+      "is_ever_contacted": false
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-028",
+    "fields": {
+      "created_at": "2024-12-14T09:31:57.731372",
+      "updated_at": "2026-02-03T05:04:13.289056+00:00",
+      "first_name": "Ashley",
+      "last_name": "Kennedy",
+      "nickname": "Kristen",
+      "priority": 9,
+      "relationship_to_me": "acquaintance",
+      "birthday": "1977-07-16",
+      "notes": "Fixture contact 028.",
+      "timezone": "Asia/Tokyo",
+      "preferred_channel": "email",
+      "check_in_frequency_days": 14,
+      "last_contacted_at": "2025-11-24",
+      "strength": 12,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-029",
+    "fields": {
+      "created_at": "2024-10-08T09:02:26.485122",
+      "updated_at": "2026-02-03T05:04:13.289414+00:00",
+      "first_name": "Stuart",
+      "last_name": "Daniel",
+      "nickname": "Emily",
+      "priority": 10,
+      "relationship_to_me": "partner",
+      "birthday": "2000-10-04",
+      "notes": "Fixture contact 029.",
+      "timezone": "America/Chicago",
+      "preferred_channel": "phone",
+      "check_in_frequency_days": 90,
+      "last_contacted_at": "2026-01-28",
+      "strength": 93,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-030",
+    "fields": {
+      "created_at": "2024-12-27T05:25:39.589987",
+      "updated_at": "2026-02-03T05:04:13.289601+00:00",
+      "first_name": "John",
+      "last_name": "Lee",
+      "nickname": "",
+      "priority": 1,
+      "relationship_to_me": "friend",
+      "birthday": "1977-06-13",
+      "notes": "Fixture contact 030.",
+      "timezone": "America/Chicago",
+      "preferred_channel": "email",
+      "check_in_frequency_days": 30,
+      "last_contacted_at": null,
+      "strength": 24,
+      "is_ever_contacted": false
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-031",
+    "fields": {
+      "created_at": "2024-03-11T11:26:26.118995",
+      "updated_at": "2026-02-03T05:04:13.289961+00:00",
+      "first_name": "Joshua",
+      "last_name": "Wright",
+      "nickname": "Sandra",
+      "priority": 2,
+      "relationship_to_me": "parent",
+      "birthday": "2008-01-20",
+      "notes": "Fixture contact 031.",
+      "timezone": "America/Chicago",
+      "preferred_channel": "video_call",
+      "check_in_frequency_days": 180,
+      "last_contacted_at": "2025-12-14",
+      "strength": 12,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-032",
+    "fields": {
+      "created_at": "2024-06-04T00:14:12.622389",
+      "updated_at": "2026-02-03T05:04:13.290226+00:00",
+      "first_name": "Mary",
+      "last_name": "Novak",
+      "nickname": "Sara",
+      "priority": 3,
+      "relationship_to_me": "partner",
+      "birthday": "1980-10-30",
+      "notes": "Fixture contact 032.",
+      "timezone": "America/Chicago",
+      "preferred_channel": "",
+      "check_in_frequency_days": 30,
+      "last_contacted_at": "2025-12-09",
+      "strength": 21,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-033",
+    "fields": {
+      "created_at": "2024-11-06T08:31:30.333302",
+      "updated_at": "2026-02-03T05:04:13.290447+00:00",
+      "first_name": "Jason",
+      "last_name": "Morales",
+      "nickname": "Brian",
+      "priority": 4,
+      "relationship_to_me": "colleague",
+      "birthday": "2007-04-24",
+      "notes": "Fixture contact 033.",
+      "timezone": "Australia/Sydney",
+      "preferred_channel": "video_call",
+      "check_in_frequency_days": 30,
+      "last_contacted_at": null,
+      "strength": 51,
+      "is_ever_contacted": false
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-034",
+    "fields": {
+      "created_at": "2026-01-02T19:47:01.121503",
+      "updated_at": "2026-02-03T05:04:13.290709+00:00",
+      "first_name": "Joseph",
+      "last_name": "Bowers",
+      "nickname": "Spencer",
+      "priority": 5,
+      "relationship_to_me": "partner",
+      "birthday": "2007-11-06",
+      "notes": "Fixture contact 034.",
+      "timezone": "Asia/Tokyo",
+      "preferred_channel": "in_person",
+      "check_in_frequency_days": 120,
+      "last_contacted_at": "2025-07-07",
+      "strength": 36,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-035",
+    "fields": {
+      "created_at": "2026-01-11T03:29:52.382119",
+      "updated_at": "2026-02-03T05:04:13.290956+00:00",
+      "first_name": "Angela",
+      "last_name": "Higgins",
+      "nickname": "",
+      "priority": 6,
+      "relationship_to_me": "acquaintance",
+      "birthday": "1985-10-14",
+      "notes": "Fixture contact 035.",
+      "timezone": "America/Denver",
+      "preferred_channel": "email",
+      "check_in_frequency_days": 45,
+      "last_contacted_at": "2025-05-22",
+      "strength": 27,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-036",
+    "fields": {
+      "created_at": "2025-04-05T06:04:17.250914",
+      "updated_at": "2026-02-03T05:04:13.291177+00:00",
+      "first_name": "Amy",
+      "last_name": "Adkins",
+      "nickname": "Brian",
+      "priority": 7,
+      "relationship_to_me": "partner",
+      "birthday": "1981-09-28",
+      "notes": "Fixture contact 036.",
+      "timezone": "America/New_York",
+      "preferred_channel": "social_media",
+      "check_in_frequency_days": 60,
+      "last_contacted_at": null,
+      "strength": 7,
+      "is_ever_contacted": false
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-037",
+    "fields": {
+      "created_at": "2024-06-18T06:20:39.471758",
+      "updated_at": "2026-02-03T05:04:13.291452+00:00",
+      "first_name": "Melissa",
+      "last_name": "Moore",
+      "nickname": "Susan",
+      "priority": 8,
+      "relationship_to_me": "other",
+      "birthday": "1986-08-17",
+      "notes": "Fixture contact 037.",
+      "timezone": "America/Denver",
+      "preferred_channel": "phone",
+      "check_in_frequency_days": 180,
+      "last_contacted_at": "2025-03-04",
+      "strength": 10,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-038",
+    "fields": {
+      "created_at": "2024-08-01T09:04:46.458628",
+      "updated_at": "2026-02-03T05:04:13.291723+00:00",
+      "first_name": "Emma",
+      "last_name": "Young",
+      "nickname": "David",
+      "priority": 9,
+      "relationship_to_me": "sibling",
+      "birthday": "1986-08-07",
+      "notes": "Fixture contact 038.",
+      "timezone": "America/Los_Angeles",
+      "preferred_channel": "video_call",
+      "check_in_frequency_days": 14,
+      "last_contacted_at": "2025-12-24",
+      "strength": 72,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-039",
+    "fields": {
+      "created_at": "2025-02-19T09:43:33.278810",
+      "updated_at": "2026-02-03T05:04:13.291956+00:00",
+      "first_name": "Christine",
+      "last_name": "Barnes",
+      "nickname": "Brandy",
+      "priority": 10,
+      "relationship_to_me": "parent",
+      "birthday": "2004-08-18",
+      "notes": "Fixture contact 039.",
+      "timezone": "America/New_York",
+      "preferred_channel": "text_message",
+      "check_in_frequency_days": 14,
+      "last_contacted_at": null,
+      "strength": 53,
+      "is_ever_contacted": false
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-040",
+    "fields": {
+      "created_at": "2024-09-09T15:57:18.295961",
+      "updated_at": "2026-02-03T05:04:13.292240+00:00",
+      "first_name": "James",
+      "last_name": "Moran",
+      "nickname": "",
+      "priority": 1,
+      "relationship_to_me": "friend",
+      "birthday": "1971-11-06",
+      "notes": "Fixture contact 040.",
+      "timezone": "America/Los_Angeles",
+      "preferred_channel": "",
+      "check_in_frequency_days": 45,
+      "last_contacted_at": "2025-10-06",
+      "strength": 50,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-041",
+    "fields": {
+      "created_at": "2026-01-31T03:38:06.271002",
+      "updated_at": "2026-02-03T05:04:13.292504+00:00",
+      "first_name": "Karen",
+      "last_name": "Jones",
+      "nickname": "Stephen",
+      "priority": 2,
+      "relationship_to_me": "family",
+      "birthday": "1958-12-22",
+      "notes": "Fixture contact 041.",
+      "timezone": "Australia/Sydney",
+      "preferred_channel": "in_person",
+      "check_in_frequency_days": 14,
+      "last_contacted_at": "2026-02-02",
+      "strength": 1,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-042",
+    "fields": {
+      "created_at": "2025-11-07T23:26:17.361762",
+      "updated_at": "2026-02-03T05:04:13.292729+00:00",
+      "first_name": "Jason",
+      "last_name": "Baker",
+      "nickname": "Sarah",
+      "priority": 3,
+      "relationship_to_me": "acquaintance",
+      "birthday": "2001-09-09",
+      "notes": "Fixture contact 042.",
+      "timezone": "America/Chicago",
+      "preferred_channel": "phone",
+      "check_in_frequency_days": 180,
+      "last_contacted_at": null,
+      "strength": 27,
+      "is_ever_contacted": false
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-043",
+    "fields": {
+      "created_at": "2025-05-26T05:44:57.016500",
+      "updated_at": "2026-02-03T05:04:13.293055+00:00",
+      "first_name": "Mike",
+      "last_name": "Moore",
+      "nickname": "Martha",
+      "priority": 4,
+      "relationship_to_me": "family",
+      "birthday": "1955-07-04",
+      "notes": "Fixture contact 043.",
+      "timezone": "America/Denver",
+      "preferred_channel": "video_call",
+      "check_in_frequency_days": 180,
+      "last_contacted_at": "2026-01-29",
+      "strength": 90,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-044",
+    "fields": {
+      "created_at": "2024-04-27T20:11:25.158493",
+      "updated_at": "2026-02-03T05:04:13.293348+00:00",
+      "first_name": "Lisa",
+      "last_name": "Evans",
+      "nickname": "Elizabeth",
+      "priority": 5,
+      "relationship_to_me": "partner",
+      "birthday": "1960-10-06",
+      "notes": "Fixture contact 044.",
+      "timezone": "Europe/London",
+      "preferred_channel": "social_media",
+      "check_in_frequency_days": 14,
+      "last_contacted_at": "2026-01-11",
+      "strength": 17,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-045",
+    "fields": {
+      "created_at": "2025-04-20T08:08:11.353037",
+      "updated_at": "2026-02-03T05:04:13.293523+00:00",
+      "first_name": "Angela",
+      "last_name": "Nelson",
+      "nickname": "",
+      "priority": 6,
+      "relationship_to_me": "family",
+      "birthday": "1993-02-14",
+      "notes": "Fixture contact 045.",
+      "timezone": "America/Chicago",
+      "preferred_channel": "phone",
+      "check_in_frequency_days": 180,
+      "last_contacted_at": null,
+      "strength": 19,
+      "is_ever_contacted": false
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-046",
+    "fields": {
+      "created_at": "2025-10-13T14:02:04.018131",
+      "updated_at": "2026-02-03T05:04:13.293813+00:00",
+      "first_name": "James",
+      "last_name": "Walters",
+      "nickname": "Joseph",
+      "priority": 7,
+      "relationship_to_me": "friend",
+      "birthday": "1959-12-25",
+      "notes": "Fixture contact 046.",
+      "timezone": "America/Los_Angeles",
+      "preferred_channel": "social_media",
+      "check_in_frequency_days": 45,
+      "last_contacted_at": "2025-12-30",
+      "strength": 64,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-047",
+    "fields": {
+      "created_at": "2024-08-12T21:01:27.120903",
+      "updated_at": "2026-02-03T05:04:13.294109+00:00",
+      "first_name": "Rodney",
+      "last_name": "Hill",
+      "nickname": "Adam",
+      "priority": 8,
+      "relationship_to_me": "colleague",
+      "birthday": "1994-05-17",
+      "notes": "Fixture contact 047.",
+      "timezone": "Europe/London",
+      "preferred_channel": "phone",
+      "check_in_frequency_days": 7,
+      "last_contacted_at": "2025-11-11",
+      "strength": 42,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-048",
+    "fields": {
+      "created_at": "2024-03-29T11:41:22.255938",
+      "updated_at": "2026-02-03T05:04:13.294348+00:00",
+      "first_name": "Andrea",
+      "last_name": "Patterson",
+      "nickname": "Alec",
+      "priority": 9,
+      "relationship_to_me": "child",
+      "birthday": "2001-11-23",
+      "notes": "Fixture contact 048.",
+      "timezone": "Europe/London",
+      "preferred_channel": "",
+      "check_in_frequency_days": 21,
+      "last_contacted_at": null,
+      "strength": 94,
+      "is_ever_contacted": false
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-049",
+    "fields": {
+      "created_at": "2024-05-06T14:51:50.212739",
+      "updated_at": "2026-02-03T05:04:13.294646+00:00",
+      "first_name": "Rebecca",
+      "last_name": "Gardner",
+      "nickname": "Mary",
+      "priority": 10,
+      "relationship_to_me": "partner",
+      "birthday": "1971-06-06",
+      "notes": "Fixture contact 049.",
+      "timezone": "America/Chicago",
+      "preferred_channel": "phone",
+      "check_in_frequency_days": 21,
+      "last_contacted_at": "2025-09-03",
+      "strength": 69,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-050",
+    "fields": {
+      "created_at": "2025-11-21T04:03:55.877524",
+      "updated_at": "2026-02-03T05:04:13.294855+00:00",
+      "first_name": "Rachel",
+      "last_name": "Flynn",
+      "nickname": "",
+      "priority": 1,
+      "relationship_to_me": "other",
+      "birthday": "1966-03-23",
+      "notes": "Fixture contact 050.",
+      "timezone": "America/Denver",
+      "preferred_channel": "video_call",
+      "check_in_frequency_days": 21,
+      "last_contacted_at": "2025-12-14",
+      "strength": 5,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-051",
+    "fields": {
+      "created_at": "2025-11-10T08:46:31.724257",
+      "updated_at": "2026-02-03T05:04:13.295091+00:00",
+      "first_name": "John",
+      "last_name": "Garcia",
+      "nickname": "Kimberly",
+      "priority": 2,
+      "relationship_to_me": "family",
+      "birthday": "1976-08-17",
+      "notes": "Fixture contact 051.",
+      "timezone": "Europe/Berlin",
+      "preferred_channel": "other",
+      "check_in_frequency_days": 7,
+      "last_contacted_at": null,
+      "strength": 45,
+      "is_ever_contacted": false
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-052",
+    "fields": {
+      "created_at": "2026-01-16T14:55:33.125619",
+      "updated_at": "2026-02-03T05:04:13.295355+00:00",
+      "first_name": "Christine",
+      "last_name": "Moore",
+      "nickname": "Sarah",
+      "priority": 3,
+      "relationship_to_me": "sibling",
+      "birthday": "1998-01-22",
+      "notes": "Fixture contact 052.",
+      "timezone": "Europe/Berlin",
+      "preferred_channel": "other",
+      "check_in_frequency_days": 180,
+      "last_contacted_at": "2025-12-15",
+      "strength": 52,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-053",
+    "fields": {
+      "created_at": "2025-10-26T16:54:21.861070",
+      "updated_at": "2026-02-03T05:04:13.295679+00:00",
+      "first_name": "Nicole",
+      "last_name": "Johnson",
+      "nickname": "Jill",
+      "priority": 4,
+      "relationship_to_me": "partner",
+      "birthday": "1998-01-22",
+      "notes": "Fixture contact 053.",
+      "timezone": "America/Denver",
+      "preferred_channel": "social_media",
+      "check_in_frequency_days": 60,
+      "last_contacted_at": "2026-01-08",
+      "strength": 100,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-054",
+    "fields": {
+      "created_at": "2025-11-01T14:57:34.832273",
+      "updated_at": "2026-02-03T05:04:13.295907+00:00",
+      "first_name": "Joseph",
+      "last_name": "Cobb",
+      "nickname": "Daniel",
+      "priority": 5,
+      "relationship_to_me": "colleague",
+      "birthday": "2000-08-05",
+      "notes": "Fixture contact 054.",
+      "timezone": "America/Los_Angeles",
+      "preferred_channel": "in_person",
+      "check_in_frequency_days": 21,
+      "last_contacted_at": null,
+      "strength": 100,
+      "is_ever_contacted": false
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-055",
+    "fields": {
+      "created_at": "2024-07-18T18:38:42.421837",
+      "updated_at": "2026-02-03T05:04:13.296183+00:00",
+      "first_name": "Jeffrey",
+      "last_name": "Velasquez",
+      "nickname": "",
+      "priority": 6,
+      "relationship_to_me": "parent",
+      "birthday": "1956-05-06",
+      "notes": "Fixture contact 055.",
+      "timezone": "Australia/Sydney",
+      "preferred_channel": "in_person",
+      "check_in_frequency_days": 45,
+      "last_contacted_at": "2025-11-20",
+      "strength": 29,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-056",
+    "fields": {
+      "created_at": "2024-08-25T10:02:08.412652",
+      "updated_at": "2026-02-03T05:04:13.296454+00:00",
+      "first_name": "James",
+      "last_name": "Murphy",
+      "nickname": "Michelle",
+      "priority": 7,
+      "relationship_to_me": "parent",
+      "birthday": "1989-02-01",
+      "notes": "Fixture contact 056.",
+      "timezone": "Asia/Tokyo",
+      "preferred_channel": "",
+      "check_in_frequency_days": 60,
+      "last_contacted_at": "2026-01-21",
+      "strength": 35,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-057",
+    "fields": {
+      "created_at": "2025-12-20T14:48:17.957244",
+      "updated_at": "2026-02-03T05:04:13.296674+00:00",
+      "first_name": "Ricardo",
+      "last_name": "Zavala",
+      "nickname": "Amanda",
+      "priority": 8,
+      "relationship_to_me": "sibling",
+      "birthday": "1961-03-15",
+      "notes": "Fixture contact 057.",
+      "timezone": "Europe/London",
+      "preferred_channel": "in_person",
+      "check_in_frequency_days": 180,
+      "last_contacted_at": null,
+      "strength": 51,
+      "is_ever_contacted": false
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-058",
+    "fields": {
+      "created_at": "2025-07-19T17:03:09.286243",
+      "updated_at": "2026-02-03T05:04:13.296995+00:00",
+      "first_name": "Tara",
+      "last_name": "White",
+      "nickname": "Sydney",
+      "priority": 9,
+      "relationship_to_me": "family",
+      "birthday": "1971-09-19",
+      "notes": "Fixture contact 058.",
+      "timezone": "America/New_York",
+      "preferred_channel": "phone",
+      "check_in_frequency_days": 365,
+      "last_contacted_at": "2025-07-11",
+      "strength": 55,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-059",
+    "fields": {
+      "created_at": "2025-07-05T06:38:01.165280",
+      "updated_at": "2026-02-03T05:04:13.297282+00:00",
+      "first_name": "Catherine",
+      "last_name": "Dixon",
+      "nickname": "Paul",
+      "priority": 10,
+      "relationship_to_me": "sibling",
+      "birthday": "1955-03-07",
+      "notes": "Fixture contact 059.",
+      "timezone": "Asia/Tokyo",
+      "preferred_channel": "text_message",
+      "check_in_frequency_days": 30,
+      "last_contacted_at": "2025-09-01",
+      "strength": 32,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-060",
+    "fields": {
+      "created_at": "2025-07-13T01:15:06.106988",
+      "updated_at": "2026-02-03T05:04:13.297453+00:00",
+      "first_name": "Sara",
+      "last_name": "Ryan",
+      "nickname": "",
+      "priority": 1,
+      "relationship_to_me": "partner",
+      "birthday": "1994-05-31",
+      "notes": "Fixture contact 060.",
+      "timezone": "Asia/Tokyo",
+      "preferred_channel": "phone",
+      "check_in_frequency_days": 180,
+      "last_contacted_at": null,
+      "strength": 68,
+      "is_ever_contacted": false
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-061",
+    "fields": {
+      "created_at": "2025-10-14T23:32:49.598695",
+      "updated_at": "2026-02-03T05:04:13.297772+00:00",
+      "first_name": "Emily",
+      "last_name": "Diaz",
+      "nickname": "Chad",
+      "priority": 2,
+      "relationship_to_me": "friend",
+      "birthday": "1993-03-28",
+      "notes": "Fixture contact 061.",
+      "timezone": "Europe/Berlin",
+      "preferred_channel": "social_media",
+      "check_in_frequency_days": 14,
+      "last_contacted_at": "2025-10-03",
+      "strength": 92,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-062",
+    "fields": {
+      "created_at": "2024-05-06T12:05:55.941861",
+      "updated_at": "2026-02-03T05:04:13.298092+00:00",
+      "first_name": "Kevin",
+      "last_name": "Parker",
+      "nickname": "Ricky",
+      "priority": 3,
+      "relationship_to_me": "friend",
+      "birthday": "1977-05-17",
+      "notes": "Fixture contact 062.",
+      "timezone": "Asia/Tokyo",
+      "preferred_channel": "social_media",
+      "check_in_frequency_days": 45,
+      "last_contacted_at": "2025-06-29",
+      "strength": 70,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-063",
+    "fields": {
+      "created_at": "2025-04-28T03:27:44.413480",
+      "updated_at": "2026-02-03T05:04:13.298329+00:00",
+      "first_name": "Shelby",
+      "last_name": "Byrd",
+      "nickname": "Raven",
+      "priority": 4,
+      "relationship_to_me": "child",
+      "birthday": "1971-01-15",
+      "notes": "Fixture contact 063.",
+      "timezone": "America/Los_Angeles",
+      "preferred_channel": "video_call",
+      "check_in_frequency_days": 90,
+      "last_contacted_at": null,
+      "strength": 86,
+      "is_ever_contacted": false
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-064",
+    "fields": {
+      "created_at": "2025-01-08T04:30:00.125486",
+      "updated_at": "2026-02-03T05:04:13.298647+00:00",
+      "first_name": "Amy",
+      "last_name": "Smith",
+      "nickname": "Justin",
+      "priority": 5,
+      "relationship_to_me": "partner",
+      "birthday": "1978-07-11",
+      "notes": "Fixture contact 064.",
+      "timezone": "Europe/London",
+      "preferred_channel": "",
+      "check_in_frequency_days": 45,
+      "last_contacted_at": "2025-09-29",
+      "strength": 26,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-065",
+    "fields": {
+      "created_at": "2024-06-06T11:29:54.182587",
+      "updated_at": "2026-02-03T05:04:13.298885+00:00",
+      "first_name": "Jason",
+      "last_name": "Kennedy",
+      "nickname": "",
+      "priority": 6,
+      "relationship_to_me": "acquaintance",
+      "birthday": "1959-08-02",
+      "notes": "Fixture contact 065.",
+      "timezone": "Australia/Sydney",
+      "preferred_channel": "video_call",
+      "check_in_frequency_days": 30,
+      "last_contacted_at": "2025-12-28",
+      "strength": 65,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-066",
+    "fields": {
+      "created_at": "2025-09-23T08:45:27.413178",
+      "updated_at": "2026-02-03T05:04:13.299101+00:00",
+      "first_name": "Zachary",
+      "last_name": "Schultz",
+      "nickname": "Matthew",
+      "priority": 7,
+      "relationship_to_me": "acquaintance",
+      "birthday": "1994-11-25",
+      "notes": "Fixture contact 066.",
+      "timezone": "America/Denver",
+      "preferred_channel": "social_media",
+      "check_in_frequency_days": 14,
+      "last_contacted_at": null,
+      "strength": 36,
+      "is_ever_contacted": false
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-067",
+    "fields": {
+      "created_at": "2025-10-16T05:44:37.197042",
+      "updated_at": "2026-02-03T05:04:13.299407+00:00",
+      "first_name": "Emily",
+      "last_name": "Walker",
+      "nickname": "James",
+      "priority": 8,
+      "relationship_to_me": "parent",
+      "birthday": "1958-12-13",
+      "notes": "Fixture contact 067.",
+      "timezone": "Europe/London",
+      "preferred_channel": "email",
+      "check_in_frequency_days": 30,
+      "last_contacted_at": "2025-07-26",
+      "strength": 18,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-068",
+    "fields": {
+      "created_at": "2025-01-29T15:44:00.613780",
+      "updated_at": "2026-02-03T05:04:13.299655+00:00",
+      "first_name": "Robert",
+      "last_name": "Soto",
+      "nickname": "James",
+      "priority": 9,
+      "relationship_to_me": "acquaintance",
+      "birthday": "1968-01-09",
+      "notes": "Fixture contact 068.",
+      "timezone": "America/Chicago",
+      "preferred_channel": "video_call",
+      "check_in_frequency_days": 90,
+      "last_contacted_at": "2025-10-15",
+      "strength": 80,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-069",
+    "fields": {
+      "created_at": "2025-08-19T00:37:49.561273",
+      "updated_at": "2026-02-03T05:04:13.299865+00:00",
+      "first_name": "Diana",
+      "last_name": "Smith",
+      "nickname": "Karen",
+      "priority": 10,
+      "relationship_to_me": "parent",
+      "birthday": "1960-09-27",
+      "notes": "Fixture contact 069.",
+      "timezone": "Asia/Tokyo",
+      "preferred_channel": "video_call",
+      "check_in_frequency_days": 90,
+      "last_contacted_at": null,
+      "strength": 31,
+      "is_ever_contacted": false
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-070",
+    "fields": {
+      "created_at": "2025-02-15T21:08:12.979814",
+      "updated_at": "2026-02-03T05:04:13.300066+00:00",
+      "first_name": "Ronald",
+      "last_name": "Thompson",
+      "nickname": "",
+      "priority": 1,
+      "relationship_to_me": "partner",
+      "birthday": "1957-10-02",
+      "notes": "Fixture contact 070.",
+      "timezone": "America/Chicago",
+      "preferred_channel": "other",
+      "check_in_frequency_days": 90,
+      "last_contacted_at": "2026-01-18",
+      "strength": 28,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-071",
+    "fields": {
+      "created_at": "2025-06-05T04:12:09.533412",
+      "updated_at": "2026-02-03T05:04:13.300321+00:00",
+      "first_name": "John",
+      "last_name": "Charles",
+      "nickname": "Stephen",
+      "priority": 2,
+      "relationship_to_me": "acquaintance",
+      "birthday": "2007-06-13",
+      "notes": "Fixture contact 071.",
+      "timezone": "America/New_York",
+      "preferred_channel": "text_message",
+      "check_in_frequency_days": 30,
+      "last_contacted_at": "2025-11-22",
+      "strength": 15,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-072",
+    "fields": {
+      "created_at": "2025-04-26T01:16:36.218359",
+      "updated_at": "2026-02-03T05:04:13.300535+00:00",
+      "first_name": "Caitlin",
+      "last_name": "Dodson",
+      "nickname": "Patricia",
+      "priority": 3,
+      "relationship_to_me": "acquaintance",
+      "birthday": "1993-03-18",
+      "notes": "Fixture contact 072.",
+      "timezone": "America/Denver",
+      "preferred_channel": "",
+      "check_in_frequency_days": 120,
+      "last_contacted_at": null,
+      "strength": 85,
+      "is_ever_contacted": false
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-073",
+    "fields": {
+      "created_at": "2024-08-10T20:34:19.536684",
+      "updated_at": "2026-02-03T05:04:13.300839+00:00",
+      "first_name": "William",
+      "last_name": "Rivas",
+      "nickname": "Amy",
+      "priority": 4,
+      "relationship_to_me": "other",
+      "birthday": "1968-03-12",
+      "notes": "Fixture contact 073.",
+      "timezone": "Asia/Tokyo",
+      "preferred_channel": "other",
+      "check_in_frequency_days": 180,
+      "last_contacted_at": "2025-12-27",
+      "strength": 57,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-074",
+    "fields": {
+      "created_at": "2024-08-22T02:39:39.277302",
+      "updated_at": "2026-02-03T05:04:13.301092+00:00",
+      "first_name": "Dana",
+      "last_name": "Cannon",
+      "nickname": "Adrienne",
+      "priority": 5,
+      "relationship_to_me": "family",
+      "birthday": "1959-03-13",
+      "notes": "Fixture contact 074.",
+      "timezone": "America/Los_Angeles",
+      "preferred_channel": "other",
+      "check_in_frequency_days": 45,
+      "last_contacted_at": "2025-09-19",
+      "strength": 98,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-075",
+    "fields": {
+      "created_at": "2024-09-24T01:32:41.894530",
+      "updated_at": "2026-02-03T05:04:13.301256+00:00",
+      "first_name": "Justin",
+      "last_name": "Nelson",
+      "nickname": "",
+      "priority": 6,
+      "relationship_to_me": "other",
+      "birthday": "1983-09-20",
+      "notes": "Fixture contact 075.",
+      "timezone": "Australia/Sydney",
+      "preferred_channel": "social_media",
+      "check_in_frequency_days": 30,
+      "last_contacted_at": null,
+      "strength": 35,
+      "is_ever_contacted": false
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-076",
+    "fields": {
+      "created_at": "2024-11-27T06:23:12.404670",
+      "updated_at": "2026-02-03T05:04:13.301530+00:00",
+      "first_name": "Devon",
+      "last_name": "Hall",
+      "nickname": "Heather",
+      "priority": 7,
+      "relationship_to_me": "family",
+      "birthday": "1983-11-06",
+      "notes": "Fixture contact 076.",
+      "timezone": "Europe/Berlin",
+      "preferred_channel": "in_person",
+      "check_in_frequency_days": 180,
+      "last_contacted_at": "2025-10-18",
+      "strength": 10,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-077",
+    "fields": {
+      "created_at": "2025-04-05T04:21:00.754155",
+      "updated_at": "2026-02-03T05:04:13.301778+00:00",
+      "first_name": "Robert",
+      "last_name": "Clark",
+      "nickname": "Robert",
+      "priority": 8,
+      "relationship_to_me": "colleague",
+      "birthday": "1991-12-14",
+      "notes": "Fixture contact 077.",
+      "timezone": "America/Denver",
+      "preferred_channel": "social_media",
+      "check_in_frequency_days": 30,
+      "last_contacted_at": "2025-12-30",
+      "strength": 8,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-078",
+    "fields": {
+      "created_at": "2024-02-07T19:55:03.306188",
+      "updated_at": "2026-02-03T05:04:13.301989+00:00",
+      "first_name": "Melissa",
+      "last_name": "Cannon",
+      "nickname": "Omar",
+      "priority": 9,
+      "relationship_to_me": "colleague",
+      "birthday": "1973-09-25",
+      "notes": "Fixture contact 078.",
+      "timezone": "Asia/Tokyo",
+      "preferred_channel": "in_person",
+      "check_in_frequency_days": 180,
+      "last_contacted_at": null,
+      "strength": 59,
+      "is_ever_contacted": false
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-079",
+    "fields": {
+      "created_at": "2025-03-08T11:04:47.238682",
+      "updated_at": "2026-02-03T05:04:13.302247+00:00",
+      "first_name": "Karen",
+      "last_name": "Castaneda",
+      "nickname": "Stephanie",
+      "priority": 10,
+      "relationship_to_me": "partner",
+      "birthday": "1987-01-23",
+      "notes": "Fixture contact 079.",
+      "timezone": "Asia/Tokyo",
+      "preferred_channel": "video_call",
+      "check_in_frequency_days": 7,
+      "last_contacted_at": "2025-11-02",
+      "strength": 45,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-080",
+    "fields": {
+      "created_at": "2024-10-06T01:24:43.544581",
+      "updated_at": "2026-02-03T05:04:13.302462+00:00",
+      "first_name": "Jeffrey",
+      "last_name": "Robinson",
+      "nickname": "",
+      "priority": 1,
+      "relationship_to_me": "other",
+      "birthday": "1991-01-31",
+      "notes": "Fixture contact 080.",
+      "timezone": "America/Los_Angeles",
+      "preferred_channel": "",
+      "check_in_frequency_days": 120,
+      "last_contacted_at": "2025-07-11",
+      "strength": 28,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-081",
+    "fields": {
+      "created_at": "2024-05-06T18:03:34.410126",
+      "updated_at": "2026-02-03T05:04:13.302660+00:00",
+      "first_name": "Richard",
+      "last_name": "Martin",
+      "nickname": "Tanner",
+      "priority": 2,
+      "relationship_to_me": "family",
+      "birthday": "1988-01-26",
+      "notes": "Fixture contact 081.",
+      "timezone": "Asia/Tokyo",
+      "preferred_channel": "video_call",
+      "check_in_frequency_days": 7,
+      "last_contacted_at": null,
+      "strength": 49,
+      "is_ever_contacted": false
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-082",
+    "fields": {
+      "created_at": "2024-05-12T15:34:06.787740",
+      "updated_at": "2026-02-03T05:04:13.302918+00:00",
+      "first_name": "Anthony",
+      "last_name": "Long",
+      "nickname": "Anne",
+      "priority": 3,
+      "relationship_to_me": "child",
+      "birthday": "1979-07-24",
+      "notes": "Fixture contact 082.",
+      "timezone": "Australia/Sydney",
+      "preferred_channel": "email",
+      "check_in_frequency_days": 365,
+      "last_contacted_at": "2025-09-25",
+      "strength": 68,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-083",
+    "fields": {
+      "created_at": "2025-08-12T14:03:50.854738",
+      "updated_at": "2026-02-03T05:04:13.303159+00:00",
+      "first_name": "Brent",
+      "last_name": "Gray",
+      "nickname": "Jason",
+      "priority": 4,
+      "relationship_to_me": "partner",
+      "birthday": "1975-03-09",
+      "notes": "Fixture contact 083.",
+      "timezone": "America/Chicago",
+      "preferred_channel": "social_media",
+      "check_in_frequency_days": 90,
+      "last_contacted_at": "2025-06-02",
+      "strength": 17,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-084",
+    "fields": {
+      "created_at": "2024-04-03T08:29:27.728027",
+      "updated_at": "2026-02-03T05:04:13.303360+00:00",
+      "first_name": "Karen",
+      "last_name": "Decker",
+      "nickname": "Johnny",
+      "priority": 5,
+      "relationship_to_me": "acquaintance",
+      "birthday": "1956-02-13",
+      "notes": "Fixture contact 084.",
+      "timezone": "America/Denver",
+      "preferred_channel": "phone",
+      "check_in_frequency_days": 45,
+      "last_contacted_at": null,
+      "strength": 48,
+      "is_ever_contacted": false
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-085",
+    "fields": {
+      "created_at": "2025-08-27T04:45:11.202092",
+      "updated_at": "2026-02-03T05:04:13.303581+00:00",
+      "first_name": "Amber",
+      "last_name": "Cooke",
+      "nickname": "",
+      "priority": 6,
+      "relationship_to_me": "colleague",
+      "birthday": "1989-08-19",
+      "notes": "Fixture contact 085.",
+      "timezone": "Europe/London",
+      "preferred_channel": "other",
+      "check_in_frequency_days": 90,
+      "last_contacted_at": "2025-09-28",
+      "strength": 32,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-086",
+    "fields": {
+      "created_at": "2024-05-24T20:02:39.913983",
+      "updated_at": "2026-02-03T05:04:13.303825+00:00",
+      "first_name": "Karen",
+      "last_name": "Herring",
+      "nickname": "James",
+      "priority": 7,
+      "relationship_to_me": "other",
+      "birthday": "1961-10-12",
+      "notes": "Fixture contact 086.",
+      "timezone": "America/New_York",
+      "preferred_channel": "in_person",
+      "check_in_frequency_days": 30,
+      "last_contacted_at": "2025-02-10",
+      "strength": 83,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-087",
+    "fields": {
+      "created_at": "2025-06-28T11:14:03.877725",
+      "updated_at": "2026-02-03T05:04:13.304032+00:00",
+      "first_name": "Elizabeth",
+      "last_name": "Elliott",
+      "nickname": "Jeffery",
+      "priority": 8,
+      "relationship_to_me": "sibling",
+      "birthday": "1995-09-26",
+      "notes": "Fixture contact 087.",
+      "timezone": "America/New_York",
+      "preferred_channel": "other",
+      "check_in_frequency_days": 7,
+      "last_contacted_at": null,
+      "strength": 31,
+      "is_ever_contacted": false
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-088",
+    "fields": {
+      "created_at": "2025-09-24T00:08:42.724450",
+      "updated_at": "2026-02-03T05:04:13.304267+00:00",
+      "first_name": "Gary",
+      "last_name": "Lawson",
+      "nickname": "Julie",
+      "priority": 9,
+      "relationship_to_me": "child",
+      "birthday": "2006-03-22",
+      "notes": "Fixture contact 088.",
+      "timezone": "America/Los_Angeles",
+      "preferred_channel": "",
+      "check_in_frequency_days": 21,
+      "last_contacted_at": "2025-03-16",
+      "strength": 60,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-089",
+    "fields": {
+      "created_at": "2025-07-09T19:50:41.566728",
+      "updated_at": "2026-02-03T05:04:13.304561+00:00",
+      "first_name": "Daniel",
+      "last_name": "Johnson",
+      "nickname": "Larry",
+      "priority": 10,
+      "relationship_to_me": "friend",
+      "birthday": "1959-02-13",
+      "notes": "Fixture contact 089.",
+      "timezone": "America/Denver",
+      "preferred_channel": "text_message",
+      "check_in_frequency_days": 365,
+      "last_contacted_at": "2026-01-18",
+      "strength": 95,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-090",
+    "fields": {
+      "created_at": "2024-04-17T23:02:06.188028",
+      "updated_at": "2026-02-03T05:04:13.304723+00:00",
+      "first_name": "Hannah",
+      "last_name": "Burton",
+      "nickname": "",
+      "priority": 1,
+      "relationship_to_me": "sibling",
+      "birthday": "1996-01-12",
+      "notes": "Fixture contact 090.",
+      "timezone": "America/Denver",
+      "preferred_channel": "in_person",
+      "check_in_frequency_days": 14,
+      "last_contacted_at": null,
+      "strength": 74,
+      "is_ever_contacted": false
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-091",
+    "fields": {
+      "created_at": "2025-08-28T05:20:15.018766",
+      "updated_at": "2026-02-03T05:04:13.304976+00:00",
+      "first_name": "Melissa",
+      "last_name": "Burke",
+      "nickname": "David",
+      "priority": 2,
+      "relationship_to_me": "colleague",
+      "birthday": "1973-06-29",
+      "notes": "Fixture contact 091.",
+      "timezone": "Asia/Tokyo",
+      "preferred_channel": "social_media",
+      "check_in_frequency_days": 30,
+      "last_contacted_at": "2026-01-28",
+      "strength": 9,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-092",
+    "fields": {
+      "created_at": "2024-04-20T14:48:25.557302",
+      "updated_at": "2026-02-03T05:04:13.305263+00:00",
+      "first_name": "Ross",
+      "last_name": "Wood",
+      "nickname": "William",
+      "priority": 3,
+      "relationship_to_me": "family",
+      "birthday": "2006-01-04",
+      "notes": "Fixture contact 092.",
+      "timezone": "America/Chicago",
+      "preferred_channel": "other",
+      "check_in_frequency_days": 365,
+      "last_contacted_at": "2025-12-10",
+      "strength": 100,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-093",
+    "fields": {
+      "created_at": "2024-12-17T15:18:06.732802",
+      "updated_at": "2026-02-03T05:04:13.305464+00:00",
+      "first_name": "Cynthia",
+      "last_name": "Poole",
+      "nickname": "Jasmine",
+      "priority": 4,
+      "relationship_to_me": "partner",
+      "birthday": "1993-12-24",
+      "notes": "Fixture contact 093.",
+      "timezone": "Europe/Berlin",
+      "preferred_channel": "text_message",
+      "check_in_frequency_days": 90,
+      "last_contacted_at": null,
+      "strength": 84,
+      "is_ever_contacted": false
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-094",
+    "fields": {
+      "created_at": "2024-12-17T16:49:59.568115",
+      "updated_at": "2026-02-03T05:04:13.305725+00:00",
+      "first_name": "Tammy",
+      "last_name": "Nelson",
+      "nickname": "Lindsey",
+      "priority": 5,
+      "relationship_to_me": "partner",
+      "birthday": "1993-11-01",
+      "notes": "Fixture contact 094.",
+      "timezone": "Asia/Tokyo",
+      "preferred_channel": "other",
+      "check_in_frequency_days": 120,
+      "last_contacted_at": "2025-08-18",
+      "strength": 13,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-095",
+    "fields": {
+      "created_at": "2025-11-08T12:53:06.045886",
+      "updated_at": "2026-02-03T05:04:13.305943+00:00",
+      "first_name": "Joseph",
+      "last_name": "Christian",
+      "nickname": "",
+      "priority": 6,
+      "relationship_to_me": "child",
+      "birthday": "1968-01-06",
+      "notes": "Fixture contact 095.",
+      "timezone": "Asia/Tokyo",
+      "preferred_channel": "email",
+      "check_in_frequency_days": 180,
+      "last_contacted_at": "2025-12-03",
+      "strength": 83,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-096",
+    "fields": {
+      "created_at": "2024-02-24T11:42:17.505663",
+      "updated_at": "2026-02-03T05:04:13.306141+00:00",
+      "first_name": "Steven",
+      "last_name": "Bishop",
+      "nickname": "Nicholas",
+      "priority": 7,
+      "relationship_to_me": "family",
+      "birthday": "2000-03-10",
+      "notes": "Fixture contact 096.",
+      "timezone": "Australia/Sydney",
+      "preferred_channel": "",
+      "check_in_frequency_days": 120,
+      "last_contacted_at": null,
+      "strength": 55,
+      "is_ever_contacted": false
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-097",
+    "fields": {
+      "created_at": "2024-08-23T07:57:30.020468",
+      "updated_at": "2026-02-03T05:04:13.306425+00:00",
+      "first_name": "Hunter",
+      "last_name": "Lewis",
+      "nickname": "Lauren",
+      "priority": 8,
+      "relationship_to_me": "sibling",
+      "birthday": "1955-08-18",
+      "notes": "Fixture contact 097.",
+      "timezone": "Europe/London",
+      "preferred_channel": "video_call",
+      "check_in_frequency_days": 30,
+      "last_contacted_at": "2025-12-21",
+      "strength": 96,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-098",
+    "fields": {
+      "created_at": "2025-06-21T23:58:54.208097",
+      "updated_at": "2026-02-03T05:04:13.306680+00:00",
+      "first_name": "Stacy",
+      "last_name": "Miller",
+      "nickname": "Jennifer",
+      "priority": 9,
+      "relationship_to_me": "friend",
+      "birthday": "1989-04-28",
+      "notes": "Fixture contact 098.",
+      "timezone": "America/New_York",
+      "preferred_channel": "video_call",
+      "check_in_frequency_days": 60,
+      "last_contacted_at": "2025-11-06",
+      "strength": 23,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-099",
+    "fields": {
+      "created_at": "2024-07-14T09:28:19.216524",
+      "updated_at": "2026-02-03T05:04:13.306875+00:00",
+      "first_name": "Travis",
+      "last_name": "Mcguire",
+      "nickname": "Christopher",
+      "priority": 10,
+      "relationship_to_me": "acquaintance",
+      "birthday": "1991-10-03",
+      "notes": "Fixture contact 099.",
+      "timezone": "America/Los_Angeles",
+      "preferred_channel": "in_person",
+      "check_in_frequency_days": 45,
+      "last_contacted_at": null,
+      "strength": 43,
+      "is_ever_contacted": false
+    }
+  },
+  {
+    "model": "social.contact",
+    "pk": "contact-100",
+    "fields": {
+      "created_at": "2024-12-10T08:16:43.969064",
+      "updated_at": "2026-02-03T05:04:13.307082+00:00",
+      "first_name": "Kevin",
+      "last_name": "Perkins",
+      "nickname": "",
+      "priority": 1,
+      "relationship_to_me": "partner",
+      "birthday": "1994-08-16",
+      "notes": "Fixture contact 100.",
+      "timezone": "America/Los_Angeles",
+      "preferred_channel": "phone",
+      "check_in_frequency_days": 30,
+      "last_contacted_at": "2025-08-15",
+      "strength": 92,
+      "is_ever_contacted": true
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 1,
+    "fields": {
+      "created_at": "2025-04-25T07:55:19.336128-04:00",
+      "updated_at": "2025-04-25T11:43:19.336128-04:00",
+      "contact": "contact-001",
+      "date": "2025-04-25",
+      "channel": "phone",
+      "notes": "Fixture touchpoint for contact-001."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 2,
+    "fields": {
+      "created_at": "2025-10-29T19:02:24.676973-04:00",
+      "updated_at": "2025-10-30T04:25:24.676973-04:00",
+      "contact": "contact-001",
+      "date": "2025-10-29",
+      "channel": "email",
+      "notes": "Fixture touchpoint for contact-001."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 3,
+    "fields": {
+      "created_at": "2025-10-07T23:05:44.075940-04:00",
+      "updated_at": "2025-10-08T06:42:44.075940-04:00",
+      "contact": "contact-001",
+      "date": "2025-10-07",
+      "channel": "email",
+      "notes": "Fixture touchpoint for contact-001."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 4,
+    "fields": {
+      "created_at": "2025-08-06T09:08:00.412882-04:00",
+      "updated_at": "2025-08-06T12:19:00.412882-04:00",
+      "contact": "contact-002",
+      "date": "2025-08-06",
+      "channel": "email",
+      "notes": "Fixture touchpoint for contact-002."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 5,
+    "fields": {
+      "created_at": "2025-06-07T01:51:52.723622-04:00",
+      "updated_at": "2025-06-07T02:04:52.723622-04:00",
+      "contact": "contact-004",
+      "date": "2025-06-07",
+      "channel": "other",
+      "notes": "Fixture touchpoint for contact-004."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 6,
+    "fields": {
+      "created_at": "2025-03-31T14:12:22.528972-04:00",
+      "updated_at": "2025-03-31T19:38:22.528972-04:00",
+      "contact": "contact-004",
+      "date": "2025-03-31",
+      "channel": "social_media",
+      "notes": "Fixture touchpoint for contact-004."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 7,
+    "fields": {
+      "created_at": "2025-12-09T07:14:32.980314-05:00",
+      "updated_at": "2025-12-09T10:43:32.980314-05:00",
+      "contact": "contact-005",
+      "date": "2025-12-09",
+      "channel": "phone",
+      "notes": "Fixture touchpoint for contact-005."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 8,
+    "fields": {
+      "created_at": "2025-09-11T07:25:39.988173-04:00",
+      "updated_at": "2025-09-11T20:23:39.988173-04:00",
+      "contact": "contact-005",
+      "date": "2025-09-11",
+      "channel": "phone",
+      "notes": "Fixture touchpoint for contact-005."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 9,
+    "fields": {
+      "created_at": "2025-10-18T03:25:04.428470-04:00",
+      "updated_at": "2025-10-19T00:52:04.428470-04:00",
+      "contact": "contact-007",
+      "date": "2025-10-18",
+      "channel": "text_message",
+      "notes": "Fixture touchpoint for contact-007."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 10,
+    "fields": {
+      "created_at": "2025-02-19T11:59:44.977384-05:00",
+      "updated_at": "2025-02-20T00:19:44.977384-05:00",
+      "contact": "contact-007",
+      "date": "2025-02-19",
+      "channel": "text_message",
+      "notes": "Fixture touchpoint for contact-007."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 11,
+    "fields": {
+      "created_at": "2025-05-15T07:57:36.608314-04:00",
+      "updated_at": "2025-05-15T10:40:36.608314-04:00",
+      "contact": "contact-008",
+      "date": "2025-05-15",
+      "channel": "other",
+      "notes": "Fixture touchpoint for contact-008."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 12,
+    "fields": {
+      "created_at": "2025-09-22T23:34:03.186958-04:00",
+      "updated_at": "2025-09-23T07:30:03.186958-04:00",
+      "contact": "contact-008",
+      "date": "2025-09-22",
+      "channel": "other",
+      "notes": "Fixture touchpoint for contact-008."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 13,
+    "fields": {
+      "created_at": "2025-04-03T11:39:26.357387-04:00",
+      "updated_at": "2025-04-03T20:45:26.357387-04:00",
+      "contact": "contact-010",
+      "date": "2025-04-03",
+      "channel": "social_media",
+      "notes": "Fixture touchpoint for contact-010."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 14,
+    "fields": {
+      "created_at": "2025-06-21T09:31:32.199309-04:00",
+      "updated_at": "2025-06-22T08:50:32.199309-04:00",
+      "contact": "contact-010",
+      "date": "2025-06-21",
+      "channel": "social_media",
+      "notes": "Fixture touchpoint for contact-010."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 15,
+    "fields": {
+      "created_at": "2026-01-30T04:14:04.141875-05:00",
+      "updated_at": "2026-01-30T06:40:04.141875-05:00",
+      "contact": "contact-010",
+      "date": "2026-01-30",
+      "channel": "text_message",
+      "notes": "Fixture touchpoint for contact-010."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 16,
+    "fields": {
+      "created_at": "2025-04-27T11:05:26.538280-04:00",
+      "updated_at": "2025-04-28T08:55:26.538280-04:00",
+      "contact": "contact-011",
+      "date": "2025-04-27",
+      "channel": "social_media",
+      "notes": "Fixture touchpoint for contact-011."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 17,
+    "fields": {
+      "created_at": "2025-02-14T11:41:35.922415-05:00",
+      "updated_at": "2025-02-15T06:41:35.922415-05:00",
+      "contact": "contact-011",
+      "date": "2025-02-14",
+      "channel": "email",
+      "notes": "Fixture touchpoint for contact-011."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 18,
+    "fields": {
+      "created_at": "2025-05-10T13:11:10.485815-04:00",
+      "updated_at": "2025-05-10T23:55:10.485815-04:00",
+      "contact": "contact-013",
+      "date": "2025-05-10",
+      "channel": "email",
+      "notes": "Fixture touchpoint for contact-013."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 19,
+    "fields": {
+      "created_at": "2025-05-03T21:11:16.150637-04:00",
+      "updated_at": "2025-05-04T19:33:16.150637-04:00",
+      "contact": "contact-013",
+      "date": "2025-05-03",
+      "channel": "video_call",
+      "notes": "Fixture touchpoint for contact-013."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 20,
+    "fields": {
+      "created_at": "2025-08-26T20:07:43.008599-04:00",
+      "updated_at": "2025-08-27T09:37:43.008599-04:00",
+      "contact": "contact-013",
+      "date": "2025-08-26",
+      "channel": "social_media",
+      "notes": "Fixture touchpoint for contact-013."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 21,
+    "fields": {
+      "created_at": "2026-02-02T02:29:07.898238-05:00",
+      "updated_at": "2026-02-02T21:38:07.898238-05:00",
+      "contact": "contact-014",
+      "date": "2026-02-02",
+      "channel": "text_message",
+      "notes": "Fixture touchpoint for contact-014."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 22,
+    "fields": {
+      "created_at": "2025-08-07T21:41:43.734607-04:00",
+      "updated_at": "2025-08-08T06:39:43.734607-04:00",
+      "contact": "contact-014",
+      "date": "2025-08-07",
+      "channel": "social_media",
+      "notes": "Fixture touchpoint for contact-014."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 23,
+    "fields": {
+      "created_at": "2025-03-07T23:12:01.319884-05:00",
+      "updated_at": "2025-03-08T19:09:01.319884-05:00",
+      "contact": "contact-014",
+      "date": "2025-03-07",
+      "channel": "video_call",
+      "notes": "Fixture touchpoint for contact-014."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 24,
+    "fields": {
+      "created_at": "2026-01-23T10:33:00.997661-05:00",
+      "updated_at": "2026-01-24T07:58:00.997661-05:00",
+      "contact": "contact-016",
+      "date": "2026-01-23",
+      "channel": "email",
+      "notes": "Fixture touchpoint for contact-016."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 25,
+    "fields": {
+      "created_at": "2025-05-11T06:14:09.077482-04:00",
+      "updated_at": "2025-05-11T22:12:09.077482-04:00",
+      "contact": "contact-017",
+      "date": "2025-05-11",
+      "channel": "text_message",
+      "notes": "Fixture touchpoint for contact-017."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 26,
+    "fields": {
+      "created_at": "2025-09-24T21:49:39.263868-04:00",
+      "updated_at": "2025-09-25T06:23:39.263868-04:00",
+      "contact": "contact-017",
+      "date": "2025-09-24",
+      "channel": "text_message",
+      "notes": "Fixture touchpoint for contact-017."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 27,
+    "fields": {
+      "created_at": "2025-03-15T13:08:59.492391-04:00",
+      "updated_at": "2025-03-15T13:31:59.492391-04:00",
+      "contact": "contact-017",
+      "date": "2025-03-15",
+      "channel": "social_media",
+      "notes": "Fixture touchpoint for contact-017."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 28,
+    "fields": {
+      "created_at": "2025-09-24T04:11:17.526820-04:00",
+      "updated_at": "2025-09-24T13:10:17.526820-04:00",
+      "contact": "contact-019",
+      "date": "2025-09-24",
+      "channel": "text_message",
+      "notes": "Fixture touchpoint for contact-019."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 29,
+    "fields": {
+      "created_at": "2025-09-13T05:23:49.194219-04:00",
+      "updated_at": "2025-09-13T11:28:49.194219-04:00",
+      "contact": "contact-019",
+      "date": "2025-09-13",
+      "channel": "text_message",
+      "notes": "Fixture touchpoint for contact-019."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 30,
+    "fields": {
+      "created_at": "2025-03-30T15:03:45.448054-04:00",
+      "updated_at": "2025-03-30T18:40:45.448054-04:00",
+      "contact": "contact-019",
+      "date": "2025-03-30",
+      "channel": "other",
+      "notes": "Fixture touchpoint for contact-019."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 31,
+    "fields": {
+      "created_at": "2025-02-02T23:19:24.175129-05:00",
+      "updated_at": "2025-02-03T17:43:24.175129-05:00",
+      "contact": "contact-020",
+      "date": "2025-02-02",
+      "channel": "other",
+      "notes": "Fixture touchpoint for contact-020."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 32,
+    "fields": {
+      "created_at": "2025-07-30T07:23:09.749400-04:00",
+      "updated_at": "2025-07-30T15:36:09.749400-04:00",
+      "contact": "contact-022",
+      "date": "2025-07-30",
+      "channel": "text_message",
+      "notes": "Fixture touchpoint for contact-022."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 33,
+    "fields": {
+      "created_at": "2025-08-22T14:45:23.851771-04:00",
+      "updated_at": "2025-08-22T19:02:23.851771-04:00",
+      "contact": "contact-023",
+      "date": "2025-08-22",
+      "channel": "email",
+      "notes": "Fixture touchpoint for contact-023."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 34,
+    "fields": {
+      "created_at": "2025-05-10T14:43:59.064511-04:00",
+      "updated_at": "2025-05-11T13:14:59.064511-04:00",
+      "contact": "contact-023",
+      "date": "2025-05-10",
+      "channel": "video_call",
+      "notes": "Fixture touchpoint for contact-023."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 35,
+    "fields": {
+      "created_at": "2025-12-18T09:50:56.155205-05:00",
+      "updated_at": "2025-12-19T04:35:56.155205-05:00",
+      "contact": "contact-023",
+      "date": "2025-12-18",
+      "channel": "email",
+      "notes": "Fixture touchpoint for contact-023."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 36,
+    "fields": {
+      "created_at": "2025-08-10T20:15:21.175538-04:00",
+      "updated_at": "2025-08-11T08:59:21.175538-04:00",
+      "contact": "contact-025",
+      "date": "2025-08-10",
+      "channel": "video_call",
+      "notes": "Fixture touchpoint for contact-025."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 37,
+    "fields": {
+      "created_at": "2025-03-19T00:00:14.463907-04:00",
+      "updated_at": "2025-03-19T17:39:14.463907-04:00",
+      "contact": "contact-025",
+      "date": "2025-03-19",
+      "channel": "video_call",
+      "notes": "Fixture touchpoint for contact-025."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 38,
+    "fields": {
+      "created_at": "2025-04-25T20:57:11.544608-04:00",
+      "updated_at": "2025-04-26T01:04:11.544608-04:00",
+      "contact": "contact-025",
+      "date": "2025-04-25",
+      "channel": "email",
+      "notes": "Fixture touchpoint for contact-025."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 39,
+    "fields": {
+      "created_at": "2025-09-21T07:24:26.411392-04:00",
+      "updated_at": "2025-09-21T15:15:26.411392-04:00",
+      "contact": "contact-026",
+      "date": "2025-09-21",
+      "channel": "text_message",
+      "notes": "Fixture touchpoint for contact-026."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 40,
+    "fields": {
+      "created_at": "2025-04-27T10:09:32.431098-04:00",
+      "updated_at": "2025-04-27T17:40:32.431098-04:00",
+      "contact": "contact-026",
+      "date": "2025-04-27",
+      "channel": "phone",
+      "notes": "Fixture touchpoint for contact-026."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 41,
+    "fields": {
+      "created_at": "2025-12-30T11:00:17.319551-05:00",
+      "updated_at": "2025-12-30T13:25:17.319551-05:00",
+      "contact": "contact-026",
+      "date": "2025-12-30",
+      "channel": "social_media",
+      "notes": "Fixture touchpoint for contact-026."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 42,
+    "fields": {
+      "created_at": "2025-11-24T16:38:06.579314-05:00",
+      "updated_at": "2025-11-24T21:08:06.579314-05:00",
+      "contact": "contact-028",
+      "date": "2025-11-24",
+      "channel": "social_media",
+      "notes": "Fixture touchpoint for contact-028."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 43,
+    "fields": {
+      "created_at": "2025-04-13T08:23:52.399300-04:00",
+      "updated_at": "2025-04-14T03:52:52.399300-04:00",
+      "contact": "contact-028",
+      "date": "2025-04-13",
+      "channel": "text_message",
+      "notes": "Fixture touchpoint for contact-028."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 44,
+    "fields": {
+      "created_at": "2025-03-10T04:58:57.114884-04:00",
+      "updated_at": "2025-03-10T21:06:57.114884-04:00",
+      "contact": "contact-028",
+      "date": "2025-03-10",
+      "channel": "email",
+      "notes": "Fixture touchpoint for contact-028."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 45,
+    "fields": {
+      "created_at": "2026-01-28T05:15:58.755460-05:00",
+      "updated_at": "2026-01-28T19:57:58.755460-05:00",
+      "contact": "contact-029",
+      "date": "2026-01-28",
+      "channel": "in_person",
+      "notes": "Fixture touchpoint for contact-029."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 46,
+    "fields": {
+      "created_at": "2025-03-10T18:01:03.777624-04:00",
+      "updated_at": "2025-03-11T08:28:03.777624-04:00",
+      "contact": "contact-029",
+      "date": "2025-03-10",
+      "channel": "video_call",
+      "notes": "Fixture touchpoint for contact-029."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 47,
+    "fields": {
+      "created_at": "2025-06-29T20:35:30.507283-04:00",
+      "updated_at": "2025-06-30T12:31:30.507283-04:00",
+      "contact": "contact-029",
+      "date": "2025-06-29",
+      "channel": "other",
+      "notes": "Fixture touchpoint for contact-029."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 48,
+    "fields": {
+      "created_at": "2025-07-14T15:41:16.935135-04:00",
+      "updated_at": "2025-07-15T06:59:16.935135-04:00",
+      "contact": "contact-031",
+      "date": "2025-07-14",
+      "channel": "email",
+      "notes": "Fixture touchpoint for contact-031."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 49,
+    "fields": {
+      "created_at": "2025-12-14T08:41:23.302805-05:00",
+      "updated_at": "2025-12-14T23:05:23.302805-05:00",
+      "contact": "contact-031",
+      "date": "2025-12-14",
+      "channel": "email",
+      "notes": "Fixture touchpoint for contact-031."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 50,
+    "fields": {
+      "created_at": "2025-08-22T19:19:47.599097-04:00",
+      "updated_at": "2025-08-23T04:49:47.599097-04:00",
+      "contact": "contact-031",
+      "date": "2025-08-22",
+      "channel": "video_call",
+      "notes": "Fixture touchpoint for contact-031."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 51,
+    "fields": {
+      "created_at": "2025-12-09T17:46:24.235238-05:00",
+      "updated_at": "2025-12-10T16:01:24.235238-05:00",
+      "contact": "contact-032",
+      "date": "2025-12-09",
+      "channel": "text_message",
+      "notes": "Fixture touchpoint for contact-032."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 52,
+    "fields": {
+      "created_at": "2025-07-07T07:17:32.561415-04:00",
+      "updated_at": "2025-07-07T12:54:32.561415-04:00",
+      "contact": "contact-034",
+      "date": "2025-07-07",
+      "channel": "video_call",
+      "notes": "Fixture touchpoint for contact-034."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 53,
+    "fields": {
+      "created_at": "2025-03-31T08:13:19.548812-04:00",
+      "updated_at": "2025-04-01T07:59:19.548812-04:00",
+      "contact": "contact-035",
+      "date": "2025-03-31",
+      "channel": "social_media",
+      "notes": "Fixture touchpoint for contact-035."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 54,
+    "fields": {
+      "created_at": "2025-05-22T04:10:47.518266-04:00",
+      "updated_at": "2025-05-22T23:08:47.518266-04:00",
+      "contact": "contact-035",
+      "date": "2025-05-22",
+      "channel": "social_media",
+      "notes": "Fixture touchpoint for contact-035."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 55,
+    "fields": {
+      "created_at": "2025-03-04T00:32:53.359170-05:00",
+      "updated_at": "2025-03-04T20:28:53.359170-05:00",
+      "contact": "contact-037",
+      "date": "2025-03-04",
+      "channel": "video_call",
+      "notes": "Fixture touchpoint for contact-037."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 56,
+    "fields": {
+      "created_at": "2025-12-24T22:21:18.736132-05:00",
+      "updated_at": "2025-12-25T00:41:18.736132-05:00",
+      "contact": "contact-038",
+      "date": "2025-12-24",
+      "channel": "text_message",
+      "notes": "Fixture touchpoint for contact-038."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 57,
+    "fields": {
+      "created_at": "2025-04-30T23:34:26.593607-04:00",
+      "updated_at": "2025-05-01T19:29:26.593607-04:00",
+      "contact": "contact-040",
+      "date": "2025-04-30",
+      "channel": "text_message",
+      "notes": "Fixture touchpoint for contact-040."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 58,
+    "fields": {
+      "created_at": "2025-06-27T08:40:26.479728-04:00",
+      "updated_at": "2025-06-28T02:30:26.479728-04:00",
+      "contact": "contact-040",
+      "date": "2025-06-27",
+      "channel": "in_person",
+      "notes": "Fixture touchpoint for contact-040."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 59,
+    "fields": {
+      "created_at": "2025-10-06T03:11:08.039729-04:00",
+      "updated_at": "2025-10-06T12:05:08.039729-04:00",
+      "contact": "contact-040",
+      "date": "2025-10-06",
+      "channel": "email",
+      "notes": "Fixture touchpoint for contact-040."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 60,
+    "fields": {
+      "created_at": "2026-02-02T10:31:20.198071-05:00",
+      "updated_at": "2026-02-03T09:26:20.198071-05:00",
+      "contact": "contact-041",
+      "date": "2026-02-02",
+      "channel": "social_media",
+      "notes": "Fixture touchpoint for contact-041."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 61,
+    "fields": {
+      "created_at": "2025-10-17T18:22:20.681442-04:00",
+      "updated_at": "2025-10-18T03:25:20.681442-04:00",
+      "contact": "contact-043",
+      "date": "2025-10-17",
+      "channel": "email",
+      "notes": "Fixture touchpoint for contact-043."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 62,
+    "fields": {
+      "created_at": "2025-09-14T05:07:50.770084-04:00",
+      "updated_at": "2025-09-14T17:01:50.770084-04:00",
+      "contact": "contact-043",
+      "date": "2025-09-14",
+      "channel": "phone",
+      "notes": "Fixture touchpoint for contact-043."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 63,
+    "fields": {
+      "created_at": "2026-01-29T08:09:30.159491-05:00",
+      "updated_at": "2026-01-29T16:29:30.159491-05:00",
+      "contact": "contact-043",
+      "date": "2026-01-29",
+      "channel": "in_person",
+      "notes": "Fixture touchpoint for contact-043."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 64,
+    "fields": {
+      "created_at": "2026-01-11T16:44:43.256407-05:00",
+      "updated_at": "2026-01-12T13:36:43.256407-05:00",
+      "contact": "contact-044",
+      "date": "2026-01-11",
+      "channel": "other",
+      "notes": "Fixture touchpoint for contact-044."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 65,
+    "fields": {
+      "created_at": "2025-03-23T20:28:26.244057-04:00",
+      "updated_at": "2025-03-24T18:47:26.244057-04:00",
+      "contact": "contact-044",
+      "date": "2025-03-23",
+      "channel": "text_message",
+      "notes": "Fixture touchpoint for contact-044."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 66,
+    "fields": {
+      "created_at": "2025-07-31T05:39:47.685869-04:00",
+      "updated_at": "2025-07-31T15:16:47.685869-04:00",
+      "contact": "contact-046",
+      "date": "2025-07-31",
+      "channel": "text_message",
+      "notes": "Fixture touchpoint for contact-046."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 67,
+    "fields": {
+      "created_at": "2025-12-30T10:16:21.640157-05:00",
+      "updated_at": "2025-12-30T17:27:21.640157-05:00",
+      "contact": "contact-046",
+      "date": "2025-12-30",
+      "channel": "social_media",
+      "notes": "Fixture touchpoint for contact-046."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 68,
+    "fields": {
+      "created_at": "2025-11-11T09:45:22.745356-05:00",
+      "updated_at": "2025-11-11T18:19:22.745356-05:00",
+      "contact": "contact-047",
+      "date": "2025-11-11",
+      "channel": "other",
+      "notes": "Fixture touchpoint for contact-047."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 69,
+    "fields": {
+      "created_at": "2025-09-23T12:05:35.649568-04:00",
+      "updated_at": "2025-09-23T13:49:35.649568-04:00",
+      "contact": "contact-047",
+      "date": "2025-09-23",
+      "channel": "phone",
+      "notes": "Fixture touchpoint for contact-047."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 70,
+    "fields": {
+      "created_at": "2025-09-03T13:26:57.607193-04:00",
+      "updated_at": "2025-09-04T08:15:57.607193-04:00",
+      "contact": "contact-049",
+      "date": "2025-09-03",
+      "channel": "social_media",
+      "notes": "Fixture touchpoint for contact-049."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 71,
+    "fields": {
+      "created_at": "2025-03-28T21:27:53.494394-04:00",
+      "updated_at": "2025-03-29T12:02:53.494394-04:00",
+      "contact": "contact-049",
+      "date": "2025-03-28",
+      "channel": "text_message",
+      "notes": "Fixture touchpoint for contact-049."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 72,
+    "fields": {
+      "created_at": "2025-12-14T03:01:21.154721-05:00",
+      "updated_at": "2025-12-14T15:37:21.154721-05:00",
+      "contact": "contact-050",
+      "date": "2025-12-14",
+      "channel": "text_message",
+      "notes": "Fixture touchpoint for contact-050."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 73,
+    "fields": {
+      "created_at": "2025-12-15T13:14:10.699710-05:00",
+      "updated_at": "2025-12-16T12:30:10.699710-05:00",
+      "contact": "contact-052",
+      "date": "2025-12-15",
+      "channel": "email",
+      "notes": "Fixture touchpoint for contact-052."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 74,
+    "fields": {
+      "created_at": "2025-06-04T03:10:06.115022-04:00",
+      "updated_at": "2025-06-04T08:26:06.115022-04:00",
+      "contact": "contact-053",
+      "date": "2025-06-04",
+      "channel": "email",
+      "notes": "Fixture touchpoint for contact-053."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 75,
+    "fields": {
+      "created_at": "2026-01-08T17:37:08.180633-05:00",
+      "updated_at": "2026-01-08T23:09:08.180633-05:00",
+      "contact": "contact-053",
+      "date": "2026-01-08",
+      "channel": "other",
+      "notes": "Fixture touchpoint for contact-053."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 76,
+    "fields": {
+      "created_at": "2025-11-22T18:30:39.489363-05:00",
+      "updated_at": "2025-11-23T00:32:39.489363-05:00",
+      "contact": "contact-053",
+      "date": "2025-11-22",
+      "channel": "video_call",
+      "notes": "Fixture touchpoint for contact-053."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 77,
+    "fields": {
+      "created_at": "2025-07-20T22:13:04.656709-04:00",
+      "updated_at": "2025-07-21T01:54:04.656709-04:00",
+      "contact": "contact-055",
+      "date": "2025-07-20",
+      "channel": "video_call",
+      "notes": "Fixture touchpoint for contact-055."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 78,
+    "fields": {
+      "created_at": "2025-05-25T06:32:24.630215-04:00",
+      "updated_at": "2025-05-25T07:51:24.630215-04:00",
+      "contact": "contact-055",
+      "date": "2025-05-25",
+      "channel": "other",
+      "notes": "Fixture touchpoint for contact-055."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 79,
+    "fields": {
+      "created_at": "2025-11-20T06:07:04.945555-05:00",
+      "updated_at": "2025-11-20T22:10:04.945555-05:00",
+      "contact": "contact-055",
+      "date": "2025-11-20",
+      "channel": "email",
+      "notes": "Fixture touchpoint for contact-055."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 80,
+    "fields": {
+      "created_at": "2026-01-21T21:49:41.197731-05:00",
+      "updated_at": "2026-01-21T22:37:41.197731-05:00",
+      "contact": "contact-056",
+      "date": "2026-01-21",
+      "channel": "social_media",
+      "notes": "Fixture touchpoint for contact-056."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 81,
+    "fields": {
+      "created_at": "2025-05-10T18:19:28.919018-04:00",
+      "updated_at": "2025-05-11T12:37:28.919018-04:00",
+      "contact": "contact-058",
+      "date": "2025-05-10",
+      "channel": "in_person",
+      "notes": "Fixture touchpoint for contact-058."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 82,
+    "fields": {
+      "created_at": "2025-03-14T09:32:27.564182-04:00",
+      "updated_at": "2025-03-14T10:28:27.564182-04:00",
+      "contact": "contact-058",
+      "date": "2025-03-14",
+      "channel": "phone",
+      "notes": "Fixture touchpoint for contact-058."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 83,
+    "fields": {
+      "created_at": "2025-07-11T12:35:30.804192-04:00",
+      "updated_at": "2025-07-11T21:29:30.804192-04:00",
+      "contact": "contact-058",
+      "date": "2025-07-11",
+      "channel": "email",
+      "notes": "Fixture touchpoint for contact-058."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 84,
+    "fields": {
+      "created_at": "2025-09-01T09:32:33.669379-04:00",
+      "updated_at": "2025-09-01T20:14:33.669379-04:00",
+      "contact": "contact-059",
+      "date": "2025-09-01",
+      "channel": "video_call",
+      "notes": "Fixture touchpoint for contact-059."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 85,
+    "fields": {
+      "created_at": "2025-05-06T20:08:47.879474-04:00",
+      "updated_at": "2025-05-07T16:49:47.879474-04:00",
+      "contact": "contact-059",
+      "date": "2025-05-06",
+      "channel": "text_message",
+      "notes": "Fixture touchpoint for contact-059."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 86,
+    "fields": {
+      "created_at": "2025-10-03T09:51:30.263996-04:00",
+      "updated_at": "2025-10-04T08:44:30.263996-04:00",
+      "contact": "contact-061",
+      "date": "2025-10-03",
+      "channel": "email",
+      "notes": "Fixture touchpoint for contact-061."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 87,
+    "fields": {
+      "created_at": "2025-06-03T09:45:52.364587-04:00",
+      "updated_at": "2025-06-03T22:10:52.364587-04:00",
+      "contact": "contact-061",
+      "date": "2025-06-03",
+      "channel": "video_call",
+      "notes": "Fixture touchpoint for contact-061."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 88,
+    "fields": {
+      "created_at": "2025-05-28T11:01:10.137376-04:00",
+      "updated_at": "2025-05-28T13:24:10.137376-04:00",
+      "contact": "contact-061",
+      "date": "2025-05-28",
+      "channel": "social_media",
+      "notes": "Fixture touchpoint for contact-061."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 89,
+    "fields": {
+      "created_at": "2025-06-29T18:39:19.780679-04:00",
+      "updated_at": "2025-06-30T11:57:19.780679-04:00",
+      "contact": "contact-062",
+      "date": "2025-06-29",
+      "channel": "in_person",
+      "notes": "Fixture touchpoint for contact-062."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 90,
+    "fields": {
+      "created_at": "2025-05-21T18:57:10.173138-04:00",
+      "updated_at": "2025-05-22T17:42:10.173138-04:00",
+      "contact": "contact-062",
+      "date": "2025-05-21",
+      "channel": "video_call",
+      "notes": "Fixture touchpoint for contact-062."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 91,
+    "fields": {
+      "created_at": "2025-07-09T19:36:23.858757-04:00",
+      "updated_at": "2025-07-10T01:32:23.858757-04:00",
+      "contact": "contact-064",
+      "date": "2025-07-09",
+      "channel": "text_message",
+      "notes": "Fixture touchpoint for contact-064."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 92,
+    "fields": {
+      "created_at": "2025-09-02T15:19:03.624210-04:00",
+      "updated_at": "2025-09-03T10:44:03.624210-04:00",
+      "contact": "contact-064",
+      "date": "2025-09-02",
+      "channel": "in_person",
+      "notes": "Fixture touchpoint for contact-064."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 93,
+    "fields": {
+      "created_at": "2025-09-29T22:18:09.524913-04:00",
+      "updated_at": "2025-09-30T12:09:09.524913-04:00",
+      "contact": "contact-064",
+      "date": "2025-09-29",
+      "channel": "text_message",
+      "notes": "Fixture touchpoint for contact-064."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 94,
+    "fields": {
+      "created_at": "2025-12-28T21:50:42.408924-05:00",
+      "updated_at": "2025-12-29T17:37:42.408924-05:00",
+      "contact": "contact-065",
+      "date": "2025-12-28",
+      "channel": "text_message",
+      "notes": "Fixture touchpoint for contact-065."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 95,
+    "fields": {
+      "created_at": "2025-11-20T12:04:20.204784-05:00",
+      "updated_at": "2025-11-21T10:24:20.204784-05:00",
+      "contact": "contact-065",
+      "date": "2025-11-20",
+      "channel": "in_person",
+      "notes": "Fixture touchpoint for contact-065."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 96,
+    "fields": {
+      "created_at": "2025-02-11T16:25:02.512193-05:00",
+      "updated_at": "2025-02-12T15:04:02.512193-05:00",
+      "contact": "contact-067",
+      "date": "2025-02-11",
+      "channel": "social_media",
+      "notes": "Fixture touchpoint for contact-067."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 97,
+    "fields": {
+      "created_at": "2025-05-03T05:32:28.525049-04:00",
+      "updated_at": "2025-05-04T02:40:28.525049-04:00",
+      "contact": "contact-067",
+      "date": "2025-05-03",
+      "channel": "in_person",
+      "notes": "Fixture touchpoint for contact-067."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 98,
+    "fields": {
+      "created_at": "2025-07-26T08:14:29.178518-04:00",
+      "updated_at": "2025-07-26T11:25:29.178518-04:00",
+      "contact": "contact-067",
+      "date": "2025-07-26",
+      "channel": "other",
+      "notes": "Fixture touchpoint for contact-067."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 99,
+    "fields": {
+      "created_at": "2025-10-15T03:23:04.245207-04:00",
+      "updated_at": "2025-10-15T04:57:04.245207-04:00",
+      "contact": "contact-068",
+      "date": "2025-10-15",
+      "channel": "email",
+      "notes": "Fixture touchpoint for contact-068."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 100,
+    "fields": {
+      "created_at": "2026-01-18T15:36:38.493180-05:00",
+      "updated_at": "2026-01-19T13:59:38.493180-05:00",
+      "contact": "contact-070",
+      "date": "2026-01-18",
+      "channel": "social_media",
+      "notes": "Fixture touchpoint for contact-070."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 101,
+    "fields": {
+      "created_at": "2025-11-22T11:20:09.126567-05:00",
+      "updated_at": "2025-11-23T11:05:09.126567-05:00",
+      "contact": "contact-071",
+      "date": "2025-11-22",
+      "channel": "text_message",
+      "notes": "Fixture touchpoint for contact-071."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 102,
+    "fields": {
+      "created_at": "2025-12-27T11:01:16.250793-05:00",
+      "updated_at": "2025-12-28T06:05:16.250793-05:00",
+      "contact": "contact-073",
+      "date": "2025-12-27",
+      "channel": "text_message",
+      "notes": "Fixture touchpoint for contact-073."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 103,
+    "fields": {
+      "created_at": "2025-11-01T10:00:55.463193-04:00",
+      "updated_at": "2025-11-01T20:49:55.463193-04:00",
+      "contact": "contact-073",
+      "date": "2025-11-01",
+      "channel": "other",
+      "notes": "Fixture touchpoint for contact-073."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 104,
+    "fields": {
+      "created_at": "2025-07-26T04:11:32.888774-04:00",
+      "updated_at": "2025-07-26T19:17:32.888774-04:00",
+      "contact": "contact-073",
+      "date": "2025-07-26",
+      "channel": "text_message",
+      "notes": "Fixture touchpoint for contact-073."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 105,
+    "fields": {
+      "created_at": "2025-09-19T17:14:11.964247-04:00",
+      "updated_at": "2025-09-20T09:26:11.964247-04:00",
+      "contact": "contact-074",
+      "date": "2025-09-19",
+      "channel": "video_call",
+      "notes": "Fixture touchpoint for contact-074."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 106,
+    "fields": {
+      "created_at": "2025-10-18T19:36:39.359802-04:00",
+      "updated_at": "2025-10-18T22:14:39.359802-04:00",
+      "contact": "contact-076",
+      "date": "2025-10-18",
+      "channel": "social_media",
+      "notes": "Fixture touchpoint for contact-076."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 107,
+    "fields": {
+      "created_at": "2025-02-26T05:19:29.885561-05:00",
+      "updated_at": "2025-02-26T15:04:29.885561-05:00",
+      "contact": "contact-076",
+      "date": "2025-02-26",
+      "channel": "email",
+      "notes": "Fixture touchpoint for contact-076."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 108,
+    "fields": {
+      "created_at": "2025-12-30T05:54:25.983623-05:00",
+      "updated_at": "2025-12-30T11:02:25.983623-05:00",
+      "contact": "contact-077",
+      "date": "2025-12-30",
+      "channel": "email",
+      "notes": "Fixture touchpoint for contact-077."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 109,
+    "fields": {
+      "created_at": "2025-07-05T20:21:00.994331-04:00",
+      "updated_at": "2025-07-05T22:28:00.994331-04:00",
+      "contact": "contact-079",
+      "date": "2025-07-05",
+      "channel": "email",
+      "notes": "Fixture touchpoint for contact-079."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 110,
+    "fields": {
+      "created_at": "2025-11-02T18:51:11.621804-05:00",
+      "updated_at": "2025-11-03T09:11:11.621804-05:00",
+      "contact": "contact-079",
+      "date": "2025-11-02",
+      "channel": "video_call",
+      "notes": "Fixture touchpoint for contact-079."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 111,
+    "fields": {
+      "created_at": "2025-07-11T23:44:37.835406-04:00",
+      "updated_at": "2025-07-12T13:02:37.835406-04:00",
+      "contact": "contact-080",
+      "date": "2025-07-11",
+      "channel": "other",
+      "notes": "Fixture touchpoint for contact-080."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 112,
+    "fields": {
+      "created_at": "2025-02-13T08:44:05.580506-05:00",
+      "updated_at": "2025-02-13T23:02:05.580506-05:00",
+      "contact": "contact-080",
+      "date": "2025-02-13",
+      "channel": "text_message",
+      "notes": "Fixture touchpoint for contact-080."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 113,
+    "fields": {
+      "created_at": "2025-02-12T15:52:49.121421-05:00",
+      "updated_at": "2025-02-13T14:41:49.121421-05:00",
+      "contact": "contact-082",
+      "date": "2025-02-12",
+      "channel": "social_media",
+      "notes": "Fixture touchpoint for contact-082."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 114,
+    "fields": {
+      "created_at": "2025-09-25T13:29:57.956324-04:00",
+      "updated_at": "2025-09-26T03:17:57.956324-04:00",
+      "contact": "contact-082",
+      "date": "2025-09-25",
+      "channel": "social_media",
+      "notes": "Fixture touchpoint for contact-082."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 115,
+    "fields": {
+      "created_at": "2025-06-02T04:21:43.777347-04:00",
+      "updated_at": "2025-06-02T17:47:43.777347-04:00",
+      "contact": "contact-083",
+      "date": "2025-06-02",
+      "channel": "text_message",
+      "notes": "Fixture touchpoint for contact-083."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 116,
+    "fields": {
+      "created_at": "2025-06-10T14:58:43.177247-04:00",
+      "updated_at": "2025-06-10T22:11:43.177247-04:00",
+      "contact": "contact-085",
+      "date": "2025-06-10",
+      "channel": "video_call",
+      "notes": "Fixture touchpoint for contact-085."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 117,
+    "fields": {
+      "created_at": "2025-09-28T06:19:02.512646-04:00",
+      "updated_at": "2025-09-28T17:28:02.512646-04:00",
+      "contact": "contact-085",
+      "date": "2025-09-28",
+      "channel": "in_person",
+      "notes": "Fixture touchpoint for contact-085."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 118,
+    "fields": {
+      "created_at": "2025-02-10T04:57:23.826253-05:00",
+      "updated_at": "2025-02-10T21:00:23.826253-05:00",
+      "contact": "contact-086",
+      "date": "2025-02-10",
+      "channel": "phone",
+      "notes": "Fixture touchpoint for contact-086."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 119,
+    "fields": {
+      "created_at": "2025-03-16T15:16:40.585426-04:00",
+      "updated_at": "2025-03-16T15:57:40.585426-04:00",
+      "contact": "contact-088",
+      "date": "2025-03-16",
+      "channel": "text_message",
+      "notes": "Fixture touchpoint for contact-088."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 120,
+    "fields": {
+      "created_at": "2025-10-08T04:46:26.511455-04:00",
+      "updated_at": "2025-10-08T08:40:26.511455-04:00",
+      "contact": "contact-089",
+      "date": "2025-10-08",
+      "channel": "text_message",
+      "notes": "Fixture touchpoint for contact-089."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 121,
+    "fields": {
+      "created_at": "2026-01-18T17:25:24.297634-05:00",
+      "updated_at": "2026-01-19T00:51:24.297634-05:00",
+      "contact": "contact-089",
+      "date": "2026-01-18",
+      "channel": "video_call",
+      "notes": "Fixture touchpoint for contact-089."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 122,
+    "fields": {
+      "created_at": "2025-06-27T16:17:16.494168-04:00",
+      "updated_at": "2025-06-28T16:09:16.494168-04:00",
+      "contact": "contact-089",
+      "date": "2025-06-27",
+      "channel": "in_person",
+      "notes": "Fixture touchpoint for contact-089."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 123,
+    "fields": {
+      "created_at": "2026-01-28T02:27:13.465840-05:00",
+      "updated_at": "2026-01-28T13:05:13.465840-05:00",
+      "contact": "contact-091",
+      "date": "2026-01-28",
+      "channel": "text_message",
+      "notes": "Fixture touchpoint for contact-091."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 124,
+    "fields": {
+      "created_at": "2025-06-07T10:27:39.100067-04:00",
+      "updated_at": "2025-06-08T10:01:39.100067-04:00",
+      "contact": "contact-092",
+      "date": "2025-06-07",
+      "channel": "other",
+      "notes": "Fixture touchpoint for contact-092."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 125,
+    "fields": {
+      "created_at": "2025-12-10T01:29:10.773260-05:00",
+      "updated_at": "2025-12-10T22:53:10.773260-05:00",
+      "contact": "contact-092",
+      "date": "2025-12-10",
+      "channel": "email",
+      "notes": "Fixture touchpoint for contact-092."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 126,
+    "fields": {
+      "created_at": "2025-11-30T02:39:56.686805-05:00",
+      "updated_at": "2025-11-30T06:07:56.686805-05:00",
+      "contact": "contact-092",
+      "date": "2025-11-30",
+      "channel": "social_media",
+      "notes": "Fixture touchpoint for contact-092."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 127,
+    "fields": {
+      "created_at": "2025-08-18T08:48:17.331140-04:00",
+      "updated_at": "2025-08-18T11:09:17.331140-04:00",
+      "contact": "contact-094",
+      "date": "2025-08-18",
+      "channel": "text_message",
+      "notes": "Fixture touchpoint for contact-094."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 128,
+    "fields": {
+      "created_at": "2025-07-29T09:32:00.086701-04:00",
+      "updated_at": "2025-07-30T07:38:00.086701-04:00",
+      "contact": "contact-094",
+      "date": "2025-07-29",
+      "channel": "in_person",
+      "notes": "Fixture touchpoint for contact-094."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 129,
+    "fields": {
+      "created_at": "2025-12-03T04:17:56.450142-05:00",
+      "updated_at": "2025-12-03T16:38:56.450142-05:00",
+      "contact": "contact-095",
+      "date": "2025-12-03",
+      "channel": "social_media",
+      "notes": "Fixture touchpoint for contact-095."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 130,
+    "fields": {
+      "created_at": "2025-03-06T09:58:35.194938-05:00",
+      "updated_at": "2025-03-07T01:39:35.194938-05:00",
+      "contact": "contact-095",
+      "date": "2025-03-06",
+      "channel": "social_media",
+      "notes": "Fixture touchpoint for contact-095."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 131,
+    "fields": {
+      "created_at": "2025-06-07T02:38:20.024281-04:00",
+      "updated_at": "2025-06-07T22:51:20.024281-04:00",
+      "contact": "contact-097",
+      "date": "2025-06-07",
+      "channel": "in_person",
+      "notes": "Fixture touchpoint for contact-097."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 132,
+    "fields": {
+      "created_at": "2025-12-21T06:59:02.196756-05:00",
+      "updated_at": "2025-12-21T17:59:02.196756-05:00",
+      "contact": "contact-097",
+      "date": "2025-12-21",
+      "channel": "other",
+      "notes": "Fixture touchpoint for contact-097."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 133,
+    "fields": {
+      "created_at": "2025-10-16T21:43:07.496723-04:00",
+      "updated_at": "2025-10-17T06:05:07.496723-04:00",
+      "contact": "contact-097",
+      "date": "2025-10-16",
+      "channel": "other",
+      "notes": "Fixture touchpoint for contact-097."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 134,
+    "fields": {
+      "created_at": "2025-07-31T06:03:59.128456-04:00",
+      "updated_at": "2025-08-01T01:30:59.128456-04:00",
+      "contact": "contact-098",
+      "date": "2025-07-31",
+      "channel": "text_message",
+      "notes": "Fixture touchpoint for contact-098."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 135,
+    "fields": {
+      "created_at": "2025-11-06T16:11:58.814478-05:00",
+      "updated_at": "2025-11-07T14:59:58.814478-05:00",
+      "contact": "contact-098",
+      "date": "2025-11-06",
+      "channel": "video_call",
+      "notes": "Fixture touchpoint for contact-098."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 136,
+    "fields": {
+      "created_at": "2025-07-25T15:47:53.303015-04:00",
+      "updated_at": "2025-07-26T12:07:53.303015-04:00",
+      "contact": "contact-100",
+      "date": "2025-07-25",
+      "channel": "social_media",
+      "notes": "Fixture touchpoint for contact-100."
+    }
+  },
+  {
+    "model": "social.contacttouchpoint",
+    "pk": 137,
+    "fields": {
+      "created_at": "2025-08-15T17:14:40.217777-04:00",
+      "updated_at": "2025-08-16T02:39:40.217777-04:00",
+      "contact": "contact-100",
+      "date": "2025-08-15",
+      "channel": "text_message",
+      "notes": "Fixture touchpoint for contact-100."
+    }
+  }
+]
