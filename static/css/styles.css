@@ -91,3 +91,14 @@ body {
   font-size: 0.7rem;
   opacity: 0.9;
 }
+
+.contact-tile-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.contact-tile-link:focus-visible .contact-tile,
+.contact-tile-link:hover .contact-tile {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.14);
+}

@@ -12,17 +12,20 @@
         <div class="contact-grid">
             {% for item in contact_tiles %}
                 {% with contact=item.contact %}
-                    <div class="contact-tile {% if not contact.is_ever_contacted %}contact-tile--never{% else %}contact-tile--contacted{% endif %}"
-                         {% if contact.is_ever_contacted %}style="background-color: hsl({{ item.hue }} 75% 45%);"{% endif %}>
-                        <div class="contact-tile__name" title="{{ contact.name }}">{{ contact.name }}</div>
-                        <div class="contact-tile__strength">
-                            {% if contact.is_ever_contacted %}
-                                {{ contact.strength }}%
-                            {% else %}
-                                —
-                            {% endif %}
+                    <a class="contact-tile-link"
+                       href="{% url 'social:list_contacts' %}?search={{ contact.name|urlencode }}">
+                        <div class="contact-tile {% if not contact.is_ever_contacted %}contact-tile--never{% else %}contact-tile--contacted{% endif %}"
+                             {% if contact.is_ever_contacted %}style="background-color: hsl({{ item.hue }} 75% 45%);"{% endif %}>
+                            <div class="contact-tile__name" title="{{ contact.name }}">{{ contact.name }}</div>
+                            <div class="contact-tile__strength">
+                                {% if contact.is_ever_contacted %}
+                                    {{ contact.strength }}%
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </div>
                         </div>
-                    </div>
+                    </a>
                 {% endwith %}
             {% endfor %}
         </div>
