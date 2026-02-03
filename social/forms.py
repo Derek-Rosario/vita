@@ -93,6 +93,8 @@ class ContactTouchpointForm(forms.ModelForm):
         instances = []
         for contact in contacts:
             instance = super().save(commit=False)
+            instance.pk = None
+            instance._state.adding = True
             instance.contact = contact
             if commit:
                 instance.save()
