@@ -16,13 +16,35 @@
                     </form>
                 </div>
             </div>
-            <div class="col-xs-12 col-md-4">
-                {% include "social/partials/quick_add_contact_form.html" with form=quick_add_contact_form %}
+            <div class="col-12">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h2 class="h4 m-0">Contact Grid</h2>
+                    <a href="{% url 'social:contact_grid' %}"
+                       class="btn btn-outline-secondary btn-sm">Full grid</a>
+                </div>
+                <div class="contact-grid">
+                    {% for item in contact_tiles %}
+                        {% with contact=item.contact %}
+                            <a class="contact-tile-link"
+                               href="{% url 'social:list_contacts' %}?search={{ contact.name|urlencode }}">
+                                <div class="contact-tile {% if not contact.is_ever_contacted %}contact-tile--never{% else %}contact-tile--contacted{% endif %}"
+                                     {% if contact.is_ever_contacted %}style="background-color: hsl({{ item.hue }} 75% 45%);"{% endif %}>
+                                    <div class="contact-tile__name" title="{{ contact.name }}">{{ contact.name }}</div>
+                                    <div class="contact-tile__strength">
+                                        {% if contact.is_ever_contacted %}
+                                            {{ contact.strength }}%
+                                        {% else %}
+                                            —
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </a>
+                        {% endwith %}
+                    {% endfor %}
+                </div>
             </div>
-            <div class="col-xs-12 col-md-8"
-                 hx-trigger="contactListChanged from:body, contactTouchpointLogged from:body"
-                 hx-get="{% url 'social:contacts_needing_attention_card' %}">
-                {% include "social/partials/contacts_needing_attention_card.html" with contacts_needing_attention=contacts_needing_attention %}
+            <div class="col-12 mt-4">
+                {% include "social/partials/quick_add_contact_form.html" with form=quick_add_contact_form %}
             </div>
             <hr>
             <!-- Quick contact search -->

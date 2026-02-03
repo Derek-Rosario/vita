@@ -25,9 +25,14 @@ def index(request: HttpRequest):
         .order_by("count")
     )
 
-    contacts_needing_attention = Contact.objects.filter(strength__lt=70).order_by(
-        "strength", Lower("first_name"), Lower("last_name")
+    contacts = Contact.objects.all().order_by(
+        "priority", Lower("first_name"), Lower("last_name")
     )
+    contact_tiles = []
+    for contact in contacts:
+        strength = contact.strength or 0
+        hue = round(strength * 1.2, 1)
+        contact_tiles.append({"contact": contact, "hue": hue})
 
     template_name = "social/index.html"
 
@@ -39,7 +44,7 @@ def index(request: HttpRequest):
         template_name,
         {
             "contact_count": Contact.objects.count(),
-            "contacts_needing_attention": contacts_needing_attention,
+            "contact_tiles": contact_tiles,
             "groups": groups,
             "relationship_types": relationship_types,
             "quick_add_contact_form": QuickAddContactForm(),
