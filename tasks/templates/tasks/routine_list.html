@@ -24,33 +24,31 @@
               <th>Name</th>
               <th>Schedule</th>
               <th>Steps</th>
+              <th>Est. minutes</th>
               <th>Tags</th>
-              <th>Status</th>
               <th class="text-end">Actions</th>
             </tr>
           </thead>
           <tbody>
             {% for routine in routines %}
               <tr>
-                <td class="fw-semibold">{{ routine.name }}</td>
+                <td class="fw-semibold">{{ routine.name }}
+                  {% if not routine.is_active %}
+                    <span class="badge bg-secondary">Paused</span>
+                  {% endif %}
+                </td>
                 <td>
                   {{ routine.schedule_display }}
                   {% if routine.anchor_time %}<div class="text-muted small">At {{ routine.anchor_time }}</div>{% endif %}
                 </td>
                 <td>{{ routine.step_count }}</td>
+                <td>{{ routine.total_estimate_minutes }}</td>
                 <td>
                   {% for tag in routine.tags.all %}
                     <span class="badge bg-light text-dark border">{{ tag.name }}</span>
                   {% empty %}
                     <span class="text-muted">—</span>
                   {% endfor %}
-                </td>
-                <td>
-                  {% if routine.is_active %}
-                    <span class="badge bg-success">Active</span>
-                  {% else %}
-                    <span class="badge bg-secondary">Paused</span>
-                  {% endif %}
                 </td>
                 <td class="text-end">
                   <form method="post"

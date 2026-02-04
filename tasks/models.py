@@ -457,6 +457,16 @@ class Routine(TimestampedModel):
         suffix = "day" if interval == 1 else "days"
         return f"Every {interval} {suffix}"
 
+    @property
+    def total_estimate_minutes(self) -> int:
+        """Sum the estimated minutes for all steps in this routine."""
+        steps = self.steps.all()
+        total = 0
+        for step in steps:
+            estimate = step.default_estimate_minutes or step.estimate_minutes or 0
+            total += estimate
+        return total
+
 
 class RoutineStep(TimestampedModel):
     routine = models.ForeignKey(
