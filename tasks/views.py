@@ -36,7 +36,7 @@ from tasks.voice import (
     TASK_COMPLETED_VOICE_MESSAGES,
 )
 from django.db.models import Count
-from django.db.models.functions import TruncWeek
+from django.db.models.functions import TruncWeek, ExtractWeekDay
 
 BOARD_STATUSES = [
     (TaskStatus.TODO, "To do"),
@@ -1071,6 +1071,68 @@ def routine_edit(request: HttpRequest, routine_id: int):
         status=400
         if request.method == "POST" and (form.errors or formset.errors)
         else 200,
+    )
+
+
+def routine_step_detail(request: HttpRequest, step_id: int):
+    routine_step = get_object_or_404(
+        RoutineStep.objects.select_related("routine"), pk=step_id
+    )
+    tasks_qs = Task.objects.filter(routine_step=routine_step).exclude(
+        routine_date__isnull=True
+    )
+
+    total_count = tasks_qs.count()
+    completed_count = tasks_qs.filter(status=TaskStatus.DONE).count()
+    completion_rate = (
+        round(completed_count / total_count * 100, 1) if total_count else 0
+    )
+
+    weekday_labels = {
+        1: "Sunday",
+        2: "Monday",
+        3: "Tuesday",
+        4: "Wednesday",
+        5: "Thursday",
+        6: "Friday",
+        7: "Saturday",
+    }
+
+    daily_aggregates = (
+        tasks_qs.annotate(weekday=ExtractWeekDay("routine_date"))
+        .values("weekday")
+        .annotate(
+            total=Count("id"),
+            completed=Count("id", filter=Q(status=TaskStatus.DONE)),
+        )
+    )
+    aggregates_map = {entry["weekday"]: entry for entry in daily_aggregates}
+
+    daily_stats = []
+    for weekday in range(1, 8):
+        totals = aggregates_map.get(weekday, {"total": 0, "completed": 0})
+        day_total = totals.get("total", 0)
+        day_completed = totals.get("completed", 0)
+        day_rate = round(day_completed / day_total * 100, 1) if day_total else 0
+        daily_stats.append(
+            {
+                "label": weekday_labels[weekday],
+                "total": day_total,
+                "completed": day_completed,
+                "rate": day_rate,
+            }
+        )
+
+    return render(
+        request,
+        "tasks/routine_step_detail.html",
+        {
+            "routine_step": routine_step,
+            "total_count": total_count,
+            "completed_count": completed_count,
+            "completion_rate": completion_rate,
+            "daily_stats": daily_stats,
+        },
     )
 
 

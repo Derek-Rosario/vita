@@ -32,6 +32,11 @@ urlpatterns = [
     path("routines/add/", views.routine_create, name="routine_add"),
     path("routines/<int:routine_id>/", views.routine_edit, name="routine_edit"),
     path(
+        "routines/steps/<int:step_id>/",
+        views.routine_step_detail,
+        name="routine_step_detail",
+    ),
+    path(
         "routines/<int:routine_id>/delete/", views.routine_delete, name="routine_delete"
     ),
     path("routines/run/", views.routine_run, name="routine_run"),
