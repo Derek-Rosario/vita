@@ -16,7 +16,12 @@ from django.contrib import messages
 from django.db.models import Q
 
 from core.models import LastGeolocation
-from core.services import add_toast, add_voice_message, is_close_to_home
+from core.services import (
+    add_htmx_trigger,
+    add_toast,
+    add_voice_message,
+    is_close_to_home,
+)
 from core.views import HttpRequest
 from tasks.models import (
     TASK_STATUS_CATEGORY_TO_STATUSES,
@@ -209,6 +214,7 @@ def mark_task_done(request: HttpRequest, task_id: int):
     response = HttpResponse(status=204)
 
     response["HX-Location"] = reverse("task_board")
+    add_htmx_trigger(response, "confetti")
 
     return response
 
@@ -259,6 +265,7 @@ def move_task(request: HttpRequest):
             type="success",
             message=message,
         )
+        add_htmx_trigger(response, "confetti")
         add_voice_message(response, message=message)
     elif status == TaskStatus.CANCELLED:
         message = random.choice(TASK_CANCELLED_VOICE_MESSAGES)
