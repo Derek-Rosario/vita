@@ -498,7 +498,7 @@ def _fetch_board_context():
     today_completed_tasks_weight = get_today_completed_tasks_weight()
 
     average_daily_completed_tasks_weight = round(
-        get_average_daily_completed_tasks_weight() * 1.25
+        get_average_daily_completed_tasks_weight() * 1.5
     )
 
     return {
