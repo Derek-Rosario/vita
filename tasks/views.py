@@ -160,8 +160,11 @@ def task_checklist(request: HttpRequest):
 
     tasks_qs = (
         Task.objects.filter(
-            status__in=TASK_STATUS_CATEGORY_TO_STATUSES[TaskStatusCategory.TODO]
-            + TASK_STATUS_CATEGORY_TO_STATUSES[TaskStatusCategory.IN_PROGRESS]
+            status__in=[
+                TaskStatus.TODO,
+                TaskStatus.IN_PROGRESS,
+                TaskStatus.ON_DECK,
+            ]
         )
         .select_related("project", "parent")
         .prefetch_related("tags")
