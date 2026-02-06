@@ -31,6 +31,11 @@
     {% if task.routine %}
       <div class="alert alert-info mb-3" role="alert">
         This task is part of routine <a href="{% url 'routine_edit' task.routine.id %}">{{ task.routine.name }}</a>
+        {% if task.routine_step %}
+          <div class="small text-muted mt-1">
+            Routine step: <a href="{% url 'routine_step_detail' task.routine_step.id %}">View stats</a>
+          </div>
+        {% endif %}
       </div>
     {% endif %}
     {% if task.related_contact %}
