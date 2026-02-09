@@ -31,11 +31,11 @@ djlint --reformat .        # Django template formatting
 ./manage.py test tasks.tests.MyTest.test_method  # Run a single test
 ```
 
-**Deployment:** Auto-deploys to Fly.io on push to `main` via GitHub Actions. Production runs Daphne (ASGI), a db_worker process, and supercronic for scheduled tasks.
+**Deployment:** Auto-deploys to Fly.io on push to `main` via GitHub Actions. Production runs all processes (Daphne, db_worker, supercronic) on a single machine via `start.sh`, with SQLite on a persistent Fly volume.
 
 ## Architecture
 
-**Stack:** Python 3.14+, Django 6.0, HTMX, Bootstrap 5, SQLite (dev) / PostgreSQL (prod), uv package manager.
+**Stack:** Python 3.14+, Django 6.0, HTMX, Bootstrap 5, SQLite, uv package manager.
 
 **Django apps:**
 - `core` - Shared services (toast/voice helpers, geolocation, auth middleware, TTS API)
