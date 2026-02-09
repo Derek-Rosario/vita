@@ -19,7 +19,7 @@ cleanup() {
     exit 0
 }
 
-trap cleanup SIGTERM SIGINT
+trap cleanup TERM INT
 
 echo "Starting Daphne..."
 python -m daphne vita.asgi:application -b 0.0.0.0 -p 8000 &
