@@ -12,7 +12,7 @@
 ## Key workflows
 
 - Setup is managed with `uv` (from `README.md`): `uv sync`, copy `.env.example`, run `./manage.py migrate`, `./manage.py createsuperuser`, then `./manage.py runserver`.
-- Dev DB is SQLite (`db.sqlite3`), while production swaps to `DATABASE_URL` when `DEBUG` is false (`vita/settings.py`).
+- DB is SQLite everywhere (dev and production). Production uses a persistent Fly volume at `/data/db.sqlite3` via the `DB_PATH` env var.
 
 ## Project-specific patterns to follow
 

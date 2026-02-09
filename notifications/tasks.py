@@ -25,7 +25,7 @@ def send_morning_report_email_task():
     incomplete_points = sum(task.completion_weight for task in incomplete_tasks)
 
     completed_yesterday_tasks = Task.objects.filter(
-        status="completed",
+        status="done",
         completed_at__date__exact=timezone.now().date() - datetime.timedelta(days=1),
     ).all()
     completed_yesterday_count = completed_yesterday_tasks.count()

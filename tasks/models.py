@@ -285,6 +285,7 @@ class Task(TimestampedModel):
             if update_fields is not None:
                 fields = set(update_fields)
                 fields.add("status_last_changed_at")
+                fields.add("status_last_confirmed_at")
                 kwargs["update_fields"] = list(fields)
             self._original_status = self.status
 
