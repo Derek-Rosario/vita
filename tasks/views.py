@@ -40,7 +40,7 @@ from tasks.voice import (
     TASK_CANCELLED_VOICE_MESSAGES,
     TASK_COMPLETED_VOICE_MESSAGES,
 )
-from django.db.models import Count
+from django.db.models import Case, Count, F, Sum, Value, When
 from django.db.models.functions import TruncWeek, ExtractWeekDay
 
 BOARD_STATUSES = [
@@ -374,12 +374,19 @@ def velocity_data(request: HttpRequest):
 
     created_qs = Task.objects.filter(created_at__gte=start)
 
-    # Weekly aggregation for tasks completed and estimated minutes.
+    # Weekly aggregation for tasks completed and completion weight.
+    weight_expr = F("priority") + Case(
+        When(energy="LOW", then=Value(1)),
+        When(energy="MEDIUM", then=Value(2)),
+        When(energy="HIGH", then=Value(3)),
+        default=Value(2),
+    )
     completed_base = completed_qs.annotate(week=TruncWeek("completed_at")).values(
         "week"
     )
     completed_agg = completed_base.annotate(
         tasks_completed=Count("id"),
+        weight_completed=Sum(weight_expr),
     ).order_by("week")
 
     cancelled_base = cancelled_qs.annotate(
@@ -398,6 +405,7 @@ def velocity_data(request: HttpRequest):
     tasks_completed: list[int] = []
     tasks_cancelled: list[int] = []
     tasks_created: list[int] = []
+    weight_completed: list[int] = []
 
     # Build a complete sequence of week buckets from start to now to include empty weeks.
     # Normalize weeks to Monday starts.
@@ -414,6 +422,7 @@ def velocity_data(request: HttpRequest):
             "tasks_completed": 0,
             "tasks_cancelled": 0,
             "tasks_created": 0,
+            "weight_completed": 0,
         }
         cursor = cursor + timedelta(weeks=1)
 
@@ -421,6 +430,7 @@ def velocity_data(request: HttpRequest):
         wk = week_start(row["week"])
         if wk in buckets:
             buckets[wk]["tasks_completed"] = int(row["tasks_completed"] or 0)
+            buckets[wk]["weight_completed"] = int(row["weight_completed"] or 0)
         else:
             print("Unexpected week:", wk)
 
@@ -446,12 +456,14 @@ def velocity_data(request: HttpRequest):
         tasks_completed.append(buckets[wk]["tasks_completed"])
         tasks_cancelled.append(buckets[wk]["tasks_cancelled"])
         tasks_created.append(buckets[wk]["tasks_created"])
+        weight_completed.append(buckets[wk]["weight_completed"])
 
     data = {
         "labels": labels,
         "tasks_completed": tasks_completed,
         "tasks_cancelled": tasks_cancelled,
         "tasks_created": tasks_created,
+        "weight_completed": weight_completed,
     }
 
     return JsonResponse(data)
