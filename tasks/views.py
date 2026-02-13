@@ -540,6 +540,7 @@ class TaskForm(forms.ModelForm):
             "title",
             "description",
             "status",
+            "completed_at",
             "project",
             "priority",
             "energy",
@@ -553,6 +554,10 @@ class TaskForm(forms.ModelForm):
             "description": forms.Textarea(
                 attrs={"class": "form-control", "rows": 3, "placeholder": "Details"}
             ),
+            "completed_at": forms.DateTimeInput(
+                attrs={"type": "datetime-local", "class": "form-control"},
+                format="%Y-%m-%dT%H:%M",
+            ),
             "due_at": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
             "estimate_minutes": forms.NumberInput(attrs={"class": "form-control"}),
             "status": forms.RadioSelect(),
@@ -560,6 +565,17 @@ class TaskForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["completed_at"].required = False
+        self.fields["completed_at"].input_formats = [
+            "%Y-%m-%dT%H:%M",
+            "%Y-%m-%dT%H:%M:%S",
+        ]
+        self.fields["completed_at"].help_text = (
+            "Adjust this if you completed the task earlier or later than it was marked done."
+        )
+        if self.instance.status != TaskStatus.DONE:
+            self.fields.pop("completed_at")
+
         # Only allow active parents; show newest first for convenience.
         self.fields["parent"].queryset = Task.objects.filter(
             status__in=[TaskStatus.TODO, TaskStatus.IN_PROGRESS]

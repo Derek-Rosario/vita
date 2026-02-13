@@ -129,6 +129,7 @@ class Task(TimestampedModel):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self._original_status = self.status
+        self._original_completed_at = self.completed_at
 
     class Priority(models.IntegerChoices):
         LOW = 1, "Low"
@@ -293,6 +294,7 @@ class Task(TimestampedModel):
 
     def save(self, *args, **kwargs):
         was_done = self._original_status == TaskStatus.DONE
+        completed_at_was = self._original_completed_at
         set_completed = self.status == TaskStatus.DONE and self.completed_at is None
         if set_completed:
             self.completed_at = timezone.now()
@@ -324,11 +326,18 @@ class Task(TimestampedModel):
             self._original_status = self.status
 
         super().save(*args, **kwargs)
+        completed_at_changed = self.completed_at != completed_at_was
         just_marked_completed = set_completed or (
             self.status == TaskStatus.DONE and not was_done
         )
-        if just_marked_completed and self.routine_step_id is not None:
+        completion_time_updated = self.status == TaskStatus.DONE and completed_at_changed
+        if (
+            self.routine_step_id is not None
+            and (just_marked_completed or completion_time_updated)
+        ):
             self.routine_step.recalculate_typical_completion_times()
+        self._original_status = self.status
+        self._original_completed_at = self.completed_at
         send_event("events", "task-updated", {"task_id": self.pk})
 
     @property

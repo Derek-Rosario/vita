@@ -36,3 +36,34 @@ class RoutineStepCompletionPercentilesTests(TestCase):
 
         self.assertEqual(step.typical_completion_time_p25, time(hour=9, minute=30))
         self.assertEqual(step.typical_completion_time_p75, time(hour=12, minute=30))
+
+    def test_recalculates_when_completed_time_is_edited_on_done_task(self) -> None:
+        routine = Routine.objects.create(name="Evening routine")
+        step = RoutineStep.objects.create(routine=routine, title="Reflect")
+
+        initial_time = timezone.make_aware(
+            datetime(2026, 1, 1, 22, 0, 0), timezone.get_current_timezone()
+        )
+        corrected_time = timezone.make_aware(
+            datetime(2026, 1, 1, 20, 0, 0), timezone.get_current_timezone()
+        )
+
+        task = Task.objects.create(
+            title="Reflect",
+            status=TaskStatus.TODO,
+            routine=routine,
+            routine_step=step,
+        )
+        task.status = TaskStatus.DONE
+        task.completed_at = initial_time
+        task.save(update_fields=["status", "completed_at", "updated_at"])
+        step.refresh_from_db()
+        self.assertEqual(step.typical_completion_time_p25, time(hour=22, minute=0))
+        self.assertEqual(step.typical_completion_time_p75, time(hour=22, minute=0))
+
+        task.completed_at = corrected_time
+        task.save(update_fields=["completed_at", "updated_at"])
+
+        step.refresh_from_db()
+        self.assertEqual(step.typical_completion_time_p25, time(hour=20, minute=0))
+        self.assertEqual(step.typical_completion_time_p75, time(hour=20, minute=0))
