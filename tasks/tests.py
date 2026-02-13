@@ -1,7 +1,9 @@
 
 from datetime import datetime, time
 
+from django.contrib.auth import get_user_model
 from django.test import TestCase
+from django.urls import reverse
 from django.utils import timezone
 
 from tasks.models import Routine, RoutineStep, Task, TaskStatus
@@ -67,3 +69,34 @@ class RoutineStepCompletionPercentilesTests(TestCase):
         step.refresh_from_db()
         self.assertEqual(step.typical_completion_time_p25, time(hour=20, minute=0))
         self.assertEqual(step.typical_completion_time_p75, time(hour=20, minute=0))
+
+
+class MarkTaskDoneTests(TestCase):
+    def setUp(self) -> None:
+        user = get_user_model().objects.create_superuser(
+            username="tester", email="tester@example.com", password="secret123"
+        )
+        self.client.force_login(user)
+
+    def test_mark_done_accepts_corrected_completion_datetime(self) -> None:
+        task = Task.objects.create(
+            title="Write summary",
+            status=TaskStatus.TODO,
+            due_at=timezone.localdate() - timezone.timedelta(days=1),
+        )
+
+        response = self.client.post(
+            reverse("mark_task_done", args=[task.id]),
+            {"completed_at_actual": "2026-01-02T23:45"},
+        )
+        self.assertEqual(response.status_code, 204)
+
+        task.refresh_from_db()
+        self.assertEqual(task.status, TaskStatus.DONE)
+        self.assertIsNotNone(task.completed_at)
+        completed_local = timezone.localtime(task.completed_at)
+        self.assertEqual(completed_local.year, 2026)
+        self.assertEqual(completed_local.month, 1)
+        self.assertEqual(completed_local.day, 2)
+        self.assertEqual(completed_local.hour, 23)
+        self.assertEqual(completed_local.minute, 45)

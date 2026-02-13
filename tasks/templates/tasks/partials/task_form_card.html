@@ -23,6 +23,8 @@
         <button id="mark-done-button"
                 class="btn btn-success"
                 type="button"
+                data-due-date="{% if task.due_at %}{{ task.due_at|date:'Y-m-d' }}{% endif %}"
+                data-routine-date="{% if task.routine_date %}{{ task.routine_date|date:'Y-m-d' }}{% endif %}"
                 hx-post="{% url 'mark_task_done' task.id %}">Mark Done</button>
       </div>
     {% endif %}
@@ -54,6 +56,7 @@
         This task is related to contact <a href="{% url 'social:list_contacts' %}?search={{ task.related_contact.name|urlencode }}">{{ task.related_contact.name }}</a>
       </div>
     {% endif %}
+    <input type="hidden" id="mark-done-completed-at" name="completed_at_actual" value="">
     <div id="task-autosave-status" class="small text-muted" aria-live="polite"></div>
     <form id="task-form"
           method="post"
@@ -81,3 +84,58 @@
     </form>
   </div>
 </div>
+{% if task.status != 'done' %}
+  <script>
+    (() => {
+      const button = document.getElementById("mark-done-button");
+      const completedAtInput = document.getElementById("mark-done-completed-at");
+      if (!button || !completedAtInput || button.dataset.promptBound === "1") return;
+      button.dataset.promptBound = "1";
+      button.setAttribute("hx-include", "#mark-done-completed-at");
+
+      const toDateString = (value) => {
+        const year = value.getFullYear();
+        const month = String(value.getMonth() + 1).padStart(2, "0");
+        const day = String(value.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      };
+
+      button.addEventListener("click", () => {
+        completedAtInput.value = "";
+
+        const now = new Date();
+        const isBeforeOneAm = now.getHours() === 0;
+        if (!isBeforeOneAm) return;
+
+        const dueDateStr = button.dataset.dueDate || button.dataset.routineDate || "";
+        if (!dueDateStr) return;
+
+        const yesterday = new Date(now);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = toDateString(yesterday);
+        if (dueDateStr !== yesterdayStr) return;
+
+        const shouldAdjust = window.confirm(
+          "This task was due yesterday and it is before 1:00 AM. Do you want to set the actual completion date and time?"
+        );
+        if (!shouldAdjust) return;
+
+        const defaultValue = "23:30";
+        const enteredValue = window.prompt(
+          "Enter completion time as HH:MM (24-hour)",
+          defaultValue
+        );
+        if (!enteredValue) return;
+
+        const trimmed = enteredValue.trim();
+        const match = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(trimmed);
+        if (!match) {
+          window.alert("Invalid time. Using current time instead.");
+          return;
+        }
+
+        completedAtInput.value = `${dueDateStr}T${match[1]}:${match[2]}`;
+      });
+    })();
+  </script>
+{% endif %}

@@ -208,7 +208,28 @@ def mark_task_done(request: HttpRequest, task_id: int):
     if task.status == TaskStatus.DONE:
         return HttpResponse(status=204)
 
+    completed_at_actual = request.POST.get("completed_at_actual", "").strip()
+    completed_at_value = timezone.now()
+    if completed_at_actual:
+        try:
+            parsed_value = datetime.fromisoformat(completed_at_actual)
+        except ValueError:
+            response = HttpResponse(status=400)
+            add_toast(
+                response,
+                type="error",
+                message="Invalid completion date/time format.",
+            )
+            return response
+
+        if timezone.is_naive(parsed_value):
+            parsed_value = timezone.make_aware(
+                parsed_value, timezone.get_current_timezone()
+            )
+        completed_at_value = parsed_value
+
     task.status = TaskStatus.DONE
+    task.completed_at = completed_at_value
     task.save(update_fields=["status", "updated_at", "completed_at"])
 
     response = HttpResponse(status=204)
