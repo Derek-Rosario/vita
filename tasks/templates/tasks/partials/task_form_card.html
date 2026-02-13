@@ -35,6 +35,17 @@
           <div class="small text-muted mt-1">
             Routine step: <a href="{% url 'routine_step_detail' task.routine_step.id %}">View stats</a>
           </div>
+          {% if task.routine_step.typical_completion_time_p25 or task.routine_step.typical_completion_time_p75 %}
+            <div class="small mt-1">
+              {% if task.routine_step.typical_completion_time_p25 and task.routine_step.typical_completion_time_p75 %}
+                You typically complete this between {{ task.routine_step.typical_completion_time_p25|time:"g:i A" }} and {{ task.routine_step.typical_completion_time_p75|time:"g:i A" }}.
+              {% elif task.routine_step.typical_completion_time_p25 %}
+                You typically complete this around {{ task.routine_step.typical_completion_time_p25|time:"g:i A" }}.
+              {% else %}
+                You typically complete this around {{ task.routine_step.typical_completion_time_p75|time:"g:i A" }}.
+              {% endif %}
+            </div>
+          {% endif %}
         {% endif %}
       </div>
     {% endif %}
