@@ -19,11 +19,20 @@
       <span class="visually-hidden">Loading...</span>
     </div>
     {% if task.status != 'done' %}
-      <div>
+      <div class="btn-group" role="group">
         <button id="mark-done-button"
                 class="btn btn-success"
                 type="button"
                 hx-post="{% url 'mark_task_done' task.id %}">Mark Done</button>
+        <!-- Button with clock symbol for setting completion time -->
+        <button id="mark-done-with-time-button"
+                class="btn btn-success"
+                type="button"
+                hx-get="{% url 'prompt_task_completion_time' task.id %}"
+                hx-target="#modals-here"
+                hx-trigger="click"
+                data-bs-toggle="modal"
+                data-bs-target="#modals-here">⏰</button>
       </div>
     {% endif %}
   </div>
@@ -68,5 +77,14 @@
         <a class="btn btn-outline-secondary" href="{% url 'task_board' %}">Back to Board</a>
       </div>
     </form>
+  </div>
+</div>
+<div id="modals-here"
+     class="modal modal-blur fade"
+     style="display: none"
+     aria-hidden="false"
+     tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content"></div>
   </div>
 </div>

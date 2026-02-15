@@ -19,6 +19,11 @@ urlpatterns = [
     path("tasks/", views.task_list, name="task_list"),
     path("task/<int:task_id>/edit/", views.edit_task, name="edit_task"),
     path("task/<int:task_id>/done/", views.mark_task_done, name="mark_task_done"),
+    path(
+        "task/<int:task_id>/prompt-completion-time/",
+        views.prompt_task_completion_time,
+        name="prompt_task_completion_time",
+    ),
     path("task/<int:task_id>/clone/", views.clone_task, name="clone_task"),
     path("task/<int:task_id>/delete/", views.delete_task, name="delete_task"),
     path("projects/", views.project_list, name="project_list"),

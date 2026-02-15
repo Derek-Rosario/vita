@@ -570,6 +570,17 @@ class TaskForm(forms.ModelForm):
             widget.attrs["class"] = f"{css} form-select".strip()
 
 
+class TaskCompletionTimeForm(forms.Form):
+    completed_at = forms.DateTimeField(
+        label="Completion date and time",
+        input_formats=["%Y-%m-%dT%H:%M", "%Y-%m-%dT%H:%M:%S"],
+        widget=forms.DateTimeInput(
+            attrs={"type": "datetime-local", "class": "form-control"},
+            format="%Y-%m-%dT%H:%M",
+        ),
+    )
+
+
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
@@ -736,6 +747,39 @@ def edit_task(request: HttpRequest, task_id: int):
             "saved": False,
             "comment_form": comment_form,
         },
+        status=400 if form.errors else 200,
+    )
+
+
+def prompt_task_completion_time(request: HttpRequest, task_id: int):
+    task = get_object_or_404(Task, pk=task_id)
+
+    if request.method == "POST":
+        form = TaskCompletionTimeForm(request.POST)
+        if form.is_valid():
+            task.status = TaskStatus.DONE
+            task.completed_at = form.cleaned_data["completed_at"]
+            task.save(update_fields=["status", "completed_at", "updated_at"])
+
+            if request.htmx:
+                response = HttpResponse(status=204)
+                response["HX-Location"] = reverse("task_board")
+                add_htmx_trigger(response, "confetti")
+                return response
+
+            return redirect("task_board")
+    else:
+        initial_completed_at = (
+            timezone.localtime(task.completed_at)
+            if task.completed_at
+            else timezone.localtime()
+        )
+        form = TaskCompletionTimeForm(initial={"completed_at": initial_completed_at})
+
+    return render(
+        request,
+        "tasks/prompt_task_completion_time.html",
+        {"task": task, "form": form},
         status=400 if form.errors else 200,
     )
 
