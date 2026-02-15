@@ -100,3 +100,40 @@ class MarkTaskDoneTests(TestCase):
         self.assertEqual(completed_local.day, 2)
         self.assertEqual(completed_local.hour, 23)
         self.assertEqual(completed_local.minute, 45)
+
+    def test_mark_done_rejects_future_completion_datetime(self) -> None:
+        task = Task.objects.create(title="Future check", status=TaskStatus.TODO)
+        future_local = timezone.localtime(
+            timezone.now() + timezone.timedelta(hours=2)
+        ).strftime("%Y-%m-%dT%H:%M")
+
+        response = self.client.post(
+            reverse("mark_task_done", args=[task.id]),
+            {"completed_at_actual": future_local},
+        )
+        self.assertEqual(response.status_code, 400)
+
+        task.refresh_from_db()
+        self.assertEqual(task.status, TaskStatus.TODO)
+        self.assertIsNone(task.completed_at)
+
+    def test_prompt_completion_time_rejects_future_completion_datetime(self) -> None:
+        task = Task.objects.create(title="Modal future check", status=TaskStatus.TODO)
+        future_local = timezone.localtime(
+            timezone.now() + timezone.timedelta(hours=2)
+        ).strftime("%Y-%m-%dT%H:%M")
+
+        response = self.client.post(
+            reverse("prompt_task_completion_time", args=[task.id]),
+            {"completed_at": future_local},
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertContains(
+            response,
+            "Completion date/time cannot be in the future.",
+            status_code=400,
+        )
+
+        task.refresh_from_db()
+        self.assertEqual(task.status, TaskStatus.TODO)
+        self.assertIsNone(task.completed_at)
