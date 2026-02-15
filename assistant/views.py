@@ -6,6 +6,7 @@ from django.views.decorators.http import require_http_methods
 from assistant.services import AssistantService
 from assistant.services.llm import ChatMessage
 from assistant.services.llm.exceptions import LLMConfigurationError, LLMProviderError
+from assistant.tools import ToolContext
 
 logger = logging.getLogger(__name__)
 
@@ -54,6 +55,7 @@ def chat(request):
                 user_message,
                 system_message=DEFAULT_SYSTEM_PROMPT,
                 history=provider_history,
+                tool_context=ToolContext(user=request.user),
             )
         except LLMConfigurationError as exc:
             logger.error(f"Assistant configuration error: {exc}")

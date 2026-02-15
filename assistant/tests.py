@@ -1,3 +1,4 @@
+import json
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -6,10 +7,24 @@ from django.test import SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
 
 from assistant.services.chat_service import AssistantService
-from assistant.services.llm import ChatMessage, ChatRequest, ChatResponse
+from assistant.services.llm import (
+    ChatMessage,
+    ChatRequest,
+    ChatResponse,
+    ToolCall,
+    ToolSpec,
+)
 from assistant.services.llm.exceptions import LLMConfigurationError
 from assistant.services.llm.factory import get_provider
 from assistant.services.llm.providers.openai_chatgpt import OpenAIChatGPTProvider
+from assistant.tools import (
+    ToolContext,
+    ToolDefinition,
+    ToolRegistry,
+    ToolResult,
+    get_default_registry,
+)
+from tasks.models import Task
 
 
 class _FakeCompletions:
@@ -36,6 +51,35 @@ class _CapturingProvider:
     def chat(self, request):
         self.last_request = request
         return ChatResponse(provider="fake", model="fake-model", content=self.response_content)
+
+
+class _ToolLoopProvider:
+    def __init__(self):
+        self.calls = 0
+        self.requests = []
+
+    def chat(self, request):
+        self.calls += 1
+        self.requests.append(request)
+        if self.calls == 1:
+            return ChatResponse(
+                provider="fake",
+                model="fake-model",
+                content="",
+                tool_calls=[
+                    ToolCall(
+                        id="call_1",
+                        name="echo_tool",
+                        arguments={"text": "hello"},
+                    )
+                ],
+            )
+
+        return ChatResponse(
+            provider="fake",
+            model="fake-model",
+            content="Tool execution complete.",
+        )
 
 
 class OpenAIProviderTests(SimpleTestCase):
@@ -74,6 +118,52 @@ class OpenAIProviderTests(SimpleTestCase):
             [{"role": "user", "content": "Say hi"}],
         )
         self.assertEqual(fake_client.chat.completions.kwargs["max_completion_tokens"], 128)
+
+    def test_chat_parses_tool_calls_and_sends_tool_specs(self):
+        response = SimpleNamespace(
+            model="gpt-4o-mini",
+            choices=[
+                SimpleNamespace(
+                    message=SimpleNamespace(
+                        content="",
+                        tool_calls=[
+                            SimpleNamespace(
+                                id="call_1",
+                                function=SimpleNamespace(
+                                    name="tasks_create_task",
+                                    arguments='{"title":"Write tests"}',
+                                ),
+                            )
+                        ],
+                    ),
+                )
+            ],
+            usage=SimpleNamespace(prompt_tokens=8, completion_tokens=3, total_tokens=11),
+        )
+        fake_client = _FakeOpenAIClient(response=response)
+        provider = OpenAIChatGPTProvider(
+            api_key="test-key",
+            default_model="gpt-4o-mini",
+            client=fake_client,
+        )
+
+        result = provider.chat(
+            ChatRequest(
+                messages=[ChatMessage(role="user", content="create a task")],
+                tools=[
+                    ToolSpec(
+                        name="tasks_create_task",
+                        description="Create a task",
+                        input_schema={"type": "object", "properties": {}},
+                    )
+                ],
+            )
+        )
+
+        self.assertIsNotNone(result.tool_calls)
+        self.assertEqual(result.tool_calls[0].name, "tasks_create_task")
+        self.assertEqual(result.tool_calls[0].arguments["title"], "Write tests")
+        self.assertEqual(fake_client.chat.completions.kwargs["tools"][0]["type"], "function")
 
 
 class ProviderFactoryTests(SimpleTestCase):
@@ -114,6 +204,44 @@ class AssistantServiceTests(SimpleTestCase):
         self.assertEqual(provider.last_request.messages[0].role, "system")
         self.assertEqual(provider.last_request.messages[1].role, "assistant")
         self.assertEqual(provider.last_request.messages[2].role, "user")
+
+    def test_reply_executes_tool_calls_then_returns_final_message(self):
+        provider = _ToolLoopProvider()
+        registry = ToolRegistry()
+
+        def _echo_tool_handler(args, context):
+            return ToolResult(
+                ok=True,
+                data={"echoed": args["text"], "user": context.user.username},
+            )
+
+        registry.register(
+            ToolDefinition(
+                name="echo_tool",
+                description="Echo text",
+                input_schema={"type": "object", "properties": {"text": {"type": "string"}}},
+                handler=_echo_tool_handler,
+            )
+        )
+        service = AssistantService(provider=provider, registry=registry)
+
+        fake_user = SimpleNamespace(
+            username="assistant-user",
+            is_authenticated=True,
+            is_superuser=True,
+        )
+        result = service.reply(
+            "run tool",
+            tool_context=ToolContext(user=fake_user),
+        )
+
+        self.assertEqual(result.content, "Tool execution complete.")
+        self.assertEqual(provider.calls, 2)
+        second_call = provider.requests[1]
+        self.assertEqual(second_call.messages[-1].role, "tool")
+        payload = json.loads(second_call.messages[-1].content)
+        self.assertTrue(payload["ok"])
+        self.assertEqual(payload["data"]["echoed"], "hello")
 
 
 @override_settings(
@@ -165,3 +293,61 @@ class AssistantChatViewTests(TestCase):
         response = self.client.post(reverse("assistant_chat"), {"action": "clear"})
         self.assertEqual(response.status_code, 302)
         self.assertEqual(self.client.session["assistant_chat_history"], [])
+
+
+class TaskToolIntegrationTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_superuser(
+            username="task_tool_user",
+            email="task_tool@example.com",
+            password="secret123",
+        )
+
+    def test_tasks_create_task_tool_creates_task(self):
+        registry = get_default_registry()
+        tool = registry.get("tasks_create_task")
+        self.assertIsNotNone(tool)
+
+        result = tool.handler(
+            {"title": "Created via tool", "status": "todo"},
+            ToolContext(user=self.user),
+        )
+
+        self.assertTrue(result.ok)
+        self.assertTrue(Task.objects.filter(title="Created via tool").exists())
+
+    def test_assistant_service_can_execute_tasks_tool_call(self):
+        class _Provider:
+            def __init__(self):
+                self.calls = 0
+
+            def chat(self, request):
+                self.calls += 1
+                if self.calls == 1:
+                    return ChatResponse(
+                        provider="fake",
+                        model="fake-model",
+                        content="",
+                        tool_calls=[
+                            ToolCall(
+                                id="call_1",
+                                name="tasks_create_task",
+                                arguments={"title": "Plan Monday", "status": "todo"},
+                            )
+                        ],
+                    )
+                return ChatResponse(
+                    provider="fake",
+                    model="fake-model",
+                    content="Created it.",
+                )
+
+        provider = _Provider()
+        service = AssistantService(provider=provider, registry=get_default_registry())
+        result = service.reply(
+            "Create a task",
+            tool_context=ToolContext(user=self.user),
+        )
+
+        self.assertEqual(result.content, "Created it.")
+        self.assertTrue(Task.objects.filter(title="Plan Monday").exists())
