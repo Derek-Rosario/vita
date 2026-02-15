@@ -1,0 +1,5 @@
+{% if messages_history %}
+    {% for msg in messages_history %}
+        {% include "assistant/partials/chat_message.html" with msg=msg %}
+    {% endfor %}
+{% endif %}

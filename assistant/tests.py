@@ -261,29 +261,25 @@ class AssistantChatViewTests(TestCase):
         response = self.client.get(reverse("assistant_chat"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Assistant")
+        self.assertContains(response, 'hx-ext="sse"')
 
-    @patch("assistant.views.AssistantService.reply")
-    def test_post_message_appends_user_and_assistant_messages(self, reply_mock):
-        reply_mock.return_value = ChatResponse(
-            provider="openai",
-            model="gpt-4o-mini",
-            content="I can help with that.",
-        )
-
+    @patch("assistant.views.schedule_assistant_reply")
+    def test_send_message_appends_user_message_and_schedules_reply(self, schedule_mock):
         response = self.client.post(
-            reverse("assistant_chat"),
+            reverse("assistant_send_message"),
             {"message": "Help me plan today"},
+            HTTP_HX_REQUEST="true",
         )
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("assistant_chat"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Help me plan today")
 
         history = self.client.session["assistant_chat_history"]
         self.assertEqual(history[0]["role"], "user")
         self.assertEqual(history[0]["content"], "Help me plan today")
-        self.assertEqual(history[1]["role"], "assistant")
-        self.assertEqual(history[1]["content"], "I can help with that.")
+        self.assertEqual(len(history), 1)
+        schedule_mock.assert_called_once()
 
-    def test_post_clear_empties_history(self):
+    def test_clear_chat_empties_history(self):
         session = self.client.session
         session["assistant_chat_history"] = [
             {"role": "user", "content": "hi"},
@@ -291,8 +287,11 @@ class AssistantChatViewTests(TestCase):
         ]
         session.save()
 
-        response = self.client.post(reverse("assistant_chat"), {"action": "clear"})
-        self.assertEqual(response.status_code, 302)
+        response = self.client.post(
+            reverse("assistant_clear_chat"),
+            HTTP_HX_REQUEST="true",
+        )
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(self.client.session["assistant_chat_history"], [])
 
 
