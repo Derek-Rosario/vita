@@ -3,6 +3,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
+from django.template import Context, Template
 from django.test import SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
 
@@ -351,3 +352,36 @@ class TaskToolIntegrationTests(TestCase):
 
         self.assertEqual(result.content, "Created it.")
         self.assertTrue(Task.objects.filter(title="Plan Monday").exists())
+
+
+class AssistantFormattingTemplateTests(SimpleTestCase):
+    def test_assistant_markdown_is_rendered(self):
+        template = Template(
+            "{% load assistant_formatting %}{{ text|render_chat_message:'assistant' }}"
+        )
+        rendered = template.render(
+            Context({"text": "**Bold**\n\n- Item 1\n- Item 2"})
+        )
+
+        self.assertIn("<strong>Bold</strong>", rendered)
+        self.assertIn("<li>Item 1</li>", rendered)
+        self.assertIn("<li>Item 2</li>", rendered)
+
+    def test_assistant_html_is_sanitized(self):
+        template = Template(
+            "{% load assistant_formatting %}{{ text|render_chat_message:'assistant' }}"
+        )
+        rendered = template.render(
+            Context({"text": '<script>alert("xss")</script><b>safe</b>'})
+        )
+
+        self.assertNotIn("<script>", rendered)
+        self.assertIn("safe", rendered)
+
+    def test_user_text_is_escaped(self):
+        template = Template(
+            "{% load assistant_formatting %}{{ text|render_chat_message:'user' }}"
+        )
+        rendered = template.render(Context({"text": "<b>hello</b>\nworld"}))
+
+        self.assertIn("&lt;b&gt;hello&lt;/b&gt;<br>world", rendered)

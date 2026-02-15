@@ -22,6 +22,8 @@ dependencies = [
     "daphne>=4.2.1",
     "faker>=37.0.0",
     "openai>=2.6.1",
+    "markdown>=3.10",
+    "bleach>=6.3.0",
 ]
 
 [tool.djlint]
