@@ -21,6 +21,7 @@ dependencies = [
     "django-eventstream>=5.3.3",
     "daphne>=4.2.1",
     "faker>=37.0.0",
+    "openai>=2.6.1",
 ]
 
 [tool.djlint]

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}
+    Assistant
+{% endblock title %}
+{% block content %}
+    <div class="container py-4" style="max-width: 900px;">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1 class="h3 mb-0">Assistant</h1>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="clear">
+                <button type="submit" class="btn btn-outline-secondary btn-sm">Clear Chat</button>
+            </form>
+        </div>
+
+        <div class="card shadow-sm mb-3">
+            <div class="card-body" style="max-height: 60vh; overflow-y: auto;">
+                {% if messages_history %}
+                    {% for msg in messages_history %}
+                        <div class="mb-3 d-flex {% if msg.role == 'user' %}justify-content-end{% else %}justify-content-start{% endif %}">
+                            <div class="p-3 rounded-3 {% if msg.role == 'user' %}bg-primary text-white{% else %}bg-body-tertiary border{% endif %}"
+                                 style="max-width: 80%;">
+                                <div class="small text-uppercase opacity-75 mb-1">{{ msg.role }}</div>
+                                <div style="white-space: pre-wrap;">{{ msg.content }}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted mb-0">No messages yet. Start by asking a question below.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <form method="post" class="card shadow-sm">
+            <div class="card-body">
+                {% csrf_token %}
+                <label for="assistant-message" class="form-label">Message</label>
+                <textarea id="assistant-message"
+                          name="message"
+                          class="form-control"
+                          rows="3"
+                          placeholder="What do you want to do?"
+                          required></textarea>
+                <div class="d-flex justify-content-end mt-3">
+                    <button type="submit" class="btn btn-primary">Send</button>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock content %}

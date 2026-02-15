@@ -33,6 +33,7 @@ urlpatterns = [
     path("api/tts/", core_api.tts, name="api_tts"),
     path("social/", include("social.urls")),
     path("tasks/", include("tasks.urls")),
+    path("assistant/", include("assistant.urls")),
     path("api/", include("api.urls")),
     path("notifications/", include("notifications.urls")),
     path("events/", include(django_eventstream.urls), {"channels": ["events"]}),

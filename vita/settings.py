@@ -81,6 +81,7 @@ INSTALLED_APPS = [
     "social",
     "notifications",
     "api",
+    "assistant",
 ]
 
 ASGI_APPLICATION = "vita.asgi.application"
@@ -241,6 +242,11 @@ LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/accounts/login/"
 
 VITA_API_KEY = env("VITA_API_KEY")
+
+# Assistant / LLM
+ASSISTANT_LLM_PROVIDER = env("ASSISTANT_LLM_PROVIDER", "openai").lower()
+ASSISTANT_OPENAI_MODEL = env("ASSISTANT_OPENAI_MODEL", "gpt-4o-mini")
+OPENAI_API_KEY = env("OPENAI_API_KEY", "")
 
 ELEVEN_LABS_API_KEY = env("ELEVEN_LABS_API_KEY")
 ELEVEN_LABS_VOICE_ID = env("ELEVEN_LABS_VOICE_ID")
