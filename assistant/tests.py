@@ -25,7 +25,7 @@ from assistant.tools import (
     ToolResult,
     get_default_registry,
 )
-from tasks.models import Task
+from tasks.models import Comment, Routine, RoutineStep, Task, TaskStatus
 
 
 class _FakeCompletions:
@@ -316,6 +316,122 @@ class TaskToolIntegrationTests(TestCase):
 
         self.assertTrue(result.ok)
         self.assertTrue(Task.objects.filter(title="Created via tool").exists())
+
+    def test_tasks_find_tasks_returns_matching_tasks(self):
+        Task.objects.create(title="Plan Monday", status=TaskStatus.TODO)
+        Task.objects.create(title="Buy groceries", status=TaskStatus.BACKLOG)
+
+        registry = get_default_registry()
+        tool = registry.get("tasks_find_tasks")
+        self.assertIsNotNone(tool)
+
+        result = tool.handler(
+            {"query": "plan", "include_done": False},
+            ToolContext(user=self.user),
+        )
+
+        self.assertTrue(result.ok)
+        self.assertEqual(result.data["count"], 1)
+        self.assertEqual(result.data["tasks"][0]["title"], "Plan Monday")
+
+    def test_task_state_tools_move_done_comment_and_promote(self):
+        task = Task.objects.create(title="Draft report", status=TaskStatus.BACKLOG)
+
+        registry = get_default_registry()
+        promote_tool = registry.get("tasks_promote_backlog_task")
+        move_tool = registry.get("tasks_move_task_status")
+        done_tool = registry.get("tasks_mark_task_done")
+        comment_tool = registry.get("tasks_add_comment")
+        self.assertIsNotNone(promote_tool)
+        self.assertIsNotNone(move_tool)
+        self.assertIsNotNone(done_tool)
+        self.assertIsNotNone(comment_tool)
+
+        promote_result = promote_tool.handler(
+            {"task_id": task.id},
+            ToolContext(user=self.user),
+        )
+        self.assertTrue(promote_result.ok)
+
+        task.refresh_from_db()
+        self.assertEqual(task.status, TaskStatus.TODO)
+
+        move_result = move_tool.handler(
+            {"task_id": task.id, "status": TaskStatus.IN_PROGRESS},
+            ToolContext(user=self.user),
+        )
+        self.assertTrue(move_result.ok)
+
+        task.refresh_from_db()
+        self.assertEqual(task.status, TaskStatus.IN_PROGRESS)
+
+        done_result = done_tool.handler(
+            {"task_id": task.id},
+            ToolContext(user=self.user),
+        )
+        self.assertTrue(done_result.ok)
+
+        task.refresh_from_db()
+        self.assertEqual(task.status, TaskStatus.DONE)
+        self.assertIsNotNone(task.completed_at)
+
+        comment_result = comment_tool.handler(
+            {"task_id": task.id, "content": "Finished and verified."},
+            ToolContext(user=self.user),
+        )
+        self.assertTrue(comment_result.ok)
+        self.assertTrue(
+            Comment.objects.filter(task=task, content="Finished and verified.").exists()
+        )
+
+    def test_routine_step_crud_tools(self):
+        routine = Routine.objects.create(name="Morning")
+        registry = get_default_registry()
+        create_tool = registry.get("tasks_create_routine_step")
+        list_tool = registry.get("tasks_list_routine_steps")
+        update_tool = registry.get("tasks_update_routine_step")
+        delete_tool = registry.get("tasks_delete_routine_step")
+        self.assertIsNotNone(create_tool)
+        self.assertIsNotNone(list_tool)
+        self.assertIsNotNone(update_tool)
+        self.assertIsNotNone(delete_tool)
+
+        create_result = create_tool.handler(
+            {
+                "routine_id": routine.id,
+                "title": "Hydrate",
+                "sort_order": 1,
+                "default_energy": "LOW",
+            },
+            ToolContext(user=self.user),
+        )
+        self.assertTrue(create_result.ok)
+        step_id = create_result.data["routine_step"]["id"]
+        step = RoutineStep.objects.get(pk=step_id)
+        self.assertEqual(step.title, "Hydrate")
+
+        list_result = list_tool.handler(
+            {"routine_id": routine.id},
+            ToolContext(user=self.user),
+        )
+        self.assertTrue(list_result.ok)
+        self.assertEqual(list_result.data["count"], 1)
+
+        update_result = update_tool.handler(
+            {"routine_step_id": step_id, "title": "Drink water", "is_stackable": True},
+            ToolContext(user=self.user),
+        )
+        self.assertTrue(update_result.ok)
+        step.refresh_from_db()
+        self.assertEqual(step.title, "Drink water")
+        self.assertTrue(step.is_stackable)
+
+        delete_result = delete_tool.handler(
+            {"routine_step_id": step_id},
+            ToolContext(user=self.user),
+        )
+        self.assertTrue(delete_result.ok)
+        self.assertFalse(RoutineStep.objects.filter(pk=step_id).exists())
 
     def test_assistant_service_can_execute_tasks_tool_call(self):
         class _Provider:
