@@ -11,5 +11,7 @@ wheels/
 *.sqlite3
 .env
 staticfiles/
+*.sqlite3-shm
+*.sqlite3-wal
 
 .vapid.json

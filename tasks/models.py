@@ -1,3 +1,5 @@
+from datetime import time
+from math import ceil, floor
 from typing import Any, cast
 from django_eventstream import send_event
 
@@ -92,10 +94,42 @@ TASK_STATUS_CATEGORY_TO_STATUSES = {
 }
 
 
+def _percentile_seconds(values: list[int], percentile: float) -> int | None:
+    if not values:
+        return None
+
+    sorted_values = sorted(values)
+    if len(sorted_values) == 1:
+        return sorted_values[0]
+
+    rank = (len(sorted_values) - 1) * percentile
+    lower_index = floor(rank)
+    upper_index = ceil(rank)
+    if lower_index == upper_index:
+        return sorted_values[lower_index]
+
+    fraction = rank - lower_index
+    lower_value = sorted_values[lower_index]
+    upper_value = sorted_values[upper_index]
+    return round(lower_value + ((upper_value - lower_value) * fraction))
+
+
+def _seconds_to_time(value: int | None) -> time | None:
+    if value is None:
+        return None
+
+    bounded = max(0, min(23 * 3600 + 59 * 60 + 59, value))
+    hour = bounded // 3600
+    minute = (bounded % 3600) // 60
+    second = bounded % 60
+    return time(hour=hour, minute=minute, second=second)
+
+
 class Task(TimestampedModel):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self._original_status = self.status
+        self._original_completed_at = self.completed_at
 
     class Priority(models.IntegerChoices):
         LOW = 1, "Low"
@@ -259,6 +293,8 @@ class Task(TimestampedModel):
         return self.title
 
     def save(self, *args, **kwargs):
+        was_done = self._original_status == TaskStatus.DONE
+        completed_at_was = self._original_completed_at
         set_completed = self.status == TaskStatus.DONE and self.completed_at is None
         if set_completed:
             self.completed_at = timezone.now()
@@ -290,6 +326,18 @@ class Task(TimestampedModel):
             self._original_status = self.status
 
         super().save(*args, **kwargs)
+        completed_at_changed = self.completed_at != completed_at_was
+        just_marked_completed = set_completed or (
+            self.status == TaskStatus.DONE and not was_done
+        )
+        completion_time_updated = self.status == TaskStatus.DONE and completed_at_changed
+        if (
+            self.routine_step_id is not None
+            and (just_marked_completed or completion_time_updated)
+        ):
+            self.routine_step.recalculate_typical_completion_times()
+        self._original_status = self.status
+        self._original_completed_at = self.completed_at
         send_event("events", "task-updated", {"task_id": self.pk})
 
     @property
@@ -526,9 +574,53 @@ class RoutineStep(TimestampedModel):
         default=True,
         help_text="Whether this step can be done away from home (e.g. not traveling)",
     )
+    typical_completion_time_p25 = models.TimeField(
+        null=True,
+        blank=True,
+        help_text="25th percentile of completion time-of-day for completed tasks from this step.",
+    )
+    typical_completion_time_p75 = models.TimeField(
+        null=True,
+        blank=True,
+        help_text="75th percentile of completion time-of-day for completed tasks from this step.",
+    )
 
     def __str__(self):
         return f"{self.routine.name}: {self.title}"
+
+    def recalculate_typical_completion_times(self) -> None:
+        completion_seconds: list[int] = []
+        for completed_at in (
+            self.generated_tasks.filter(
+                status=TaskStatus.DONE,
+                completed_at__isnull=False,
+            )
+            .values_list("completed_at", flat=True)
+            .iterator()
+        ):
+            if completed_at is None:
+                continue
+            local_completed = timezone.localtime(completed_at)
+            seconds_since_midnight = (
+                local_completed.hour * 3600
+                + local_completed.minute * 60
+                + local_completed.second
+            )
+            completion_seconds.append(seconds_since_midnight)
+
+        self.typical_completion_time_p25 = _seconds_to_time(
+            _percentile_seconds(completion_seconds, 0.25)
+        )
+        self.typical_completion_time_p75 = _seconds_to_time(
+            _percentile_seconds(completion_seconds, 0.75)
+        )
+        self.save(
+            update_fields=[
+                "typical_completion_time_p25",
+                "typical_completion_time_p75",
+                "updated_at",
+            ]
+        )
 
 
 class ScheduledAwayTrip(models.Model):
