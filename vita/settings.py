@@ -120,6 +120,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "assistant.context_processors.assistant_widget",
             ],
         },
     },
@@ -247,6 +248,13 @@ VITA_API_KEY = env("VITA_API_KEY")
 ASSISTANT_LLM_PROVIDER = env("ASSISTANT_LLM_PROVIDER", "openai").lower()
 ASSISTANT_OPENAI_MODEL = env("ASSISTANT_OPENAI_MODEL", "gpt-4o-mini")
 OPENAI_API_KEY = env("OPENAI_API_KEY", "")
+ASSISTANT_SYSTEM_PROMPT_FILE = env(
+    "ASSISTANT_SYSTEM_PROMPT_FILE", "assistant/system_prompt.txt"
+)
+ASSISTANT_SYSTEM_PROMPT = env("ASSISTANT_SYSTEM_PROMPT", "").strip()
+ASSISTANT_SYSTEM_PROMPT_DEFAULT = (
+    "You are Vita's assistant. Keep replies concise and actionable."
+)
 
 ELEVEN_LABS_API_KEY = env("ELEVEN_LABS_API_KEY")
 ELEVEN_LABS_VOICE_ID = env("ELEVEN_LABS_VOICE_ID")

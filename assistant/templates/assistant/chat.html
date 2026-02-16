@@ -1,79 +1,18 @@
 {% extends "base.html" %}
-{% load static %}
 {% block title %}
     Assistant
 {% endblock title %}
-{% block head %}
-    <script defer src="https://unpkg.com/htmx-ext-sse@2.2.4/sse.js"></script>
-    <script type="module" src="{% static 'js/assistant-chat.js' %}"></script>
-    <style>
-        .assistant-chat-message-content p:last-child {
-            margin-bottom: 0;
-        }
-        .assistant-chat-message-content ul,
-        .assistant-chat-message-content ol {
-            margin-bottom: 0;
-            padding-left: 1.25rem;
-        }
-        .assistant-chat-message-content pre {
-            background: rgba(0, 0, 0, 0.08);
-            border-radius: 0.375rem;
-            padding: 0.5rem 0.75rem;
-            overflow-x: auto;
-            margin-bottom: 0;
-        }
-        .assistant-chat-message-content code {
-            white-space: pre-wrap;
-        }
-    </style>
-{% endblock head %}
 {% block content %}
-    <div class="container py-4" style="max-width: 900px;">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h1 class="h3 mb-0">Assistant</h1>
-            <form method="post"
-                  action="{% url 'assistant_clear_chat' %}"
-                  hx-post="{% url 'assistant_clear_chat' %}"
-                  hx-target="#assistant-chat-log"
-                  hx-swap="innerHTML">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-outline-secondary btn-sm">Clear Chat</button>
-            </form>
-        </div>
-        <div class="card shadow-sm mb-3">
-            <div id="assistant-chat-log"
-                 class="card-body"
-                 style="max-height: 60vh;
-                        overflow-y: auto"
-                 hx-ext="sse"
-                 sse-connect="/events/"
-                 sse-swap="{{ assistant_sse_event_name }}"
-                 hx-swap="beforeend">
-                {% include "assistant/partials/chat_log_inner.html" with messages_history=messages_history %}
-            </div>
-        </div>
-        <form id="assistant-send-form"
-              method="post"
-              action="{% url 'assistant_send_message' %}"
-              hx-post="{% url 'assistant_send_message' %}"
-              hx-target="#assistant-chat-log"
-              hx-swap="innerHTML"
-              hx-indicator="#assistant-send-indicator"
-              class="card shadow-sm">
+    <div class="container py-4" style="max-width: 720px;">
+        <h1 class="h3 mb-3">Assistant</h1>
+        <div class="card shadow-sm">
             <div class="card-body">
-                {% csrf_token %}
-                <label for="assistant-message" class="form-label">Message</label>
-                <textarea id="assistant-message"
-                          name="message"
-                          class="form-control"
-                          rows="3"
-                          placeholder="What do you want to do?"
-                          required></textarea>
-                <div class="d-flex justify-content-end align-items-center gap-2 mt-3">
-                    <div id="assistant-send-indicator" class="htmx-indicator text-muted small">Thinking...</div>
-                    <button type="submit" class="btn btn-primary">Send</button>
-                </div>
+                <p class="mb-3">The assistant is now available as a floating widget on every page.</p>
+                <button type="button"
+                        class="btn btn-primary"
+                        data-assistant-open
+                        data-assistant-focus-input>Open assistant</button>
             </div>
-        </form>
+        </div>
     </div>
 {% endblock content %}

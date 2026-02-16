@@ -25,6 +25,7 @@
         {% bootstrap_css %}
         {% bootstrap_javascript %}
         {% htmx_script %}
+        <script defer src="https://unpkg.com/htmx-ext-sse@2.2.4/sse.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/@tsparticles/confetti@3.0.3/tsparticles.confetti.bundle.min.js"></script>
         <script src="{% static 'django_eventstream/eventsource.min.js' %}"></script>
         <script src="{% static 'django_eventstream/reconnecting-eventsource.js' %}"></script>
@@ -32,6 +33,7 @@
         <script type="module" src="{% static 'js/toasts.js' %}"></script>
         <script type="module" src="{% static 'js/voice.js' %}"></script>
         <script type="module" src="{% static 'js/sse.js' %}"></script>
+        <script type="module" src="{% static 'js/assistant-chat.js' %}"></script>
         <script type="module" src="{% static 'js/geolocation.js' %}"></script>
         <script type="module" src="{% static 'js/confetti.js' %}"></script>
         <link rel="stylesheet" href="{% static 'css/styles.css' %}">
@@ -58,6 +60,7 @@
             {% block content %}
             {% endblock content %}
         </main>
+        {% include "assistant/partials/widget.html" %}
         <div class="toast-container position-fixed bottom-0 end-0 p-3">
             <template id="task-toast-template">
                 <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">

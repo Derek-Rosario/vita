@@ -9,7 +9,8 @@ from django.tasks import task
 from django.template.loader import render_to_string
 from django_eventstream import send_event
 
-from assistant.constants import CHAT_HISTORY_SESSION_KEY, DEFAULT_SYSTEM_PROMPT
+from assistant.constants import CHAT_HISTORY_SESSION_KEY
+from assistant.prompt import get_system_prompt
 from assistant.services import AssistantService
 from assistant.services.llm import ChatMessage
 from assistant.services.llm.exceptions import LLMConfigurationError, LLMProviderError
@@ -81,16 +82,18 @@ def generate_assistant_reply(
     ]
 
     assistant_text: str
+    tool_calls_executed = False
     try:
         user = get_user_model().objects.get(pk=user_id)
         service = AssistantService()
         response = service.reply(
             user_message=user_message,
-            system_message=DEFAULT_SYSTEM_PROMPT,
+            system_message=get_system_prompt(),
             history=history_messages,
             tool_context=ToolContext(user=user),
         )
         assistant_text = response.content or ""
+        tool_calls_executed = response.tool_calls_executed
     except get_user_model().DoesNotExist:
         logger.error("Assistant reply task failed: user %s not found", user_id)
         assistant_text = "I couldn't find your user account for this request."
@@ -112,6 +115,9 @@ def generate_assistant_reply(
         {"msg": assistant_message},
     )
     send_event("events", sse_event_name, rendered, json_encode=False)
+    if tool_calls_executed:
+        # Notify HTMX listeners (for example the board fragment) after assistant tool calls.
+        send_event("events", "task-updated", {"source": "assistant"})
     close_old_connections()
 
 

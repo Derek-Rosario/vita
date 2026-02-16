@@ -51,3 +51,4 @@ class ChatResponse:
     tool_calls: list[ToolCall] | None = None
     usage: TokenUsage | None = None
     raw: Any | None = None
+    tool_calls_executed: bool = False

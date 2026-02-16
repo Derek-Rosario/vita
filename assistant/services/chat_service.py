@@ -51,6 +51,7 @@ class AssistantService:
         messages.append(ChatMessage(role="user", content=user_message))
 
         tools = self._build_tool_specs() if enable_tools else None
+        tool_calls_executed = False
 
         for round_number in range(1, self.max_tool_rounds + 1):
             request = ChatRequest(
@@ -63,7 +64,18 @@ class AssistantService:
             response = self.provider.chat(request)
 
             if not response.tool_calls:
-                return response
+                if not tool_calls_executed:
+                    return response
+                return ChatResponse(
+                    provider=response.provider,
+                    model=response.model,
+                    content=response.content,
+                    tool_calls=response.tool_calls,
+                    usage=response.usage,
+                    raw=response.raw,
+                    tool_calls_executed=True,
+                )
+            tool_calls_executed = True
 
             if tool_context is None:
                 raise LLMProviderError(

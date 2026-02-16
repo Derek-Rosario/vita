@@ -158,14 +158,19 @@ def board_fragment(request: HttpRequest):
     """
     Return just the board partial for HTMX refreshes.
     """
+
+    dropped_task_pk = request.GET.get("updated_task_pk")
+    try:
+        dropped_task_pk = int(dropped_task_pk) if dropped_task_pk else None
+    except ValueError:
+        dropped_task_pk = None
+
     return render(
         request,
         "tasks/partials/board.html",
         {
             **_fetch_board_context(),
-            "dropped_task_pk": int(request.GET.get("updated_task_pk"))
-            if request.GET.get("updated_task_pk")
-            else None,
+            "dropped_task_pk": dropped_task_pk,
         },
     )
 

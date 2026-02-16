@@ -1,0 +1,69 @@
+{% if assistant_widget_enabled %}
+    <div id="assistant-widget"
+         class="assistant-widget no-print"
+         data-open="false"
+         style="position: fixed; right: 1rem; bottom: 1rem; z-index: 1080;">
+        <button type="button"
+                id="assistant-widget-launch"
+                class="assistant-widget-launch btn btn-primary shadow"
+                aria-expanded="false"
+                aria-controls="assistant-widget-panel">Assistant</button>
+        <section id="assistant-widget-panel"
+                 class="assistant-widget-panel card shadow-lg"
+                 aria-label="Assistant chat widget"
+                 hidden
+                 style="position: absolute;
+                        right: 0;
+                        bottom: 3.25rem;
+                        width: min(28rem, calc(100vw - 2rem));
+                        max-height: min(70vh, 40rem);
+                        display: none;">
+            <div class="card-header d-flex justify-content-between align-items-center gap-2">
+                <div class="fw-semibold">Assistant</div>
+                <div class="d-flex align-items-center gap-2">
+                    <form method="post"
+                          action="{% url 'assistant_clear_chat' %}"
+                          hx-post="{% url 'assistant_clear_chat' %}"
+                          hx-target="#assistant-chat-log"
+                          hx-swap="innerHTML">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-secondary btn-sm">Clear</button>
+                    </form>
+                    <button type="button"
+                            id="assistant-widget-minimize"
+                            class="btn btn-outline-secondary btn-sm"
+                            aria-label="Minimize assistant">Minimize</button>
+                </div>
+            </div>
+            <div id="assistant-chat-log"
+                 class="card-body assistant-chat-log"
+                 hx-ext="sse"
+                 sse-connect="/events/"
+                 sse-swap="{{ assistant_sse_event_name }}"
+                 hx-swap="beforeend">
+                {% include "assistant/partials/chat_log_inner.html" with messages_history=assistant_messages_history %}
+            </div>
+            <form id="assistant-send-form"
+                  method="post"
+                  action="{% url 'assistant_send_message' %}"
+                  hx-post="{% url 'assistant_send_message' %}"
+                  hx-target="#assistant-chat-log"
+                  hx-swap="innerHTML"
+                  hx-indicator="#assistant-send-indicator"
+                  class="card-footer">
+                {% csrf_token %}
+                <label for="assistant-message" class="form-label small mb-1">Message</label>
+                <textarea id="assistant-message"
+                          name="message"
+                          class="form-control"
+                          rows="3"
+                          placeholder="What do you want to do?"
+                          required></textarea>
+                <div class="d-flex justify-content-end align-items-center gap-2 mt-2">
+                    <div id="assistant-send-indicator" class="htmx-indicator text-muted small">Thinking...</div>
+                    <button type="submit" class="btn btn-primary btn-sm">Send</button>
+                </div>
+            </form>
+        </section>
+    </div>
+{% endif %}

@@ -1,5 +1,4 @@
 CHAT_HISTORY_SESSION_KEY = "assistant_chat_history"
-DEFAULT_SYSTEM_PROMPT = "You are Vita's assistant. Keep replies concise and actionable."
 ASSISTANT_SSE_EVENT_PREFIX = "assistant-message"
 
 

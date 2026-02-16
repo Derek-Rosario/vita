@@ -1,4 +1,5 @@
 import json
+import tempfile
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -8,6 +9,7 @@ from django.test import SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
 
 from assistant.services.chat_service import AssistantService
+from assistant.prompt import get_system_prompt
 from assistant.services.llm import (
     ChatMessage,
     ChatRequest,
@@ -201,6 +203,7 @@ class AssistantServiceTests(SimpleTestCase):
         )
 
         self.assertEqual(result.content, "done")
+        self.assertFalse(result.tool_calls_executed)
         self.assertIsNotNone(provider.last_request)
         self.assertEqual(provider.last_request.messages[0].role, "system")
         self.assertEqual(provider.last_request.messages[1].role, "assistant")
@@ -237,12 +240,42 @@ class AssistantServiceTests(SimpleTestCase):
         )
 
         self.assertEqual(result.content, "Tool execution complete.")
+        self.assertTrue(result.tool_calls_executed)
         self.assertEqual(provider.calls, 2)
         second_call = provider.requests[1]
         self.assertEqual(second_call.messages[-1].role, "tool")
         payload = json.loads(second_call.messages[-1].content)
         self.assertTrue(payload["ok"])
         self.assertEqual(payload["data"]["echoed"], "hello")
+
+
+class AssistantPromptTests(SimpleTestCase):
+    @override_settings(
+        ASSISTANT_SYSTEM_PROMPT="Override prompt",
+        ASSISTANT_SYSTEM_PROMPT_FILE="assistant/system_prompt.txt",
+        ASSISTANT_SYSTEM_PROMPT_DEFAULT="Default prompt",
+    )
+    def test_prompt_uses_direct_setting_override(self):
+        self.assertEqual(get_system_prompt(), "Override prompt")
+
+    @override_settings(
+        ASSISTANT_SYSTEM_PROMPT="",
+        ASSISTANT_SYSTEM_PROMPT_DEFAULT="Default prompt",
+    )
+    def test_prompt_uses_file_when_available(self):
+        with tempfile.NamedTemporaryFile(mode="w+", suffix=".txt") as handle:
+            handle.write("File prompt")
+            handle.flush()
+            with override_settings(ASSISTANT_SYSTEM_PROMPT_FILE=handle.name):
+                self.assertEqual(get_system_prompt(), "File prompt")
+
+    @override_settings(
+        ASSISTANT_SYSTEM_PROMPT="",
+        ASSISTANT_SYSTEM_PROMPT_FILE="assistant/does-not-exist.txt",
+        ASSISTANT_SYSTEM_PROMPT_DEFAULT="Default prompt",
+    )
+    def test_prompt_falls_back_to_default(self):
+        self.assertEqual(get_system_prompt(), "Default prompt")
 
 
 @override_settings(
@@ -262,6 +295,11 @@ class AssistantChatViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Assistant")
         self.assertContains(response, 'hx-ext="sse"')
+
+    def test_widget_renders_on_board_page(self):
+        response = self.client.get(reverse("task_board"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="assistant-widget"')
 
     @patch("assistant.views.schedule_assistant_reply")
     def test_send_message_appends_user_message_and_schedules_reply(self, schedule_mock):
@@ -500,3 +538,67 @@ class AssistantFormattingTemplateTests(SimpleTestCase):
         rendered = template.render(Context({"text": "<b>hello</b>\nworld"}))
 
         self.assertIn("&lt;b&gt;hello&lt;/b&gt;<br>world", rendered)
+
+    def test_entity_link_tokens_are_rendered_as_highlighted_links(self):
+        template = Template(
+            "{% load assistant_formatting %}{{ text|render_chat_message:'assistant' }}"
+        )
+        rendered = template.render(
+            Context(
+                {
+                    "text": (
+                        "Updated [[task:42|Fix auth bug]] and "
+                        "[[routine:9|Morning routine]]."
+                    )
+                }
+            )
+        )
+
+        self.assertIn('href="/tasks/task/42/edit/"', rendered)
+        self.assertIn('href="/tasks/routines/9/"', rendered)
+        self.assertIn("assistant-entity-link", rendered)
+
+    def test_contact_link_token_is_rendered_with_search_url(self):
+        template = Template(
+            "{% load assistant_formatting %}{{ text|render_chat_message:'assistant' }}"
+        )
+        rendered = template.render(
+            Context({"text": "Reach out to [[contact:Alice Johnson]]."})
+        )
+
+        self.assertIn('href="/social/contacts?search=Alice+Johnson"', rendered)
+        self.assertIn("Alice Johnson", rendered)
+
+    def test_timestamp_token_is_rendered_as_human_datetime(self):
+        template = Template(
+            "{% load assistant_formatting %}{{ text|render_chat_message:'assistant' }}"
+        )
+        rendered = template.render(
+            Context({"text": "Done by [[ts:2026-02-16T14:30:00-05:00]]."})
+        )
+
+        self.assertIn('class="assistant-timestamp"', rendered)
+        self.assertIn("Feb 16, 2026", rendered)
+        self.assertIn("2:30 PM", rendered)
+
+    def test_timestamp_date_token_is_rendered(self):
+        template = Template(
+            "{% load assistant_formatting %}{{ text|render_chat_message:'assistant' }}"
+        )
+        rendered = template.render(Context({"text": "Scheduled [[ts:2026-02-16]]."}))
+
+        self.assertIn('class="assistant-timestamp"', rendered)
+        self.assertIn("Mon, Feb 16, 2026", rendered)
+
+    def test_followup_token_is_rendered_as_clickable_chip(self):
+        template = Template(
+            "{% load assistant_formatting %}{{ text|render_chat_message:'assistant' }}"
+        )
+        rendered = template.render(
+            Context({"text": "Next [[suggest:Mark done|Mark task 42 as done]]."})
+        )
+
+        self.assertIn('class="assistant-followup-chip"', rendered)
+        self.assertIn('data-assistant-followup="1"', rendered)
+        self.assertIn('data-followup-reply="Mark task 42 as done"', rendered)
+        self.assertIn(">Mark done<", rendered)
