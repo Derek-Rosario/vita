@@ -1,31 +1,23 @@
-# fly.toml app configuration file generated for vita on 2025-12-10T01:54:54-05:00
+# fly.toml app configuration file generated for viva-vita on 2026-02-18T15:11:40Z
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
 app = 'viva-vita'
-primary_region = 'ewr'
+primary_region = 'iad'
 console_command = '/code/manage.py shell'
-
-[processes]
-  app = 'sh /code/start.sh'
 
 [build]
 
 [env]
   PORT = '8000'
-  DB_PATH = '/data/db.sqlite3'
-
-[mounts]
-  source = 'vita_data'
-  destination = '/data'
 
 [http_service]
   internal_port = 8000
   force_https = true
-  auto_stop_machines = false
+  auto_stop_machines = 'stop'
   auto_start_machines = true
-  min_machines_running = 1
+  min_machines_running = 0
   processes = ['app']
 
 [[vm]]
