@@ -12,6 +12,7 @@ Tracks stats and goals related to personal health and fitness. Includes
 
 - weight goal
 - exercise tracking
+- maybe other stuff
 
 ## Journal
 
