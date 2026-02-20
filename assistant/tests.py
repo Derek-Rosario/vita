@@ -6,12 +6,14 @@ from unittest.mock import Mock, patch
 from asgiref.sync import async_to_sync
 from channels.testing import WebsocketCommunicator
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from django.template import Context, Template
 from django.test import SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
 
+from assistant.constants import twilio_approved_call_cache_key
 from assistant.services.chat_service import AssistantService
-from assistant.prompt import get_system_prompt
+from assistant.prompt import get_system_prompt, get_voice_system_prompt
 from assistant.services.llm import (
     ChatMessage,
     ChatRequest,
@@ -279,6 +281,14 @@ class AssistantPromptTests(SimpleTestCase):
     def test_prompt_falls_back_to_default(self):
         self.assertEqual(get_system_prompt(), "Default prompt")
 
+    @override_settings(
+        ASSISTANT_VOICE_SYSTEM_PROMPT="Voice override prompt",
+        ASSISTANT_VOICE_SYSTEM_PROMPT_FILE="assistant/system_prompt_voice.txt",
+        ASSISTANT_VOICE_SYSTEM_PROMPT_DEFAULT="Voice default prompt",
+    )
+    def test_voice_prompt_uses_direct_setting_override(self):
+        self.assertEqual(get_voice_system_prompt(), "Voice override prompt")
+
 
 @override_settings(
     STORAGES={"staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"}}
@@ -383,7 +393,6 @@ class AssistantChatViewTests(TestCase):
 
 @override_settings(
     TWILIO_VALIDATE_SIGNATURES=False,
-    TWILIO_CONVERSATION_RELAY_ENABLE_TOOLS=False,
 )
 class ConversationRelayConsumerTests(SimpleTestCase):
     def test_prompt_and_interrupt_keep_history_consistent(self):
@@ -442,6 +451,55 @@ class ConversationRelayConsumerTests(SimpleTestCase):
             captured_histories[1],
             [("user", "hello there"), ("assistant", "First")],
         )
+
+    def test_tools_enabled_only_for_approved_twilio_call(self):
+        captured_enable_tools: list[bool] = []
+
+        def _reply(*args, **kwargs):
+            captured_enable_tools.append(bool(kwargs.get("enable_tools")))
+            return ChatResponse(provider="fake", model="fake-model", content="Done")
+
+        reply_mock = Mock(side_effect=_reply)
+        service_mock = SimpleNamespace(reply=reply_mock)
+        fake_user = SimpleNamespace(is_superuser=True)
+
+        cache.set(twilio_approved_call_cache_key("CA_APPROVED"), True, timeout=60)
+
+        with (
+            patch("assistant.consumers.AssistantService", return_value=service_mock),
+            patch("assistant.consumers.ConversationRelayConsumer._build_tool_context")
+            as build_tool_context_mock,
+        ):
+            build_tool_context_mock.return_value = ToolContext(user=fake_user)
+            from vita.asgi import application
+
+            async def run():
+                approved = WebsocketCommunicator(application, "/ws/twilio/conversation-relay/")
+                connected, _ = await approved.connect()
+                self.assertTrue(connected)
+                await approved.send_json_to({"type": "setup", "callSid": "CA_APPROVED"})
+                await approved.send_json_to(
+                    {"type": "prompt", "voicePrompt": "approved", "last": True}
+                )
+                await approved.receive_json_from()
+                await approved.disconnect()
+
+                unapproved = WebsocketCommunicator(
+                    application, "/ws/twilio/conversation-relay/"
+                )
+                connected, _ = await unapproved.connect()
+                self.assertTrue(connected)
+                await unapproved.send_json_to({"type": "setup", "callSid": "CA_REJECTED"})
+                await unapproved.send_json_to(
+                    {"type": "prompt", "voicePrompt": "unapproved", "last": True}
+                )
+                await unapproved.receive_json_from()
+                await unapproved.disconnect()
+
+            async_to_sync(run)()
+
+        self.assertEqual(reply_mock.call_count, 2)
+        self.assertEqual(captured_enable_tools, [True, False])
 
 
 class TaskToolIntegrationTests(TestCase):

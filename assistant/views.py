@@ -3,6 +3,7 @@ import re
 
 from django.conf import settings
 from django.contrib import messages
+from django.core.cache import cache
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_exempt
@@ -14,6 +15,7 @@ from assistant.constants import (
     CHAT_HISTORY_SESSION_KEY,
     TWILIO_CONVERSATION_RELAY_WS_PATH,
     assistant_sse_event_name,
+    twilio_approved_call_cache_key,
 )
 from assistant.session import ensure_session_key, session_history
 from assistant.tasks import schedule_assistant_reply
@@ -93,6 +95,8 @@ def twilio_conversation_relay_twiml(request):
         )
         return HttpResponseForbidden("Call not allowed.")
 
+    _mark_twilio_call_approved(request)
+
     response = VoiceResponse()
     connect = Connect()
 
@@ -143,3 +147,16 @@ def _is_allowed_twilio_call(request) -> bool:
 
 def _normalize_phone_number(value: str) -> str:
     return re.sub(r"\D", "", value or "")
+
+
+def _mark_twilio_call_approved(request) -> None:
+    params = request.POST if request.method == "POST" else request.GET
+    call_sid = (params.get("CallSid") or "").strip()
+    if not call_sid:
+        return
+
+    cache.set(
+        twilio_approved_call_cache_key(call_sid),
+        True,
+        timeout=settings.TWILIO_CONVERSATION_RELAY_APPROVED_CALL_TTL_SECONDS,
+    )
