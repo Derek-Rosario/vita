@@ -15,6 +15,8 @@ from django.urls import reverse
 from assistant.constants import twilio_approved_call_cache_key
 from assistant.services.chat_service import AssistantService
 from assistant.prompt import get_system_prompt, get_voice_system_prompt
+from core.constants import HOME_COORDINATES
+from core.models import LastGeolocation
 from assistant.services.llm import (
     ChatMessage,
     ChatRequest,
@@ -32,7 +34,7 @@ from assistant.tools import (
     ToolResult,
     get_default_registry,
 )
-from tasks.models import Comment, Routine, RoutineStep, Task, TaskStatus
+from tasks.models import Comment, Routine, RoutineStep, Tag, Task, TaskStatus
 
 
 class _FakeCompletions:
@@ -601,12 +603,12 @@ class TaskToolIntegrationTests(TestCase):
         self.assertTrue(result.ok)
         self.assertTrue(Task.objects.filter(title="Created via tool").exists())
 
-    def test_tasks_find_tasks_returns_matching_tasks(self):
+    def test_tasks_list_tasks_returns_matching_tasks_when_query_provided(self):
         Task.objects.create(title="Plan Monday", status=TaskStatus.TODO)
         Task.objects.create(title="Buy groceries", status=TaskStatus.BACKLOG)
 
         registry = get_default_registry()
-        tool = registry.get("tasks_find_tasks")
+        tool = registry.get("tasks_list_tasks")
         self.assertIsNotNone(tool)
 
         result = tool.handler(
@@ -618,21 +620,147 @@ class TaskToolIntegrationTests(TestCase):
         self.assertEqual(result.data["count"], 1)
         self.assertEqual(result.data["tasks"][0]["title"], "Plan Monday")
 
-    def test_task_state_tools_move_done_comment_and_promote(self):
+    def test_tasks_list_tasks_filters_to_away_compatible_when_away(self):
+        routine = Routine.objects.create(name="Travel routine")
+        away_step = RoutineStep.objects.create(
+            routine=routine,
+            title="Walk outside",
+            is_available_away_from_home=True,
+        )
+        home_step = RoutineStep.objects.create(
+            routine=routine,
+            title="Laundry",
+            is_available_away_from_home=False,
+        )
+        Task.objects.create(
+            title="Walk in neighborhood",
+            status=TaskStatus.TODO,
+            routine=routine,
+            routine_step=away_step,
+        )
+        Task.objects.create(
+            title="Do laundry",
+            status=TaskStatus.TODO,
+            routine=routine,
+            routine_step=home_step,
+        )
+
+        LastGeolocation.objects.create(
+            latitude=HOME_COORDINATES["latitude"] + 1.0,
+            longitude=HOME_COORDINATES["longitude"] + 1.0,
+        )
+
+        registry = get_default_registry()
+        tool = registry.get("tasks_list_tasks")
+        self.assertIsNotNone(tool)
+
+        result = tool.handler({}, ToolContext(user=self.user))
+
+        self.assertTrue(result.ok)
+        self.assertEqual(result.data["count"], 1)
+        self.assertEqual(result.data["tasks"][0]["title"], "Walk in neighborhood")
+        self.assertTrue(result.data["is_away_from_home"])
+        self.assertTrue(result.data["applied_away_from_home_filter"])
+
+    def test_tasks_list_tasks_include_all_locations_overrides_away_filter(self):
+        routine = Routine.objects.create(name="Travel routine")
+        away_step = RoutineStep.objects.create(
+            routine=routine,
+            title="Walk outside",
+            is_available_away_from_home=True,
+        )
+        home_step = RoutineStep.objects.create(
+            routine=routine,
+            title="Laundry",
+            is_available_away_from_home=False,
+        )
+        Task.objects.create(
+            title="Walk in neighborhood",
+            status=TaskStatus.TODO,
+            routine=routine,
+            routine_step=away_step,
+        )
+        Task.objects.create(
+            title="Do laundry",
+            status=TaskStatus.TODO,
+            routine=routine,
+            routine_step=home_step,
+        )
+
+        LastGeolocation.objects.create(
+            latitude=HOME_COORDINATES["latitude"] + 1.0,
+            longitude=HOME_COORDINATES["longitude"] + 1.0,
+        )
+
+        registry = get_default_registry()
+        tool = registry.get("tasks_list_tasks")
+        self.assertIsNotNone(tool)
+
+        result = tool.handler(
+            {"include_all_locations": True},
+            ToolContext(user=self.user),
+        )
+
+        self.assertTrue(result.ok)
+        self.assertEqual(result.data["count"], 2)
+        self.assertTrue(result.data["is_away_from_home"])
+        self.assertFalse(result.data["applied_away_from_home_filter"])
+
+    def test_tasks_list_tasks_filters_to_away_compatible_when_away_for_query(self):
+        routine = Routine.objects.create(name="Travel routine")
+        away_step = RoutineStep.objects.create(
+            routine=routine,
+            title="Walk outside",
+            is_available_away_from_home=True,
+        )
+        home_step = RoutineStep.objects.create(
+            routine=routine,
+            title="Laundry",
+            is_available_away_from_home=False,
+        )
+        Task.objects.create(
+            title="Errand task",
+            status=TaskStatus.TODO,
+            routine=routine,
+            routine_step=away_step,
+        )
+        Task.objects.create(
+            title="Errand task home",
+            status=TaskStatus.TODO,
+            routine=routine,
+            routine_step=home_step,
+        )
+
+        LastGeolocation.objects.create(
+            latitude=HOME_COORDINATES["latitude"] + 1.0,
+            longitude=HOME_COORDINATES["longitude"] + 1.0,
+        )
+
+        registry = get_default_registry()
+        tool = registry.get("tasks_list_tasks")
+        self.assertIsNotNone(tool)
+
+        result = tool.handler(
+            {"query": "errand"},
+            ToolContext(user=self.user),
+        )
+
+        self.assertTrue(result.ok)
+        self.assertEqual(result.data["count"], 1)
+        self.assertEqual(result.data["tasks"][0]["title"], "Errand task")
+        self.assertTrue(result.data["applied_away_from_home_filter"])
+
+    def test_task_state_changes_use_update_task_tool(self):
         task = Task.objects.create(title="Draft report", status=TaskStatus.BACKLOG)
 
         registry = get_default_registry()
-        promote_tool = registry.get("tasks_promote_backlog_task")
-        move_tool = registry.get("tasks_move_task_status")
-        done_tool = registry.get("tasks_mark_task_done")
+        update_tool = registry.get("tasks_update_task")
         comment_tool = registry.get("tasks_add_comment")
-        self.assertIsNotNone(promote_tool)
-        self.assertIsNotNone(move_tool)
-        self.assertIsNotNone(done_tool)
+        self.assertIsNotNone(update_tool)
         self.assertIsNotNone(comment_tool)
 
-        promote_result = promote_tool.handler(
-            {"task_id": task.id},
+        promote_result = update_tool.handler(
+            {"task_id": task.id, "status": TaskStatus.TODO},
             ToolContext(user=self.user),
         )
         self.assertTrue(promote_result.ok)
@@ -640,7 +768,7 @@ class TaskToolIntegrationTests(TestCase):
         task.refresh_from_db()
         self.assertEqual(task.status, TaskStatus.TODO)
 
-        move_result = move_tool.handler(
+        move_result = update_tool.handler(
             {"task_id": task.id, "status": TaskStatus.IN_PROGRESS},
             ToolContext(user=self.user),
         )
@@ -649,8 +777,8 @@ class TaskToolIntegrationTests(TestCase):
         task.refresh_from_db()
         self.assertEqual(task.status, TaskStatus.IN_PROGRESS)
 
-        done_result = done_tool.handler(
-            {"task_id": task.id},
+        done_result = update_tool.handler(
+            {"task_id": task.id, "status": TaskStatus.DONE},
             ToolContext(user=self.user),
         )
         self.assertTrue(done_result.ok)
@@ -667,6 +795,55 @@ class TaskToolIntegrationTests(TestCase):
         self.assertTrue(
             Comment.objects.filter(task=task, content="Finished and verified.").exists()
         )
+
+    def test_task_tag_tools_create_and_update_task_tags_via_update_task(self):
+        task = Task.objects.create(title="Tagged task", status=TaskStatus.TODO)
+        registry = get_default_registry()
+        create_tag_tool = registry.get("tasks_create_tag")
+        update_tool = registry.get("tasks_update_task")
+        self.assertIsNotNone(create_tag_tool)
+        self.assertIsNotNone(update_tool)
+
+        create_result_1 = create_tag_tool.handler(
+            {"name": "Errands", "color": "blue"},
+            ToolContext(user=self.user),
+        )
+        create_result_2 = create_tag_tool.handler(
+            {"name": "Home"},
+            ToolContext(user=self.user),
+        )
+        self.assertTrue(create_result_1.ok)
+        self.assertTrue(create_result_2.ok)
+        errands_tag_id = create_result_1.data["tag"]["id"]
+        home_tag_id = create_result_2.data["tag"]["id"]
+
+        set_result = update_tool.handler(
+            {"task_id": task.id, "tag_ids": [errands_tag_id], "tag_mode": "set"},
+            ToolContext(user=self.user),
+        )
+        self.assertTrue(set_result.ok)
+        self.assertEqual(set_result.data["tag_ids"], [errands_tag_id])
+
+        add_result = update_tool.handler(
+            {"task_id": task.id, "tag_ids": [home_tag_id], "tag_mode": "add"},
+            ToolContext(user=self.user),
+        )
+        self.assertTrue(add_result.ok)
+        self.assertCountEqual(add_result.data["tag_ids"], [errands_tag_id, home_tag_id])
+
+        remove_result = update_tool.handler(
+            {"task_id": task.id, "tag_ids": [errands_tag_id], "tag_mode": "remove"},
+            ToolContext(user=self.user),
+        )
+        self.assertTrue(remove_result.ok)
+        self.assertEqual(remove_result.data["tag_ids"], [home_tag_id])
+
+        task.refresh_from_db()
+        self.assertEqual(
+            list(task.tags.order_by("id").values_list("id", flat=True)),
+            [home_tag_id],
+        )
+        self.assertTrue(Tag.objects.filter(pk=errands_tag_id, name="Errands").exists())
 
     def test_routine_step_crud_tools(self):
         routine = Routine.objects.create(name="Morning")

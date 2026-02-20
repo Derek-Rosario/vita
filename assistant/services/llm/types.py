@@ -9,6 +9,8 @@ class ToolSpec:
     name: str
     description: str
     input_schema: dict[str, Any]
+    when_to_use: str = ""
+    when_not_to_use: str = ""
 
 
 @dataclass(frozen=True, slots=True)

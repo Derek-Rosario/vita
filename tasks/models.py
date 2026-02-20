@@ -18,6 +18,10 @@ class Tag(TimestampedModel):
         blank=True,
         help_text="Optional CSS color name for UI accents.",
     )
+    description = models.TextField(
+        blank=True,
+        help_text="Optional details about this tag.",
+    )
 
     class Meta:
         ordering = ["name"]
@@ -330,10 +334,11 @@ class Task(TimestampedModel):
         just_marked_completed = set_completed or (
             self.status == TaskStatus.DONE and not was_done
         )
-        completion_time_updated = self.status == TaskStatus.DONE and completed_at_changed
-        if (
-            self.routine_step_id is not None
-            and (just_marked_completed or completion_time_updated)
+        completion_time_updated = (
+            self.status == TaskStatus.DONE and completed_at_changed
+        )
+        if self.routine_step_id is not None and (
+            just_marked_completed or completion_time_updated
         ):
             self.routine_step.recalculate_typical_completion_times()
         self._original_status = self.status
