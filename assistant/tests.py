@@ -7,6 +7,7 @@ from asgiref.sync import async_to_sync
 from channels.testing import WebsocketCommunicator
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
+from django.conf import settings
 from django.template import Context, Template
 from django.test import SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
@@ -393,6 +394,7 @@ class AssistantChatViewTests(TestCase):
 
 @override_settings(
     TWILIO_VALIDATE_SIGNATURES=False,
+    OPENAI_API_KEY="",
 )
 class ConversationRelayConsumerTests(SimpleTestCase):
     def test_prompt_and_interrupt_keep_history_consistent(self):
@@ -451,6 +453,82 @@ class ConversationRelayConsumerTests(SimpleTestCase):
             captured_histories[1],
             [("user", "hello there"), ("assistant", "First")],
         )
+
+    def test_prompt_streams_tokens_over_websocket(self):
+        class _FakeStreamingCompletions:
+            def __init__(self):
+                self.kwargs = None
+
+            def create(self, **kwargs):
+                self.kwargs = kwargs
+                return [
+                    SimpleNamespace(
+                        choices=[
+                            SimpleNamespace(
+                                delta=SimpleNamespace(content="Hello ", tool_calls=None)
+                            )
+                        ]
+                    ),
+                    SimpleNamespace(
+                        choices=[
+                            SimpleNamespace(
+                                delta=SimpleNamespace(content="there", tool_calls=None)
+                            )
+                        ]
+                    ),
+                ]
+
+        fake_streaming_completions = _FakeStreamingCompletions()
+        fake_openai_client = SimpleNamespace(
+            chat=SimpleNamespace(completions=fake_streaming_completions)
+        )
+        fake_service = SimpleNamespace(
+            max_tool_rounds=6,
+            _build_tool_specs=lambda: [],
+            _execute_tool_call=lambda **kwargs: {},
+        )
+
+        def _configure_openai(self):
+            self._openai_client = fake_openai_client
+            self._openai_error_type = Exception
+
+        with patch(
+            "assistant.consumers.ConversationRelayConsumer._configure_openai_streaming",
+            _configure_openai,
+        ), patch("assistant.consumers.AssistantService", return_value=fake_service):
+            from vita.asgi import application
+
+            async def run():
+                communicator = WebsocketCommunicator(
+                    application, "/ws/twilio/conversation-relay/"
+                )
+                connected, _ = await communicator.connect()
+                self.assertTrue(connected)
+
+                await communicator.send_json_to(
+                    {"type": "prompt", "voicePrompt": "Say hello", "last": True}
+                )
+
+                first = await communicator.receive_json_from()
+                second = await communicator.receive_json_from()
+                last = await communicator.receive_json_from()
+
+                self.assertEqual(first["type"], "text")
+                self.assertEqual(first["token"], "Hello ")
+                self.assertFalse(first["last"])
+                self.assertEqual(second["token"], "there")
+                self.assertFalse(second["last"])
+                self.assertEqual(last["token"], "")
+                self.assertTrue(last["last"])
+
+                await communicator.disconnect()
+
+            async_to_sync(run)()
+
+        self.assertEqual(
+            fake_streaming_completions.kwargs["model"], settings.ASSISTANT_OPENAI_MODEL
+        )
+        self.assertTrue(fake_streaming_completions.kwargs["stream"])
 
     def test_tools_enabled_only_for_approved_twilio_call(self):
         captured_enable_tools: list[bool] = []
