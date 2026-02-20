@@ -14,8 +14,8 @@ def _coerce_to_aware_datetime(value):
 
 
 def _current_datetime_local_input_max() -> str:
-    return timezone.localtime().replace(second=0, microsecond=0).strftime(
-        "%Y-%m-%dT%H:%M"
+    return (
+        timezone.localtime().replace(second=0, microsecond=0).strftime("%Y-%m-%dT%H:%M")
     )
 
 
@@ -56,9 +56,9 @@ class TaskForm(forms.ModelForm):
             "%Y-%m-%dT%H:%M",
             "%Y-%m-%dT%H:%M:%S",
         ]
-        self.fields["completed_at"].help_text = (
-            "Adjust this if you completed the task earlier or later than it was marked done."
-        )
+        self.fields[
+            "completed_at"
+        ].help_text = "Adjust this if you completed the task earlier or later than it was marked done."
         if self.instance.status != TaskStatus.DONE:
             self.fields.pop("completed_at")
         else:
@@ -112,9 +112,7 @@ class TaskCompletionTimeForm(forms.Form):
     def clean_completed_at(self):
         completed_at = _coerce_to_aware_datetime(self.cleaned_data["completed_at"])
         if completed_at > timezone.now():
-            raise forms.ValidationError(
-                "Completion date/time cannot be in the future."
-            )
+            raise forms.ValidationError("Completion date/time cannot be in the future.")
         return completed_at
 
 
@@ -267,7 +265,7 @@ class ProjectForm(forms.ModelForm):
 class TagForm(forms.ModelForm):
     class Meta:
         model = Tag
-        fields = ["name", "color"]
+        fields = ["name", "color", "description"]
         widgets = {
             "name": forms.TextInput(attrs={"class": "form-control"}),
             "color": forms.TextInput(

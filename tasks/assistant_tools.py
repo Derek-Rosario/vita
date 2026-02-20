@@ -175,6 +175,27 @@ def get_tools() -> list[ToolDefinition]:
             handler=_tasks_create_tag,
         ),
         ToolDefinition(
+            name="tasks_list_tags",
+            description="List task tags with optional search filters.",
+            when_to_use=TODO_WHEN_TO_USE,
+            when_not_to_use=TODO_WHEN_NOT_TO_USE,
+            input_schema={
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": (
+                            "Optional keyword to match against name/description text."
+                        ),
+                    },
+                    "limit": {"type": "integer", "minimum": 1, "maximum": 50},
+                },
+                "additionalProperties": False,
+            },
+            handler=_tasks_list_tags,
+        ),
+        ToolDefinition(
             name="tasks_list_routines",
             description="List routines with optional filters.",
             when_to_use=TODO_WHEN_TO_USE,
@@ -617,6 +638,30 @@ def _tasks_create_tag(args: dict[str, Any], context: ToolContext) -> ToolResult:
         message="Tag created.",
         data={"created": True, "tag": _serialize_tag(tag)},
     )
+
+
+def _tasks_list_tags(args: dict[str, Any], context: ToolContext) -> ToolResult:
+    _require_superuser(context)
+    query = _parse_optional_text(args.get("query"), field="query")
+    if query == "":
+        raise ValueError("query cannot be empty.")
+    limit = _as_int(args.get("limit"), field="limit", minimum=1, maximum=50, default=20)
+
+    queryset = Tag.objects.order_by("name")
+    if query is not None:
+        queryset = queryset.filter(
+            Q(name__icontains=query) | Q(description__icontains=query)
+        )
+    tags = list(queryset[:limit])
+
+    data: dict[str, Any] = {
+        "count": len(tags),
+        "tags": [_serialize_tag(tag) for tag in tags],
+    }
+    if query is not None:
+        data["query"] = query
+
+    return ToolResult(ok=True, data=data)
 
 
 def _tasks_list_routines(args: dict[str, Any], context: ToolContext) -> ToolResult:

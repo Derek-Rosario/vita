@@ -25,6 +25,10 @@ class SSEConsumer(AsyncHttpConsumer):
                 (b"X-Accel-Buffering", b"no"),
             ]
         )
+        # AsyncHttpConsumer only flushes headers once a body chunk is sent.
+        # Send an initial SSE comment immediately so clients transition to OPEN
+        # without waiting for the first event or keepalive timeout.
+        await self.send_body(b": connected\n\n", more_body=True)
         try:
             await self._sse_loop(channel_layer)
         finally:

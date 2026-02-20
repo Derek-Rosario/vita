@@ -1,5 +1,6 @@
 
 from datetime import datetime, time
+from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
@@ -116,6 +117,62 @@ class MarkTaskDoneTests(TestCase):
         task.refresh_from_db()
         self.assertEqual(task.status, TaskStatus.TODO)
         self.assertIsNone(task.completed_at)
+
+
+class QuickAddTaskTests(TestCase):
+    def setUp(self) -> None:
+        user = get_user_model().objects.create_superuser(
+            username="quickaddtester",
+            email="quickadd@example.com",
+            password="secret123",
+        )
+        self.client.force_login(user)
+
+    @patch("tasks.views.board._enrich_quick_add_task_with_llm")
+    def test_quick_add_at_prefix_enriches_task_with_llm(self, enrich_mock) -> None:
+        enrich_mock.return_value = {
+            "estimate_minutes": 35,
+            "priority": 3,
+            "energy": "HIGH",
+            "description": "Prepare slides and gather references.",
+        }
+
+        response = self.client.post(
+            reverse("task_quick_add"),
+            {"title": "@Prepare Q2 planning deck"},
+        )
+        self.assertEqual(response.status_code, 204)
+
+        task = Task.objects.get(title="Prepare Q2 planning deck")
+        self.assertEqual(task.estimate_minutes, 35)
+        self.assertEqual(task.priority, Task.Priority.HIGH)
+        self.assertEqual(task.energy, Task.Energy.HIGH)
+        self.assertEqual(task.description, "Prepare slides and gather references.")
+        enrich_mock.assert_called_once_with("Prepare Q2 planning deck")
+
+    @patch("tasks.views.board._enrich_quick_add_task_with_llm")
+    def test_quick_add_at_prefix_falls_back_when_llm_returns_none(self, enrich_mock) -> None:
+        enrich_mock.return_value = None
+
+        response = self.client.post(
+            reverse("task_quick_add"),
+            {"title": "@Buy groceries"},
+        )
+        self.assertEqual(response.status_code, 204)
+
+        task = Task.objects.get(title="Buy groceries")
+        self.assertEqual(task.priority, Task.Priority.NORMAL)
+        self.assertEqual(task.energy, Task.Energy.MEDIUM)
+        self.assertEqual(task.estimate_minutes, None)
+        self.assertEqual(task.description, "")
+
+    def test_quick_add_at_prefix_rejects_empty_title(self) -> None:
+        response = self.client.post(
+            reverse("task_quick_add"),
+            {"title": "@"},
+        )
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(Task.objects.count(), 0)
 
     def test_prompt_completion_time_rejects_future_completion_datetime(self) -> None:
         task = Task.objects.create(title="Modal future check", status=TaskStatus.TODO)

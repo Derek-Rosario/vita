@@ -60,7 +60,9 @@ class _CapturingProvider:
 
     def chat(self, request):
         self.last_request = request
-        return ChatResponse(provider="fake", model="fake-model", content=self.response_content)
+        return ChatResponse(
+            provider="fake", model="fake-model", content=self.response_content
+        )
 
 
 class _ToolLoopProvider:
@@ -101,7 +103,9 @@ class OpenAIProviderTests(SimpleTestCase):
                     message=SimpleNamespace(content="hello from model"),
                 )
             ],
-            usage=SimpleNamespace(prompt_tokens=11, completion_tokens=7, total_tokens=18),
+            usage=SimpleNamespace(
+                prompt_tokens=11, completion_tokens=7, total_tokens=18
+            ),
         )
         fake_client = _FakeOpenAIClient(response=response)
         provider = OpenAIChatGPTProvider(
@@ -113,7 +117,6 @@ class OpenAIProviderTests(SimpleTestCase):
         result = provider.chat(
             ChatRequest(
                 messages=[ChatMessage(role="user", content="Say hi")],
-                temperature=0.2,
                 max_output_tokens=128,
             )
         )
@@ -127,7 +130,9 @@ class OpenAIProviderTests(SimpleTestCase):
             fake_client.chat.completions.kwargs["messages"],
             [{"role": "user", "content": "Say hi"}],
         )
-        self.assertEqual(fake_client.chat.completions.kwargs["max_completion_tokens"], 128)
+        self.assertEqual(
+            fake_client.chat.completions.kwargs["max_completion_tokens"], 128
+        )
 
     def test_chat_parses_tool_calls_and_sends_tool_specs(self):
         response = SimpleNamespace(
@@ -148,7 +153,9 @@ class OpenAIProviderTests(SimpleTestCase):
                     ),
                 )
             ],
-            usage=SimpleNamespace(prompt_tokens=8, completion_tokens=3, total_tokens=11),
+            usage=SimpleNamespace(
+                prompt_tokens=8, completion_tokens=3, total_tokens=11
+            ),
         )
         fake_client = _FakeOpenAIClient(response=response)
         provider = OpenAIChatGPTProvider(
@@ -173,7 +180,9 @@ class OpenAIProviderTests(SimpleTestCase):
         self.assertIsNotNone(result.tool_calls)
         self.assertEqual(result.tool_calls[0].name, "tasks_create_task")
         self.assertEqual(result.tool_calls[0].arguments["title"], "Write tests")
-        self.assertEqual(fake_client.chat.completions.kwargs["tools"][0]["type"], "function")
+        self.assertEqual(
+            fake_client.chat.completions.kwargs["tools"][0]["type"], "function"
+        )
 
 
 class ProviderFactoryTests(SimpleTestCase):
@@ -183,7 +192,9 @@ class ProviderFactoryTests(SimpleTestCase):
         OPENAI_API_KEY="test-key",
     )
     def test_factory_builds_openai_provider(self):
-        with patch("assistant.services.llm.factory.OpenAIChatGPTProvider") as provider_cls:
+        with patch(
+            "assistant.services.llm.factory.OpenAIChatGPTProvider"
+        ) as provider_cls:
             get_provider()
 
         provider_cls.assert_called_once_with(
@@ -230,7 +241,10 @@ class AssistantServiceTests(SimpleTestCase):
             ToolDefinition(
                 name="echo_tool",
                 description="Echo text",
-                input_schema={"type": "object", "properties": {"text": {"type": "string"}}},
+                input_schema={
+                    "type": "object",
+                    "properties": {"text": {"type": "string"}},
+                },
                 handler=_echo_tool_handler,
             )
         )
@@ -294,7 +308,11 @@ class AssistantPromptTests(SimpleTestCase):
 
 
 @override_settings(
-    STORAGES={"staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"}}
+    STORAGES={
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
+        }
+    }
 )
 class AssistantChatViewTests(TestCase):
     def setUp(self):
@@ -403,14 +421,20 @@ class ConversationRelayConsumerTests(SimpleTestCase):
         captured_histories: list[list[tuple[str, str]]] = []
         responses = iter(
             [
-                ChatResponse(provider="fake", model="fake-model", content="First answer"),
-                ChatResponse(provider="fake", model="fake-model", content="Second answer"),
+                ChatResponse(
+                    provider="fake", model="fake-model", content="First answer"
+                ),
+                ChatResponse(
+                    provider="fake", model="fake-model", content="Second answer"
+                ),
             ]
         )
 
         def _reply(*args, **kwargs):
             history = kwargs.get("history", [])
-            captured_histories.append([(message.role, message.content) for message in history])
+            captured_histories.append(
+                [(message.role, message.content) for message in history]
+            )
             return next(responses)
 
         reply_mock = Mock(side_effect=_reply)
@@ -494,10 +518,13 @@ class ConversationRelayConsumerTests(SimpleTestCase):
             self._openai_client = fake_openai_client
             self._openai_error_type = Exception
 
-        with patch(
-            "assistant.consumers.ConversationRelayConsumer._configure_openai_streaming",
-            _configure_openai,
-        ), patch("assistant.consumers.AssistantService", return_value=fake_service):
+        with (
+            patch(
+                "assistant.consumers.ConversationRelayConsumer._configure_openai_streaming",
+                _configure_openai,
+            ),
+            patch("assistant.consumers.AssistantService", return_value=fake_service),
+        ):
             from vita.asgi import application
 
             async def run():
@@ -547,14 +574,17 @@ class ConversationRelayConsumerTests(SimpleTestCase):
 
         with (
             patch("assistant.consumers.AssistantService", return_value=service_mock),
-            patch("assistant.consumers.ConversationRelayConsumer._build_tool_context")
-            as build_tool_context_mock,
+            patch(
+                "assistant.consumers.ConversationRelayConsumer._build_tool_context"
+            ) as build_tool_context_mock,
         ):
             build_tool_context_mock.return_value = ToolContext(user=fake_user)
             from vita.asgi import application
 
             async def run():
-                approved = WebsocketCommunicator(application, "/ws/twilio/conversation-relay/")
+                approved = WebsocketCommunicator(
+                    application, "/ws/twilio/conversation-relay/"
+                )
                 connected, _ = await approved.connect()
                 self.assertTrue(connected)
                 await approved.send_json_to({"type": "setup", "callSid": "CA_APPROVED"})
@@ -569,7 +599,9 @@ class ConversationRelayConsumerTests(SimpleTestCase):
                 )
                 connected, _ = await unapproved.connect()
                 self.assertTrue(connected)
-                await unapproved.send_json_to({"type": "setup", "callSid": "CA_REJECTED"})
+                await unapproved.send_json_to(
+                    {"type": "setup", "callSid": "CA_REJECTED"}
+                )
                 await unapproved.send_json_to(
                     {"type": "prompt", "voicePrompt": "unapproved", "last": True}
                 )
@@ -800,8 +832,10 @@ class TaskToolIntegrationTests(TestCase):
         task = Task.objects.create(title="Tagged task", status=TaskStatus.TODO)
         registry = get_default_registry()
         create_tag_tool = registry.get("tasks_create_tag")
+        list_tags_tool = registry.get("tasks_list_tags")
         update_tool = registry.get("tasks_update_task")
         self.assertIsNotNone(create_tag_tool)
+        self.assertIsNotNone(list_tags_tool)
         self.assertIsNotNone(update_tool)
 
         create_result_1 = create_tag_tool.handler(
@@ -844,6 +878,23 @@ class TaskToolIntegrationTests(TestCase):
             [home_tag_id],
         )
         self.assertTrue(Tag.objects.filter(pk=errands_tag_id, name="Errands").exists())
+
+        list_all_result = list_tags_tool.handler({}, ToolContext(user=self.user))
+        self.assertTrue(list_all_result.ok)
+        self.assertEqual(list_all_result.data["count"], 2)
+        self.assertCountEqual(
+            [tag["name"] for tag in list_all_result.data["tags"]],
+            ["Errands", "Home"],
+        )
+
+        list_query_result = list_tags_tool.handler(
+            {"query": "home"},
+            ToolContext(user=self.user),
+        )
+        self.assertTrue(list_query_result.ok)
+        self.assertEqual(list_query_result.data["count"], 1)
+        self.assertEqual(list_query_result.data["query"], "home")
+        self.assertEqual(list_query_result.data["tags"][0]["name"], "Home")
 
     def test_routine_step_crud_tools(self):
         routine = Routine.objects.create(name="Morning")
@@ -936,9 +987,7 @@ class AssistantFormattingTemplateTests(SimpleTestCase):
         template = Template(
             "{% load assistant_formatting %}{{ text|render_chat_message:'assistant' }}"
         )
-        rendered = template.render(
-            Context({"text": "**Bold**\n\n- Item 1\n- Item 2"})
-        )
+        rendered = template.render(Context({"text": "**Bold**\n\n- Item 1\n- Item 2"}))
 
         self.assertIn("<strong>Bold</strong>", rendered)
         self.assertIn("<li>Item 1</li>", rendered)
