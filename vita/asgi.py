@@ -20,6 +20,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "vita.settings")
 django_asgi_app = get_asgi_application()
 
 from core.sse import SSEConsumer  # noqa: E402 - must import after Django setup
+from assistant.routing import websocket_urlpatterns  # noqa: E402
 
 application = ProtocolTypeRouter(
     {
@@ -29,5 +30,6 @@ application = ProtocolTypeRouter(
                 re_path(r"", django_asgi_app),
             ]
         ),
+        "websocket": URLRouter(websocket_urlpatterns),
     }
 )

@@ -1,8 +1,10 @@
 import json
 import tempfile
 from types import SimpleNamespace
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
+from asgiref.sync import async_to_sync
+from channels.testing import WebsocketCommunicator
 from django.contrib.auth import get_user_model
 from django.template import Context, Template
 from django.test import SimpleTestCase, TestCase, override_settings
@@ -331,6 +333,115 @@ class AssistantChatViewTests(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(self.client.session["assistant_chat_history"], [])
+
+    @override_settings(
+        TWILIO_CONVERSATION_RELAY_WS_URL="",
+        TWILIO_VALIDATE_SIGNATURES=False,
+        TO_PHONE_NUMBER="+15551234567",
+    )
+    def test_twilio_twiml_endpoint_renders_conversationrelay(self):
+        self.client.logout()
+        response = self.client.post(
+            reverse("assistant_twilio_conversation_relay_twiml"),
+            data={"From": "+15551234567", "To": "+15550001111"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "<ConversationRelay", html=False)
+        self.assertContains(
+            response,
+            'url="ws://testserver/ws/twilio/conversation-relay/"',
+            html=False,
+        )
+
+    @override_settings(
+        TWILIO_VALIDATE_SIGNATURES=False,
+        TO_PHONE_NUMBER="+15551234567",
+    )
+    def test_twilio_twiml_endpoint_allows_when_to_matches_personal_number(self):
+        self.client.logout()
+        response = self.client.post(
+            reverse("assistant_twilio_conversation_relay_twiml"),
+            data={"From": "+15550001111", "To": "+15551234567"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+    @override_settings(
+        TWILIO_VALIDATE_SIGNATURES=False,
+        TO_PHONE_NUMBER="+15551234567",
+    )
+    def test_twilio_twiml_endpoint_rejects_unknown_numbers(self):
+        self.client.logout()
+        response = self.client.post(
+            reverse("assistant_twilio_conversation_relay_twiml"),
+            data={"From": "+15559998888", "To": "+15550001111"},
+        )
+
+        self.assertEqual(response.status_code, 403)
+
+
+@override_settings(
+    TWILIO_VALIDATE_SIGNATURES=False,
+    TWILIO_CONVERSATION_RELAY_ENABLE_TOOLS=False,
+)
+class ConversationRelayConsumerTests(SimpleTestCase):
+    def test_prompt_and_interrupt_keep_history_consistent(self):
+        captured_histories: list[list[tuple[str, str]]] = []
+        responses = iter(
+            [
+                ChatResponse(provider="fake", model="fake-model", content="First answer"),
+                ChatResponse(provider="fake", model="fake-model", content="Second answer"),
+            ]
+        )
+
+        def _reply(*args, **kwargs):
+            history = kwargs.get("history", [])
+            captured_histories.append([(message.role, message.content) for message in history])
+            return next(responses)
+
+        reply_mock = Mock(side_effect=_reply)
+        service_mock = SimpleNamespace(reply=reply_mock)
+
+        with patch("assistant.consumers.AssistantService", return_value=service_mock):
+            from vita.asgi import application
+
+            async def run():
+                communicator = WebsocketCommunicator(
+                    application, "/ws/twilio/conversation-relay/"
+                )
+                connected, _ = await communicator.connect()
+                self.assertTrue(connected)
+
+                await communicator.send_json_to({"type": "setup", "callSid": "CA123"})
+                await communicator.send_json_to(
+                    {"type": "prompt", "voicePrompt": "hello there", "last": True}
+                )
+                first_message = await communicator.receive_json_from()
+                self.assertEqual(first_message["type"], "text")
+                self.assertEqual(first_message["token"], "First answer")
+                self.assertTrue(first_message["last"])
+
+                await communicator.send_json_to(
+                    {"type": "interrupt", "utteranceUntilInterrupt": "First"}
+                )
+                await communicator.send_json_to(
+                    {"type": "prompt", "voicePrompt": "follow up", "last": True}
+                )
+                second_message = await communicator.receive_json_from()
+                self.assertEqual(second_message["token"], "Second answer")
+                self.assertTrue(second_message["last"])
+
+                await communicator.disconnect()
+
+            async_to_sync(run)()
+
+        self.assertEqual(reply_mock.call_count, 2)
+        self.assertEqual(captured_histories[0], [])
+        self.assertEqual(
+            captured_histories[1],
+            [("user", "hello there"), ("assistant", "First")],
+        )
 
 
 class TaskToolIntegrationTests(TestCase):

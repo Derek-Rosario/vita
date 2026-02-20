@@ -18,6 +18,9 @@ class SuperuserRequiredMiddleware:
             reverse("login"),
             reverse("logout"),
         }
+        self.exempt_prefixes = (
+            "/assistant/twilio/",
+        )
 
     def __call__(self, request):
         path: str = request.path
@@ -41,6 +44,9 @@ class SuperuserRequiredMiddleware:
             return self.get_response(request)
 
         if path in self.exempt_paths:
+            return self.get_response(request)
+
+        if path.startswith(self.exempt_prefixes):
             return self.get_response(request)
 
         if not request.user.is_authenticated:
