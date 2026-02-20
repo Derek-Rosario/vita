@@ -22,10 +22,11 @@ ENV UV_NO_DEV=1
 # Ensure installed tools can be executed out of the box
 ENV UV_TOOL_BIN_DIR=/usr/local/bin
 
-# Install the project's dependencies using the lockfile and settings
+# Copy lockfiles first so dependency installation can be cached independently
+COPY pyproject.toml uv.lock /code/
+
+# Install the project's dependencies using the lockfile
 RUN --mount=type=cache,target=/root/.cache/uv \
-    --mount=type=bind,source=uv.lock,target=uv.lock \
-    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     uv sync --locked --no-install-project
 
 # Latest releases available at https://github.com/aptible/supercronic/releases
@@ -39,11 +40,8 @@ RUN curl -fsSLO "$SUPERCRONIC_URL" \
  && mv "$SUPERCRONIC" "/usr/local/bin/${SUPERCRONIC}" \
  && ln -s "/usr/local/bin/${SUPERCRONIC}" /usr/local/bin/supercronic
 
-# Then, add the rest of the project source code and install it
-# Installing separately from its dependencies allows optimal layer caching
+# Then add the rest of the project source code.
 COPY . /code
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --locked
 
 # Place executables in the environment at the front of the path
 ENV PATH="/code/.venv/bin:$PATH"
