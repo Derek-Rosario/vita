@@ -15,6 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
+from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
 from django.views.generic import RedirectView
@@ -35,5 +36,8 @@ urlpatterns = [
     path("assistant/", include("assistant.urls")),
     path("api/", include("api.urls")),
     path("notifications/", include("notifications.urls")),
-    path("__reload__/", include("django_browser_reload.urls")),
 ]
+if settings.DEBUG:
+    urlpatterns += [
+        path("__reload__/", include("django_browser_reload.urls")),
+    ]
