@@ -10,9 +10,6 @@ cleanup() {
 
 trap cleanup TERM INT
 
-echo "Starting migrations..."
-python /code/manage.py migrate --noinput
-
 echo "Starting supercronic..."
 supercronic /code/crontab &
 CRONIC_PID=$!
