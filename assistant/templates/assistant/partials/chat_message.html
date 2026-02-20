@@ -1,5 +1,7 @@
 {% load assistant_formatting %}
 <div data-chat-message
+     data-chat-role="{{ msg.role }}"
+     data-chat-source="{% if from_sse %}sse{% else %}history{% endif %}"
      class="mb-3 d-flex {% if msg.role == 'user' %}justify-content-end{% else %}justify-content-start{% endif %}">
     <div class="p-3 rounded-3 {% if msg.role == 'user' %}bg-primary text-white{% else %}bg-body-tertiary border{% endif %}"
          style="max-width: 80%;">

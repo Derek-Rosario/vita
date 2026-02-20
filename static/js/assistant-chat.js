@@ -8,7 +8,10 @@ const messageInput = document.getElementById("assistant-message");
 const OPEN_STATE_KEY = "assistant-widget-open";
 const SCROLL_TOP_KEY = "assistant-widget-scroll-top";
 const AUTO_SCROLL_BOTTOM_THRESHOLD_PX = 96;
+const TTS_MAX_CHARACTERS = 320;
+const TTS_MAX_SENTENCES = 3;
 let shouldAutoScroll = true;
+let lastSpokenAssistantText = "";
 
 function getSavedScrollTop() {
   const raw = localStorage.getItem(SCROLL_TOP_KEY);
@@ -66,6 +69,100 @@ function scrollToLatest(behavior = "smooth") {
     top: chatLog.scrollHeight,
     behavior
   });
+}
+
+function normalizeWhitespace(text) {
+  return (text || "").replace(/\s+/g, " ").trim();
+}
+
+function buildSpeechSnippet(text) {
+  const normalized = normalizeWhitespace(text);
+  if (!normalized) {
+    return "";
+  }
+  if (normalized.length <= TTS_MAX_CHARACTERS) {
+    return normalized;
+  }
+
+  const sentenceChunks = normalized
+    .split(/(?<=[.!?])\s+/)
+    .map((chunk) => chunk.trim())
+    .filter(Boolean);
+  if (sentenceChunks.length === 0) {
+    return `${normalized.slice(0, TTS_MAX_CHARACTERS).trimEnd()}...`;
+  }
+
+  const selected = [];
+  let totalLength = 0;
+  for (const sentence of sentenceChunks) {
+    if (selected.length >= TTS_MAX_SENTENCES) {
+      break;
+    }
+    const nextLength = totalLength === 0 ? sentence.length : totalLength + 1 + sentence.length;
+    if (selected.length > 0 && nextLength > TTS_MAX_CHARACTERS) {
+      break;
+    }
+    selected.push(sentence);
+    totalLength = nextLength;
+  }
+
+  if (selected.length === 0) {
+    return `${normalized.slice(0, TTS_MAX_CHARACTERS).trimEnd()}...`;
+  }
+
+  return selected.join(" ");
+}
+
+function extractAssistantTextsFromNode(node) {
+  if (!(node instanceof Element)) {
+    return [];
+  }
+
+  const messageNodes = [];
+  if (node.matches?.("[data-chat-message]")) {
+    messageNodes.push(node);
+  }
+  const descendants = node.querySelectorAll?.("[data-chat-message]") || [];
+  descendants.forEach((messageNode) => messageNodes.push(messageNode));
+
+  const texts = [];
+  messageNodes.forEach((messageNode) => {
+    if (messageNode.getAttribute("data-chat-role") !== "assistant") {
+      return;
+    }
+    if (messageNode.getAttribute("data-chat-source") !== "sse") {
+      return;
+    }
+    const contentNode = messageNode.querySelector(".assistant-chat-message-content");
+    const text = normalizeWhitespace(contentNode?.textContent || "");
+    if (text) {
+      texts.push(text);
+    }
+  });
+  return texts;
+}
+
+function speakAssistantReply(assistantText) {
+  if (!assistantText || assistantText === lastSpokenAssistantText) {
+    return;
+  }
+
+  const snippet = buildSpeechSnippet(assistantText);
+  if (!snippet) {
+    return;
+  }
+
+  lastSpokenAssistantText = assistantText;
+  document.dispatchEvent(
+    new CustomEvent("speak", {
+      detail: { message: snippet }
+    })
+  );
+}
+
+function maybeSpeakFromAddedNode(node) {
+  const assistantTexts = extractAssistantTextsFromNode(node);
+  assistantTexts.forEach((assistantText) => speakAssistantReply(assistantText));
 }
 
 function setWidgetOpen(open, { focusInput = false } = {}) {
@@ -151,11 +248,10 @@ if (chatLog) {
     for (const mutation of mutations) {
       if (mutation.addedNodes.length > 0) {
         changed = true;
-        break;
+        mutation.addedNodes.forEach((node) => maybeSpeakFromAddedNode(node));
       }
       if (mutation.type === "childList" && mutation.removedNodes.length > 0) {
         changed = true;
-        break;
       }
     }
     if (!changed) {
@@ -176,7 +272,6 @@ if (chatLog) {
       saveChatScrollTop();
     }
   });
-
 }
 
 if (sendForm && messageInput) {

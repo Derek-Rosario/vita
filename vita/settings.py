@@ -61,6 +61,7 @@ SESSION_COOKIE_SECURE = True
 
 INSTALLED_APPS = [
     "daphne",
+    "channels",
     "django_eventstream",
     "django_extensions",
     "django.contrib.admin",
@@ -314,3 +315,10 @@ if not WEBPUSH_VAPID_PUBLIC_KEY or not WEBPUSH_VAPID_PRIVATE_KEY:
     except Exception:
         # Leave keys empty if generation fails
         pass
+
+# Twilio
+
+FROM_PHONE_NUMBER = env("FROM_PHONE_NUMBER")
+TO_PHONE_NUMBER = env("TO_PHONE_NUMBER")
+TWILIO_ACCOUNT_SID = env("TWILIO_ACCOUNT_SID")
+TWILIO_AUTH_TOKEN = env("TWILIO_AUTH_TOKEN")

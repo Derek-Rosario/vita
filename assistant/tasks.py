@@ -112,7 +112,7 @@ def generate_assistant_reply(
 
     rendered = render_to_string(
         "assistant/partials/chat_message.html",
-        {"msg": assistant_message},
+        {"msg": assistant_message, "from_sse": True},
     )
     send_event("events", sse_event_name, rendered, json_encode=False)
     if tool_calls_executed:
