@@ -5,328 +5,76 @@ const widgetPanel = document.getElementById("assistant-widget-panel");
 const chatLog = document.getElementById("assistant-chat-log");
 const sendForm = document.getElementById("assistant-send-form");
 const messageInput = document.getElementById("assistant-message");
+
 const OPEN_STATE_KEY = "assistant-widget-open";
-const SCROLL_TOP_KEY = "assistant-widget-scroll-top";
-const AUTO_SCROLL_BOTTOM_THRESHOLD_PX = 96;
-const TTS_MAX_CHARACTERS = 320;
-const TTS_MAX_SENTENCES = 3;
-let shouldAutoScroll = true;
-let lastSpokenAssistantText = "";
 
-function getSavedScrollTop() {
-  const raw = localStorage.getItem(SCROLL_TOP_KEY);
-  if (raw === null) {
-    return null;
-  }
-  const parsed = Number(raw);
-  return Number.isFinite(parsed) ? parsed : null;
-}
-
-function saveChatScrollTop() {
-  if (!chatLog) {
-    return;
-  }
-  localStorage.setItem(SCROLL_TOP_KEY, String(chatLog.scrollTop));
-}
-
-function distanceFromBottom() {
-  if (!chatLog) {
-    return 0;
-  }
-  return chatLog.scrollHeight - chatLog.clientHeight - chatLog.scrollTop;
-}
-
-function isNearBottom() {
-  return distanceFromBottom() <= AUTO_SCROLL_BOTTOM_THRESHOLD_PX;
-}
-
-function restoreChatScroll({ fallbackToLatest = true } = {}) {
-  if (!chatLog) {
-    return;
-  }
-
-  const savedTop = getSavedScrollTop();
-  requestAnimationFrame(() => {
-    if (savedTop !== null) {
-      chatLog.scrollTop = savedTop;
-      shouldAutoScroll = isNearBottom();
-      return;
-    }
-    if (fallbackToLatest) {
-      scrollToLatest("auto");
-      saveChatScrollTop();
-      shouldAutoScroll = true;
-    }
-  });
-}
-
-function scrollToLatest(behavior = "smooth") {
-  if (!chatLog) {
-    return;
-  }
-
-  chatLog.scrollTo({
-    top: chatLog.scrollHeight,
-    behavior
-  });
-}
-
-function normalizeWhitespace(text) {
-  return (text || "").replace(/\s+/g, " ").trim();
-}
-
-function buildSpeechSnippet(text) {
-  const normalized = normalizeWhitespace(text);
-  if (!normalized) {
-    return "";
-  }
-  if (normalized.length <= TTS_MAX_CHARACTERS) {
-    return normalized;
-  }
-
-  const sentenceChunks = normalized
-    .split(/(?<=[.!?])\s+/)
-    .map((chunk) => chunk.trim())
-    .filter(Boolean);
-  if (sentenceChunks.length === 0) {
-    return `${normalized.slice(0, TTS_MAX_CHARACTERS).trimEnd()}...`;
-  }
-
-  const selected = [];
-  let totalLength = 0;
-  for (const sentence of sentenceChunks) {
-    if (selected.length >= TTS_MAX_SENTENCES) {
-      break;
-    }
-    const nextLength = totalLength === 0 ? sentence.length : totalLength + 1 + sentence.length;
-    if (selected.length > 0 && nextLength > TTS_MAX_CHARACTERS) {
-      break;
-    }
-    selected.push(sentence);
-    totalLength = nextLength;
-  }
-
-  if (selected.length === 0) {
-    return `${normalized.slice(0, TTS_MAX_CHARACTERS).trimEnd()}...`;
-  }
-
-  return selected.join(" ");
-}
-
-function extractAssistantTextsFromNode(node) {
-  if (!(node instanceof Element)) {
-    return [];
-  }
-
-  const messageNodes = [];
-  if (node.matches?.("[data-chat-message]")) {
-    messageNodes.push(node);
-  }
-  const descendants = node.querySelectorAll?.("[data-chat-message]") || [];
-  descendants.forEach((messageNode) => messageNodes.push(messageNode));
-
-  const texts = [];
-  messageNodes.forEach((messageNode) => {
-    if (messageNode.getAttribute("data-chat-role") !== "assistant") {
-      return;
-    }
-    if (messageNode.getAttribute("data-chat-source") !== "sse") {
-      return;
-    }
-    const contentNode = messageNode.querySelector(".assistant-chat-message-content");
-    const text = normalizeWhitespace(contentNode?.textContent || "");
-    if (text) {
-      texts.push(text);
-    }
-  });
-  return texts;
-}
-
-function speakAssistantReply(assistantText) {
-  if (!assistantText || assistantText === lastSpokenAssistantText) {
-    return;
-  }
-
-  const snippet = buildSpeechSnippet(assistantText);
-  if (!snippet) {
-    return;
-  }
-
-  lastSpokenAssistantText = assistantText;
-  document.dispatchEvent(
-    new CustomEvent("speak", {
-      detail: { message: snippet }
-    })
-  );
-}
-
-function maybeSpeakFromAddedNode(node) {
-  const assistantTexts = extractAssistantTextsFromNode(node);
-  assistantTexts.forEach((assistantText) => speakAssistantReply(assistantText));
-}
-
-function setWidgetOpen(open, { focusInput = false } = {}) {
-  if (!widget || !launchButton) {
-    return;
-  }
-
+function setWidgetOpen(open) {
+  if (!widget || !launchButton) return;
   if (widgetPanel) {
     widgetPanel.hidden = !open;
     widgetPanel.style.display = open ? "flex" : "none";
     widgetPanel.style.flexDirection = "column";
   }
-
   widget.dataset.open = open ? "true" : "false";
   widget.classList.toggle("assistant-widget--open", open);
   launchButton.setAttribute("aria-expanded", open ? "true" : "false");
   launchButton.textContent = open ? "Hide assistant" : "Assistant";
   localStorage.setItem(OPEN_STATE_KEY, open ? "1" : "0");
-
-  if (open) {
-    restoreChatScroll();
-    if (focusInput && messageInput) {
-      messageInput.focus();
-    }
+  if (open && chatLog) {
+    chatLog.scrollTop = chatLog.scrollHeight;
   }
-}
-
-function openWidgetFromTrigger(trigger) {
-  const focusInput = trigger.hasAttribute("data-assistant-focus-input");
-  setWidgetOpen(true, { focusInput });
 }
 
 if (widget && launchButton) {
-  const savedState = localStorage.getItem(OPEN_STATE_KEY);
-  setWidgetOpen(savedState === "1");
-
-  launchButton.addEventListener("click", () => {
-    setWidgetOpen(!widget.classList.contains("assistant-widget--open"), {
-      focusInput: true
-    });
-  });
-
+  setWidgetOpen(localStorage.getItem(OPEN_STATE_KEY) === "1");
+  launchButton.addEventListener("click", () =>
+    setWidgetOpen(!widget.classList.contains("assistant-widget--open"))
+  );
   if (minimizeButton) {
-    minimizeButton.addEventListener("click", () => {
-      setWidgetOpen(false);
-    });
+    minimizeButton.addEventListener("click", () => setWidgetOpen(false));
   }
-
-  document.addEventListener("click", (event) => {
-    const trigger = event.target.closest("[data-assistant-open]");
-    if (!trigger) {
-      return;
-    }
-
-    event.preventDefault();
-    openWidgetFromTrigger(trigger);
-  });
-
-  document.body.addEventListener("assistant-widget:open", () => {
-    setWidgetOpen(true, { focusInput: true });
-  });
 }
 
 if (chatLog) {
-  restoreChatScroll();
-
-  chatLog.addEventListener("scroll", () => {
-    saveChatScrollTop();
-    shouldAutoScroll = isNearBottom();
-  });
-
-  document.body.addEventListener("htmx:afterSwap", (event) => {
-    if (event.detail && event.detail.target === chatLog) {
-      if (shouldAutoScroll) {
-        scrollToLatest("smooth");
-      }
-      saveChatScrollTop();
-    }
-  });
-
-  const observer = new MutationObserver((mutations) => {
-    let changed = false;
-    for (const mutation of mutations) {
-      if (mutation.addedNodes.length > 0) {
-        changed = true;
-        mutation.addedNodes.forEach((node) => maybeSpeakFromAddedNode(node));
-      }
-      if (mutation.type === "childList" && mutation.removedNodes.length > 0) {
-        changed = true;
-      }
-    }
-    if (!changed) {
-      return;
-    }
-    if (shouldAutoScroll) {
-      scrollToLatest("smooth");
-    }
-    saveChatScrollTop();
-  });
-  observer.observe(chatLog, { childList: true, subtree: true });
-
-  document.body.addEventListener("htmx:responseError", (event) => {
-    if (event.detail && event.detail.target === chatLog) {
-      if (shouldAutoScroll) {
-        scrollToLatest("smooth");
-      }
-      saveChatScrollTop();
-    }
-  });
+  new MutationObserver(() => {
+    chatLog.scrollTop = chatLog.scrollHeight;
+  }).observe(chatLog, { childList: true, subtree: true });
 }
 
 if (sendForm && messageInput) {
-  sendForm.addEventListener("submit", () => {
-    shouldAutoScroll = true;
+  sendForm.addEventListener("htmx:afterRequest", (event) => {
+    if (event.detail?.successful) {
+      sendForm.reset();
+      messageInput.focus();
+    }
   });
 
   messageInput.addEventListener("keydown", (event) => {
-    const isCtrlEnter = event.key === "Enter" && (event.ctrlKey || event.metaKey);
-    if (!isCtrlEnter || event.isComposing) {
-      return;
-    }
-
-    event.preventDefault();
-    if (!messageInput.value.trim()) {
-      return;
-    }
-
-    if (typeof sendForm.requestSubmit === "function") {
-      sendForm.requestSubmit();
-      return;
-    }
-
-    sendForm.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
-  });
-
-  sendForm.addEventListener("htmx:afterRequest", (event) => {
-    if (event.detail && event.detail.successful) {
-      sendForm.reset();
-      messageInput.focus();
-      saveChatScrollTop();
+    if (event.key === "Enter" && (event.ctrlKey || event.metaKey) && !event.isComposing) {
+      event.preventDefault();
+      if (messageInput.value.trim()) {
+        if (typeof sendForm.requestSubmit === "function") {
+          sendForm.requestSubmit();
+        } else {
+          sendForm.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+        }
+      }
     }
   });
 }
 
-if (widget && sendForm && messageInput) {
-  widget.addEventListener("click", (event) => {
+if (chatLog && sendForm && messageInput) {
+  chatLog.addEventListener("click", (event) => {
     const chip = event.target.closest("[data-assistant-followup]");
-    if (!chip) {
-      return;
-    }
-
+    if (!chip) return;
     event.preventDefault();
     const reply = (chip.dataset.followupReply || chip.textContent || "").trim();
-    if (!reply) {
-      return;
-    }
-
-    shouldAutoScroll = true;
+    if (!reply) return;
     messageInput.value = reply;
-    messageInput.dispatchEvent(new Event("input", { bubbles: true }));
     if (typeof sendForm.requestSubmit === "function") {
       sendForm.requestSubmit();
-      return;
+    } else {
+      sendForm.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
     }
-    sendForm.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
   });
 }

@@ -1,7 +1,7 @@
 from datetime import time
 from math import ceil, floor
 from typing import Any, cast
-from django_eventstream import send_event
+from core.sse import send_event
 
 from django.db import models
 from django.utils import timezone

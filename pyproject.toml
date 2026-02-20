@@ -15,7 +15,6 @@ dependencies = [
     "pywebpush>=1.14.0",
     "django-extensions>=4.1",
     "mjml>=0.11.1",
-    "django-eventstream>=5.3.3",
     "daphne>=4.2.1",
     "openai>=2.6.1",
     "markdown>=3.10",

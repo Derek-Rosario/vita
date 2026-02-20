@@ -62,7 +62,6 @@ SESSION_COOKIE_SECURE = True
 INSTALLED_APPS = [
     "daphne",
     "channels",
-    "django_eventstream",
     "django_extensions",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -86,6 +85,12 @@ INSTALLED_APPS = [
 ]
 
 ASGI_APPLICATION = "vita.asgi.application"
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    },
+}
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

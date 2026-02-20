@@ -9,8 +9,9 @@ https://docs.djangoproject.com/en/6.0/howto/deployment/asgi/
 
 import os
 
-from channels.routing import ProtocolTypeRouter
+from channels.routing import ProtocolTypeRouter, URLRouter
 from django.core.asgi import get_asgi_application
+from django.urls import path, re_path
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "vita.settings")
 
@@ -18,9 +19,15 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "vita.settings")
 # is populated before importing code that may import ORM models.
 django_asgi_app = get_asgi_application()
 
+from core.sse import SSEConsumer  # noqa: E402 - must import after Django setup
+
 application = ProtocolTypeRouter(
     {
-        "http": django_asgi_app,
-        # Just HTTP for now. (We can add other protocols later.)
+        "http": URLRouter(
+            [
+                path("events/", SSEConsumer.as_asgi()),
+                re_path(r"", django_asgi_app),
+            ]
+        ),
     }
 )
