@@ -61,6 +61,10 @@ ENV SELF_EMAIL "frank@example.com"
 ENV VITA_API_KEY "non-secret-api-key-for-building-purposes"
 ENV ELEVEN_LABS_API_KEY "123"
 ENV ELEVEN_LABS_VOICE_ID ""
+ENV FROM_PHONE_NUMBER "+15555550100"
+ENV TO_PHONE_NUMBER "+15555550100"
+ENV TWILIO_ACCOUNT_SID "AC00000000000000000000000000000000"
+ENV TWILIO_AUTH_TOKEN "twilio-auth-token-for-building-purposes"
 RUN ./manage.py collectstatic --noinput
 
 RUN chmod +x /code/start.sh
