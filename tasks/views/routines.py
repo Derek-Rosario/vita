@@ -169,8 +169,19 @@ def routine_schedule(request: HttpRequest):
     except (ValueError, TypeError):
         start_date = today - timedelta(days=13)
 
-    end_date = start_date + timedelta(days=13)
-    dates = [start_date + timedelta(days=i) for i in range(14)]
+    try:
+        end_date = date.fromisoformat(request.GET.get("end", ""))
+        if end_date < start_date:
+            end_date = start_date + timedelta(days=13)
+    except (ValueError, TypeError):
+        end_date = start_date + timedelta(days=13)
+
+    # Cap at 90 days to avoid performance issues
+    if (end_date - start_date).days > 89:
+        end_date = start_date + timedelta(days=89)
+
+    num_days = (end_date - start_date).days + 1
+    dates = [start_date + timedelta(days=i) for i in range(num_days)]
 
     routines = Routine.objects.prefetch_related(
         "steps__default_tags"
@@ -211,6 +222,7 @@ def routine_schedule(request: HttpRequest):
                                 "state": "done",
                                 "completed_at": completed_local,
                                 "is_today": is_today,
+                                "date": d,
                             }
                         )
                     else:
@@ -219,6 +231,7 @@ def routine_schedule(request: HttpRequest):
                                 "state": "missed",
                                 "completed_at": None,
                                 "is_today": is_today,
+                                "date": d,
                             }
                         )
                 else:
@@ -233,6 +246,7 @@ def routine_schedule(request: HttpRequest):
                                 "state": "missed",
                                 "completed_at": None,
                                 "is_today": is_today,
+                                "date": d,
                             }
                         )
                     else:
@@ -241,11 +255,17 @@ def routine_schedule(request: HttpRequest):
                                 "state": "none",
                                 "completed_at": None,
                                 "is_today": is_today,
+                                "date": d,
                             }
                         )
             step_rows.append({"step": step, "cells": cells})
 
         routine_rows.append({"routine": routine, "step_rows": step_rows})
+
+    prev_start = start_date - timedelta(days=num_days)
+    prev_end = end_date - timedelta(days=num_days)
+    next_start = start_date + timedelta(days=num_days)
+    next_end = end_date + timedelta(days=num_days)
 
     return render(
         request,
@@ -256,8 +276,10 @@ def routine_schedule(request: HttpRequest):
             "start_date": start_date,
             "end_date": end_date,
             "today": today,
-            "prev_start": start_date - timedelta(days=14),
-            "next_start": start_date + timedelta(days=14),
+            "prev_start": prev_start,
+            "prev_end": prev_end,
+            "next_start": next_start,
+            "next_end": next_end,
         },
     )
 
