@@ -19,6 +19,7 @@ from .routines import (
     routine_edit,
     routine_list,
     routine_run,
+    routine_schedule,
     routine_step_detail,
 )
 from .tags import create_tag, tag_detail, tag_list
@@ -52,6 +53,7 @@ __all__ = [
     "routine_edit",
     "routine_list",
     "routine_run",
+    "routine_schedule",
     "routine_step_detail",
     "tag_detail",
     "tag_list",

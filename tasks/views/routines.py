@@ -1,3 +1,5 @@
+from datetime import date, datetime, time, timedelta
+
 from django.contrib import messages
 from django.db import models
 from django.db.models import Count, Q
@@ -9,7 +11,7 @@ from django.views.decorators.http import require_POST
 from core.views import HttpRequest
 from tasks.forms import RoutineForm, RoutineStepFormSet
 from tasks.models import Routine, RoutineStep, Task, TaskStatus
-from tasks.services import generate_tasks_for_date
+from tasks.services import generate_tasks_for_date, routine_is_due
 
 
 def routine_list(request: HttpRequest):
@@ -158,6 +160,106 @@ def routine_delete(request: HttpRequest, routine_id: int):
     routine.delete()
     messages.success(request, "Routine deleted.")
     return redirect("routine_list")
+
+
+def routine_schedule(request: HttpRequest):
+    today = timezone.localdate()
+    try:
+        start_date = date.fromisoformat(request.GET.get("start", ""))
+    except (ValueError, TypeError):
+        start_date = today - timedelta(days=13)
+
+    end_date = start_date + timedelta(days=13)
+    dates = [start_date + timedelta(days=i) for i in range(14)]
+
+    routines = Routine.objects.prefetch_related(
+        "steps__default_tags"
+    ).order_by("name")
+
+    tasks_in_range = Task.objects.filter(
+        routine_date__gte=start_date,
+        routine_date__lte=end_date,
+        routine_step__isnull=False,
+    ).select_related("routine_step")
+
+    task_lookup: dict[tuple[int, date], Task] = {}
+    for task in tasks_in_range:
+        key = (task.routine_step_id, task.routine_date)
+        task_lookup[key] = task
+
+    routine_rows = []
+    for routine in routines:
+        steps = list(routine.steps.all().order_by("sort_order", "pk"))
+        if not steps:
+            continue
+
+        step_rows = []
+        for step in steps:
+            cells = []
+            for d in dates:
+                task = task_lookup.get((step.pk, d))
+                is_today = d == today
+                if task is not None:
+                    if task.status == TaskStatus.DONE:
+                        completed_local = (
+                            timezone.localtime(task.completed_at)
+                            if task.completed_at
+                            else None
+                        )
+                        cells.append(
+                            {
+                                "state": "done",
+                                "completed_at": completed_local,
+                                "is_today": is_today,
+                            }
+                        )
+                    else:
+                        cells.append(
+                            {
+                                "state": "missed",
+                                "completed_at": None,
+                                "is_today": is_today,
+                            }
+                        )
+                else:
+                    # Check if routine was due on this date (use end-of-day to
+                    # satisfy any anchor_time constraint)
+                    check_dt = timezone.make_aware(
+                        datetime.combine(d, time(23, 59))
+                    )
+                    if routine_is_due(routine, check_dt):
+                        cells.append(
+                            {
+                                "state": "missed",
+                                "completed_at": None,
+                                "is_today": is_today,
+                            }
+                        )
+                    else:
+                        cells.append(
+                            {
+                                "state": "none",
+                                "completed_at": None,
+                                "is_today": is_today,
+                            }
+                        )
+            step_rows.append({"step": step, "cells": cells})
+
+        routine_rows.append({"routine": routine, "step_rows": step_rows})
+
+    return render(
+        request,
+        "tasks/routine_schedule.html",
+        {
+            "routine_rows": routine_rows,
+            "dates": dates,
+            "start_date": start_date,
+            "end_date": end_date,
+            "today": today,
+            "prev_start": start_date - timedelta(days=14),
+            "next_start": start_date + timedelta(days=14),
+        },
+    )
 
 
 @require_POST
