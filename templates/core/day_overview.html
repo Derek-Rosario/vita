@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}
+  Day Overview – {{ selected_date|date:"N j, Y" }}
+{% endblock title %}
+
+{% block content %}
+  <div class="container-fluid py-4">
+    <!-- Date navigation -->
+    <div class="d-flex align-items-center justify-content-between mb-4 gap-2">
+      <a href="?date={{ prev_date|date:'Y-m-d' }}"
+         class="btn btn-outline-secondary btn-sm"
+         aria-label="Previous day">
+        <svg width="16"
+             height="16"
+             viewBox="0 0 24 24"
+             fill="currentColor"
+             aria-hidden="true">
+          <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
+        </svg>
+      </a>
+      <div class="d-flex align-items-center gap-2 flex-wrap justify-content-center">
+        <h1 class="h4 mb-0">
+          {% if is_today %}
+            Today
+          {% else %}
+            {{ selected_date|date:"l" }}
+          {% endif %}
+        </h1>
+        <span class="text-muted">{{ selected_date|date:"N j, Y" }}</span>
+        <form class="d-inline" method="get">
+          <input type="date"
+                 name="date"
+                 value="{{ selected_date|date:'Y-m-d' }}"
+                 class="form-control form-control-sm"
+                 style="width: auto"
+                 onchange="this.form.submit()"
+                 aria-label="Select date">
+        </form>
+        {% if not is_today %}
+          <a href="{% url 'day_overview' %}" class="btn btn-sm btn-outline-primary">Today</a>
+        {% endif %}
+      </div>
+      <a href="?date={{ next_date|date:'Y-m-d' }}"
+         class="btn btn-outline-secondary btn-sm"
+         aria-label="Next day">
+        <svg width="16"
+             height="16"
+             viewBox="0 0 24 24"
+             fill="currentColor"
+             aria-hidden="true">
+          <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
+        </svg>
+      </a>
+    </div>
+    <!-- Dashboard tiles -->
+    <div class="row g-4">
+      <!-- Tasks tile -->
+      <div class="col-12 col-lg-4">{% include "core/partials/day_tasks_tile.html" %}</div>
+      <!-- Journal tile -->
+      <div class="col-12 col-lg-4">{% include "core/partials/day_journal_tile.html" %}</div>
+      <!-- Mood tile -->
+      <div class="col-12 col-lg-4">{% include "core/partials/day_mood_tile.html" %}</div>
+    </div>
+  </div>
+  <style>
+    .done-btn {
+      opacity: 0.4;
+      transition: opacity 0.15s, background-color 0.15s, color 0.15s;
+    }
+
+    .done-btn:hover {
+      opacity: 1;
+      background-color: #198754 !important;
+      color: white !important;
+      border-color: #198754 !important;
+    }
+  </style>
+{% endblock content %}
