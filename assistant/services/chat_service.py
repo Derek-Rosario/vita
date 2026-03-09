@@ -2,7 +2,7 @@ import json
 import logging
 from collections.abc import Sequence
 
-from assistant.tools import ToolContext, ToolRegistry, get_default_registry
+from assistant.tools import ToolContext, ToolDefinition, ToolRegistry, get_default_registry
 
 from .llm import (
     ChatMessage,
@@ -110,11 +110,27 @@ class AssistantService:
         return [
             ToolSpec(
                 name=tool.name,
-                description=tool.description,
+                description=self._build_tool_description(tool),
                 input_schema=tool.input_schema,
+                when_to_use=tool.when_to_use,
+                when_not_to_use=tool.when_not_to_use,
             )
             for tool in self.registry.all()
         ]
+
+    def _build_tool_description(self, tool: ToolDefinition) -> str:
+        description = tool.description.strip()
+        sections: list[str] = [description]
+
+        when_to_use = tool.when_to_use.strip()
+        if when_to_use:
+            sections.append(f"When to use: {when_to_use}")
+
+        when_not_to_use = tool.when_not_to_use.strip()
+        if when_not_to_use:
+            sections.append(f"When not to use: {when_not_to_use}")
+
+        return "\n".join(sections)
 
     def _execute_tool_call(
         self,

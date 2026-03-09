@@ -31,3 +31,5 @@ class ToolDefinition:
     description: str
     input_schema: dict[str, Any]
     handler: ToolHandler
+    when_to_use: str = ""
+    when_not_to_use: str = ""

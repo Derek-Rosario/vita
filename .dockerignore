@@ -1,5 +1,10 @@
 fly.toml
 .git/
 *.sqlite3
+*.sqlite3-*
 .venv
 .env
+staticfiles/
+__pycache__/
+.ruff_cache/
+.pytest_cache/

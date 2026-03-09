@@ -1,8 +1,8 @@
-const es = new ReconnectingEventSource("/events/");
+const es = new EventSource("/events/");
 
 es.addEventListener(
   "open",
-  function (e) {
+  function () {
     console.log("Event stream opened.");
   },
   false
@@ -24,11 +24,3 @@ es.addEventListener(
 document.addEventListener("task-updated", function (e) {
   console.log("Task updated event received:", e.detail);
 }, false);
-
-es.addEventListener(
-  "stream-reset",
-  function (e) {
-    // ... client fell behind, reinitialize ...
-  },
-  false
-);

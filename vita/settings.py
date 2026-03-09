@@ -61,7 +61,7 @@ SESSION_COOKIE_SECURE = True
 
 INSTALLED_APPS = [
     "daphne",
-    "django_eventstream",
+    "channels",
     "django_extensions",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -85,6 +85,12 @@ INSTALLED_APPS = [
 ]
 
 ASGI_APPLICATION = "vita.asgi.application"
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    },
+}
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -255,6 +261,13 @@ ASSISTANT_SYSTEM_PROMPT = env("ASSISTANT_SYSTEM_PROMPT", "").strip()
 ASSISTANT_SYSTEM_PROMPT_DEFAULT = (
     "You are Vita's assistant. Keep replies concise and actionable."
 )
+ASSISTANT_VOICE_SYSTEM_PROMPT_FILE = env(
+    "ASSISTANT_VOICE_SYSTEM_PROMPT_FILE", "assistant/system_prompt_voice.txt"
+)
+ASSISTANT_VOICE_SYSTEM_PROMPT = env("ASSISTANT_VOICE_SYSTEM_PROMPT", "").strip()
+ASSISTANT_VOICE_SYSTEM_PROMPT_DEFAULT = (
+    "You are Vita's phone assistant. Reply in concise, natural spoken sentences."
+)
 
 ELEVEN_LABS_API_KEY = env("ELEVEN_LABS_API_KEY")
 ELEVEN_LABS_VOICE_ID = env("ELEVEN_LABS_VOICE_ID")
@@ -314,3 +327,27 @@ if not WEBPUSH_VAPID_PUBLIC_KEY or not WEBPUSH_VAPID_PRIVATE_KEY:
     except Exception:
         # Leave keys empty if generation fails
         pass
+
+# Twilio
+
+FROM_PHONE_NUMBER = env("FROM_PHONE_NUMBER")
+TO_PHONE_NUMBER = env("TO_PHONE_NUMBER")
+TWILIO_ACCOUNT_SID = env("TWILIO_ACCOUNT_SID")
+TWILIO_AUTH_TOKEN = env("TWILIO_AUTH_TOKEN")
+TWILIO_VALIDATE_SIGNATURES = (
+    env("TWILIO_VALIDATE_SIGNATURES", "True").strip().lower() == "true"
+)
+TWILIO_CONVERSATION_RELAY_WS_URL = env("TWILIO_CONVERSATION_RELAY_WS_URL", "").strip()
+TWILIO_CONVERSATION_RELAY_WELCOME_GREETING = env(
+    "TWILIO_CONVERSATION_RELAY_WELCOME_GREETING",
+    "Hi, this is Vita. How can I help?",
+).strip()
+TWILIO_CONVERSATION_RELAY_LANGUAGE = env(
+    "TWILIO_CONVERSATION_RELAY_LANGUAGE", "en-US"
+).strip()
+TWILIO_CONVERSATION_RELAY_ASSISTANT_USER_ID = env(
+    "TWILIO_CONVERSATION_RELAY_ASSISTANT_USER_ID", ""
+).strip()
+TWILIO_CONVERSATION_RELAY_APPROVED_CALL_TTL_SECONDS = int(
+    env("TWILIO_CONVERSATION_RELAY_APPROVED_CALL_TTL_SECONDS", "1800")
+)

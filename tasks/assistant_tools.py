@@ -1,31 +1,64 @@
 from __future__ import annotations
 
-from datetime import date, datetime, time
+from datetime import date, time
 from typing import Any
 
 from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
 
+from core.models import LastGeolocation
+from core.services import is_close_to_home
 from assistant.tools import ToolContext, ToolDefinition, ToolResult
-from tasks.models import Comment, Project, Routine, RoutineStep, Tag, Task, TaskStatus
+from tasks.models import (
+    Comment,
+    Project,
+    Routine,
+    RoutineStep,
+    ScheduledAwayTrip,
+    Tag,
+    Task,
+    TaskStatus,
+)
 from tasks.services import generate_tasks_for_date
 
 VALID_TASK_STATUSES = {choice for choice, _ in TaskStatus.choices}
 VALID_TASK_PRIORITIES = {choice for choice, _ in Task.Priority.choices}
 VALID_TASK_ENERGIES = {choice for choice, _ in Task.Energy.choices}
+AWAY_FILTER_DESCRIPTION = (
+    "When away from home, this defaults to away-compatible tasks unless "
+    "include_all_locations is true."
+)
+INCLUDE_ALL_LOCATIONS_SCHEMA = {
+    "type": "boolean",
+    "description": "Set true to include all tasks even when user is away from home.",
+}
+TODO_WHEN_TO_USE = ""  # TODO: Add user intents/situations that should trigger this tool.
+TODO_WHEN_NOT_TO_USE = ""  # TODO: Add exclusions/guardrails for when this tool should not run.
 
 
 def get_tools() -> list[ToolDefinition]:
     return [
         ToolDefinition(
             name="tasks_list_tasks",
-            description="List tasks with optional filters.",
+            description=f"List tasks with optional filters. {AWAY_FILTER_DESCRIPTION}",
+            when_to_use=(
+                "User asks for tasks to do now or asks to find/search tasks by keyword."
+            ),
+            when_not_to_use=TODO_WHEN_NOT_TO_USE,
             input_schema={
                 "type": "object",
                 "properties": {
+                    "query": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": (
+                            "Optional keyword to match against title/description text."
+                        ),
+                    },
                     "status": {"type": "string", "enum": sorted(VALID_TASK_STATUSES)},
                     "include_done": {"type": "boolean"},
+                    "include_all_locations": INCLUDE_ALL_LOCATIONS_SCHEMA,
                     "limit": {"type": "integer", "minimum": 1, "maximum": 50},
                 },
                 "additionalProperties": False,
@@ -33,24 +66,10 @@ def get_tools() -> list[ToolDefinition]:
             handler=_tasks_list_tasks,
         ),
         ToolDefinition(
-            name="tasks_find_tasks",
-            description="Search tasks by title/description text.",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "query": {"type": "string", "minLength": 1},
-                    "status": {"type": "string", "enum": sorted(VALID_TASK_STATUSES)},
-                    "include_done": {"type": "boolean"},
-                    "limit": {"type": "integer", "minimum": 1, "maximum": 50},
-                },
-                "required": ["query"],
-                "additionalProperties": False,
-            },
-            handler=_tasks_find_tasks,
-        ),
-        ToolDefinition(
             name="tasks_create_task",
             description="Create a task.",
+            when_to_use=TODO_WHEN_TO_USE,
+            when_not_to_use=TODO_WHEN_NOT_TO_USE,
             input_schema={
                 "type": "object",
                 "properties": {
@@ -72,6 +91,8 @@ def get_tools() -> list[ToolDefinition]:
         ToolDefinition(
             name="tasks_update_task",
             description="Update task fields.",
+            when_to_use=TODO_WHEN_TO_USE,
+            when_not_to_use=TODO_WHEN_NOT_TO_USE,
             input_schema={
                 "type": "object",
                 "properties": {
@@ -105,6 +126,15 @@ def get_tools() -> list[ToolDefinition]:
                             {"type": "null"},
                         ]
                     },
+                    "tag_ids": {
+                        "type": "array",
+                        "items": {"type": "integer", "minimum": 1},
+                    },
+                    "tag_mode": {
+                        "type": "string",
+                        "enum": ["set", "add", "remove"],
+                        "description": "How to apply provided tags. Defaults to 'set'.",
+                    },
                 },
                 "required": ["task_id"],
                 "additionalProperties": False,
@@ -112,50 +142,10 @@ def get_tools() -> list[ToolDefinition]:
             handler=_tasks_update_task,
         ),
         ToolDefinition(
-            name="tasks_delete_task",
-            description="Delete a task by id.",
-            input_schema={
-                "type": "object",
-                "properties": {"task_id": {"type": "integer", "minimum": 1}},
-                "required": ["task_id"],
-                "additionalProperties": False,
-            },
-            handler=_tasks_delete_task,
-        ),
-        ToolDefinition(
-            name="tasks_move_task_status",
-            description="Move a task to a different workflow status.",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "task_id": {"type": "integer", "minimum": 1},
-                    "status": {"type": "string", "enum": sorted(VALID_TASK_STATUSES)},
-                },
-                "required": ["task_id", "status"],
-                "additionalProperties": False,
-            },
-            handler=_tasks_move_task_status,
-        ),
-        ToolDefinition(
-            name="tasks_mark_task_done",
-            description="Mark a task done, optionally providing a completion timestamp.",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "task_id": {"type": "integer", "minimum": 1},
-                    "completed_at": {
-                        "type": "string",
-                        "description": "ISO datetime, for example 2026-02-15T18:30:00",
-                    },
-                },
-                "required": ["task_id"],
-                "additionalProperties": False,
-            },
-            handler=_tasks_mark_task_done,
-        ),
-        ToolDefinition(
             name="tasks_add_comment",
             description="Add a comment to a task.",
+            when_to_use=TODO_WHEN_TO_USE,
+            when_not_to_use=TODO_WHEN_NOT_TO_USE,
             input_schema={
                 "type": "object",
                 "properties": {
@@ -168,19 +158,48 @@ def get_tools() -> list[ToolDefinition]:
             handler=_tasks_add_comment,
         ),
         ToolDefinition(
-            name="tasks_promote_backlog_task",
-            description="Move a task from backlog to to-do.",
+            name="tasks_create_tag",
+            description="Create a new task tag.",
+            when_to_use=TODO_WHEN_TO_USE,
+            when_not_to_use=TODO_WHEN_NOT_TO_USE,
             input_schema={
                 "type": "object",
-                "properties": {"task_id": {"type": "integer", "minimum": 1}},
-                "required": ["task_id"],
+                "properties": {
+                    "name": {"type": "string", "minLength": 1},
+                    "color": {"type": "string"},
+                    "description": {"type": "string"},
+                },
+                "required": ["name"],
                 "additionalProperties": False,
             },
-            handler=_tasks_promote_backlog_task,
+            handler=_tasks_create_tag,
+        ),
+        ToolDefinition(
+            name="tasks_list_tags",
+            description="List task tags with optional search filters.",
+            when_to_use=TODO_WHEN_TO_USE,
+            when_not_to_use=TODO_WHEN_NOT_TO_USE,
+            input_schema={
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": (
+                            "Optional keyword to match against name/description text."
+                        ),
+                    },
+                    "limit": {"type": "integer", "minimum": 1, "maximum": 50},
+                },
+                "additionalProperties": False,
+            },
+            handler=_tasks_list_tags,
         ),
         ToolDefinition(
             name="tasks_list_routines",
             description="List routines with optional filters.",
+            when_to_use=TODO_WHEN_TO_USE,
+            when_not_to_use=TODO_WHEN_NOT_TO_USE,
             input_schema={
                 "type": "object",
                 "properties": {
@@ -194,6 +213,8 @@ def get_tools() -> list[ToolDefinition]:
         ToolDefinition(
             name="tasks_create_routine",
             description="Create a routine.",
+            when_to_use=TODO_WHEN_TO_USE,
+            when_not_to_use=TODO_WHEN_NOT_TO_USE,
             input_schema={
                 "type": "object",
                 "properties": {
@@ -226,6 +247,8 @@ def get_tools() -> list[ToolDefinition]:
         ToolDefinition(
             name="tasks_update_routine",
             description="Update routine fields.",
+            when_to_use=TODO_WHEN_TO_USE,
+            when_not_to_use=TODO_WHEN_NOT_TO_USE,
             input_schema={
                 "type": "object",
                 "properties": {
@@ -257,19 +280,10 @@ def get_tools() -> list[ToolDefinition]:
             handler=_tasks_update_routine,
         ),
         ToolDefinition(
-            name="tasks_delete_routine",
-            description="Delete a routine by id.",
-            input_schema={
-                "type": "object",
-                "properties": {"routine_id": {"type": "integer", "minimum": 1}},
-                "required": ["routine_id"],
-                "additionalProperties": False,
-            },
-            handler=_tasks_delete_routine,
-        ),
-        ToolDefinition(
             name="tasks_list_routine_steps",
             description="List steps for a routine.",
+            when_to_use=TODO_WHEN_TO_USE,
+            when_not_to_use=TODO_WHEN_NOT_TO_USE,
             input_schema={
                 "type": "object",
                 "properties": {
@@ -283,6 +297,8 @@ def get_tools() -> list[ToolDefinition]:
         ToolDefinition(
             name="tasks_create_routine_step",
             description="Create a routine step.",
+            when_to_use=TODO_WHEN_TO_USE,
+            when_not_to_use=TODO_WHEN_NOT_TO_USE,
             input_schema={
                 "type": "object",
                 "properties": {
@@ -291,7 +307,10 @@ def get_tools() -> list[ToolDefinition]:
                     "description": {"type": "string"},
                     "sort_order": {"type": "integer", "minimum": 0},
                     "default_priority": {"type": "integer", "minimum": 1, "maximum": 4},
-                    "default_energy": {"type": "string", "enum": sorted(VALID_TASK_ENERGIES)},
+                    "default_energy": {
+                        "type": "string",
+                        "enum": sorted(VALID_TASK_ENERGIES),
+                    },
                     "default_estimate_minutes": {"type": "integer", "minimum": 0},
                     "is_stackable": {"type": "boolean"},
                     "is_available_away_from_home": {"type": "boolean"},
@@ -308,6 +327,8 @@ def get_tools() -> list[ToolDefinition]:
         ToolDefinition(
             name="tasks_update_routine_step",
             description="Update routine step fields.",
+            when_to_use=TODO_WHEN_TO_USE,
+            when_not_to_use=TODO_WHEN_NOT_TO_USE,
             input_schema={
                 "type": "object",
                 "properties": {
@@ -316,7 +337,10 @@ def get_tools() -> list[ToolDefinition]:
                     "description": {"type": "string"},
                     "sort_order": {"type": "integer", "minimum": 0},
                     "default_priority": {"type": "integer", "minimum": 1, "maximum": 4},
-                    "default_energy": {"type": "string", "enum": sorted(VALID_TASK_ENERGIES)},
+                    "default_energy": {
+                        "type": "string",
+                        "enum": sorted(VALID_TASK_ENERGIES),
+                    },
                     "default_estimate_minutes": {
                         "anyOf": [
                             {"type": "integer", "minimum": 0},
@@ -336,19 +360,10 @@ def get_tools() -> list[ToolDefinition]:
             handler=_tasks_update_routine_step,
         ),
         ToolDefinition(
-            name="tasks_delete_routine_step",
-            description="Delete a routine step.",
-            input_schema={
-                "type": "object",
-                "properties": {"routine_step_id": {"type": "integer", "minimum": 1}},
-                "required": ["routine_step_id"],
-                "additionalProperties": False,
-            },
-            handler=_tasks_delete_routine_step,
-        ),
-        ToolDefinition(
             name="tasks_run_routine",
             description="Generate tasks for one routine or all active routines.",
+            when_to_use=TODO_WHEN_TO_USE,
+            when_not_to_use=TODO_WHEN_NOT_TO_USE,
             input_schema={
                 "type": "object",
                 "properties": {"routine_id": {"type": "integer", "minimum": 1}},
@@ -361,55 +376,74 @@ def get_tools() -> list[ToolDefinition]:
 
 def _tasks_list_tasks(args: dict[str, Any], context: ToolContext) -> ToolResult:
     _require_superuser(context)
-    status = _parse_task_status(args.get("status"))
-    include_done = _as_bool(args.get("include_done"), field="include_done", default=True)
-    limit = _as_int(args.get("limit"), field="limit", minimum=1, maximum=50, default=20)
-
-    queryset = Task.objects.select_related("project", "parent", "routine").order_by(
-        "-updated_at"
+    query = _parse_optional_text(args.get("query"), field="query")
+    if query == "":
+        raise ValueError("query cannot be empty.")
+    status, include_done, include_all_locations, limit = _parse_task_query_args(args)
+    queryset, away_context = _build_task_queryset(
+        status=status,
+        include_done=include_done,
+        include_all_locations=include_all_locations,
+        query=query,
     )
+
+    tasks = list(queryset[:limit])
+    data: dict[str, Any] = {
+        "count": len(tasks),
+        **away_context,
+        "tasks": [_serialize_task(task) for task in tasks],
+    }
+    if query is not None:
+        data["query"] = query
+    return ToolResult(
+        ok=True,
+        data=data,
+    )
+
+
+def _parse_task_query_args(args: dict[str, Any]) -> tuple[str | None, bool, bool, int]:
+    status = _parse_task_status(args.get("status"))
+    include_done = _as_bool(
+        args.get("include_done"), field="include_done", default=True
+    )
+    include_all_locations = _as_bool(
+        args.get("include_all_locations"), field="include_all_locations", default=False
+    )
+    limit = _as_int(args.get("limit"), field="limit", minimum=1, maximum=50, default=20)
+    return status, include_done, include_all_locations, limit
+
+
+def _build_task_queryset(
+    *,
+    status: str | None,
+    include_done: bool,
+    include_all_locations: bool,
+    query: str | None = None,
+):
+    is_away_from_home, away_context_source = _resolve_away_from_home_status()
+    applied_away_filter = is_away_from_home is True and not include_all_locations
+
+    queryset = Task.objects.select_related(
+        "project", "parent", "routine", "routine_step"
+    ).order_by("-updated_at")
+    if query is not None:
+        queryset = queryset.filter(
+            Q(title__icontains=query) | Q(description__icontains=query)
+        )
     if status:
         queryset = queryset.filter(status=status)
     elif not include_done:
         queryset = queryset.exclude(status=TaskStatus.DONE)
+    if applied_away_filter:
+        queryset = queryset.filter(routine_step__is_available_away_from_home=True)
 
-    tasks = list(queryset[:limit])
-    return ToolResult(
-        ok=True,
-        data={
-            "count": len(tasks),
-            "tasks": [_serialize_task(task) for task in tasks],
-        },
-    )
-
-
-def _tasks_find_tasks(args: dict[str, Any], context: ToolContext) -> ToolResult:
-    _require_superuser(context)
-    query = _parse_required_text(args.get("query"), field="query")
-    status = _parse_task_status(args.get("status"))
-    include_done = _as_bool(args.get("include_done"), field="include_done", default=True)
-    limit = _as_int(args.get("limit"), field="limit", minimum=1, maximum=50, default=20)
-
-    queryset = (
-        Task.objects.select_related("project", "parent", "routine")
-        .filter(Q(title__icontains=query) | Q(description__icontains=query))
-        .order_by("-updated_at")
-    )
-
-    if status:
-        queryset = queryset.filter(status=status)
-    elif not include_done:
-        queryset = queryset.exclude(status=TaskStatus.DONE)
-
-    tasks = list(queryset[:limit])
-    return ToolResult(
-        ok=True,
-        data={
-            "query": query,
-            "count": len(tasks),
-            "tasks": [_serialize_task(task) for task in tasks],
-        },
-    )
+    away_context = {
+        "is_away_from_home": is_away_from_home,
+        "away_context_source": away_context_source,
+        "applied_away_from_home_filter": applied_away_filter,
+        "include_all_locations": include_all_locations,
+    }
+    return queryset, away_context
 
 
 def _tasks_create_task(args: dict[str, Any], context: ToolContext) -> ToolResult:
@@ -470,14 +504,17 @@ def _tasks_update_task(args: dict[str, Any], context: ToolContext) -> ToolResult
         raise ValueError(f"Task {task_id} does not exist.")
 
     changed = False
+    tag_update_requested = "tag_ids" in args
+    tag_mode = "set"
+    tags: list[Tag] = []
 
     if "title" in args:
         task.title = _parse_required_text(args.get("title"), field="title")
         changed = True
     if "description" in args:
-        task.description = _parse_optional_text(
-            args.get("description"), field="description"
-        ) or ""
+        task.description = (
+            _parse_optional_text(args.get("description"), field="description") or ""
+        )
         changed = True
     if "status" in args:
         task.status = _parse_task_status(args.get("status"), required=True)
@@ -498,7 +535,10 @@ def _tasks_update_task(args: dict[str, Any], context: ToolContext) -> ToolResult
         changed = True
     if "project_id" in args:
         project_id = _as_int(args.get("project_id"), field="project_id", minimum=1)
-        if project_id is not None and not Project.objects.filter(pk=project_id).exists():
+        if (
+            project_id is not None
+            and not Project.objects.filter(pk=project_id).exists()
+        ):
             raise ValueError(f"Project {project_id} does not exist.")
         task.project_id = project_id
         changed = True
@@ -511,76 +551,36 @@ def _tasks_update_task(args: dict[str, Any], context: ToolContext) -> ToolResult
                 raise ValueError(f"Parent task {parent_id} does not exist.")
         task.parent_id = parent_id
         changed = True
+    if tag_update_requested:
+        tag_ids = _parse_int_list(args.get("tag_ids"), field="tag_ids")
+        if tag_ids is None:
+            raise ValueError("tag_ids is required when updating task tags.")
+        tag_mode = _parse_tag_update_mode(args.get("tag_mode"), field="tag_mode")
+        tags = _load_tags(tag_ids)
 
-    if changed:
-        with transaction.atomic():
+    with transaction.atomic():
+        if changed:
             task.save()
+        if tag_update_requested:
+            if tag_mode == "set":
+                task.tags.set(tags)
+            elif tag_mode == "add":
+                if tags:
+                    task.tags.add(*tags)
+            elif tag_mode == "remove":
+                if tags:
+                    task.tags.remove(*tags)
 
+    payload: dict[str, Any] = {"task": _serialize_task(task)}
+    if tag_update_requested:
+        task = Task.objects.prefetch_related("tags").get(pk=task_id)
+        payload["tag_mode"] = tag_mode
+        payload["tag_ids"] = list(task.tags.values_list("id", flat=True))
+        payload["tags"] = [_serialize_tag(tag) for tag in task.tags.all().order_by("name")]
     return ToolResult(
         ok=True,
-        message="Task updated." if changed else "No changes applied.",
-        data={"task": _serialize_task(task)},
-    )
-
-
-def _tasks_delete_task(args: dict[str, Any], context: ToolContext) -> ToolResult:
-    _require_superuser(context)
-    task_id = _as_int(args.get("task_id"), field="task_id", minimum=1, required=True)
-    task = Task.objects.filter(pk=task_id).first()
-    if task is None:
-        raise ValueError(f"Task {task_id} does not exist.")
-    task.delete()
-    return ToolResult(
-        ok=True,
-        message="Task deleted.",
-        data={"deleted_task_id": task_id},
-    )
-
-
-def _tasks_move_task_status(args: dict[str, Any], context: ToolContext) -> ToolResult:
-    _require_superuser(context)
-    task_id = _as_int(args.get("task_id"), field="task_id", minimum=1, required=True)
-    status = _parse_task_status(args.get("status"), required=True)
-
-    task = Task.objects.filter(pk=task_id).first()
-    if task is None:
-        raise ValueError(f"Task {task_id} does not exist.")
-
-    if task.status == status:
-        return ToolResult(
-            ok=True,
-            message=f"Task is already in status '{status}'.",
-            data={"task": _serialize_task(task)},
-        )
-
-    task.status = status
-    task.save()
-    return ToolResult(
-        ok=True,
-        message=f"Task moved to '{status}'.",
-        data={"task": _serialize_task(task)},
-    )
-
-
-def _tasks_mark_task_done(args: dict[str, Any], context: ToolContext) -> ToolResult:
-    _require_superuser(context)
-    task_id = _as_int(args.get("task_id"), field="task_id", minimum=1, required=True)
-    task = Task.objects.filter(pk=task_id).first()
-    if task is None:
-        raise ValueError(f"Task {task_id} does not exist.")
-
-    completed_at = _parse_datetime(args.get("completed_at"), field="completed_at")
-    completed_value = completed_at or timezone.now()
-    if completed_value > timezone.now():
-        raise ValueError("completed_at cannot be in the future.")
-
-    task.status = TaskStatus.DONE
-    task.completed_at = completed_value
-    task.save()
-    return ToolResult(
-        ok=True,
-        message="Task marked done.",
-        data={"task": _serialize_task(task)},
+        message="Task updated." if (changed or tag_update_requested) else "No changes applied.",
+        data=payload,
     )
 
 
@@ -610,27 +610,58 @@ def _tasks_add_comment(args: dict[str, Any], context: ToolContext) -> ToolResult
     )
 
 
-def _tasks_promote_backlog_task(args: dict[str, Any], context: ToolContext) -> ToolResult:
+def _tasks_create_tag(args: dict[str, Any], context: ToolContext) -> ToolResult:
     _require_superuser(context)
-    task_id = _as_int(args.get("task_id"), field="task_id", minimum=1, required=True)
-    task = Task.objects.filter(pk=task_id).first()
-    if task is None:
-        raise ValueError(f"Task {task_id} does not exist.")
+    name = _parse_required_text(args.get("name"), field="name")
+    color = _parse_optional_text(args.get("color"), field="color")
+    description = _parse_optional_text(args.get("description"), field="description")
 
-    if task.status != TaskStatus.BACKLOG:
+    existing = Tag.objects.filter(name__iexact=name).first()
+    if existing is not None:
         return ToolResult(
             ok=True,
-            message="Task is not in backlog.",
-            data={"task": _serialize_task(task)},
+            message="Tag already exists.",
+            data={"created": False, "tag": _serialize_tag(existing)},
         )
 
-    task.status = TaskStatus.TODO
-    task.save()
+    tag = Tag(name=name)
+    if color is not None:
+        tag.color = color
+    if description is not None:
+        tag.description = description
+
+    with transaction.atomic():
+        tag.save()
+
     return ToolResult(
         ok=True,
-        message="Backlog task promoted to to-do.",
-        data={"task": _serialize_task(task)},
+        message="Tag created.",
+        data={"created": True, "tag": _serialize_tag(tag)},
     )
+
+
+def _tasks_list_tags(args: dict[str, Any], context: ToolContext) -> ToolResult:
+    _require_superuser(context)
+    query = _parse_optional_text(args.get("query"), field="query")
+    if query == "":
+        raise ValueError("query cannot be empty.")
+    limit = _as_int(args.get("limit"), field="limit", minimum=1, maximum=50, default=20)
+
+    queryset = Tag.objects.order_by("name")
+    if query is not None:
+        queryset = queryset.filter(
+            Q(name__icontains=query) | Q(description__icontains=query)
+        )
+    tags = list(queryset[:limit])
+
+    data: dict[str, Any] = {
+        "count": len(tags),
+        "tags": [_serialize_tag(tag) for tag in tags],
+    }
+    if query is not None:
+        data["query"] = query
+
+    return ToolResult(ok=True, data=data)
 
 
 def _tasks_list_routines(args: dict[str, Any], context: ToolContext) -> ToolResult:
@@ -657,7 +688,9 @@ def _tasks_create_routine(args: dict[str, Any], context: ToolContext) -> ToolRes
     name = _parse_required_text(args.get("name"), field="name")
     description = _parse_optional_text(args.get("description"), field="description")
     interval = _as_int(args.get("interval"), field="interval", minimum=1)
-    day_of_month = _as_int(args.get("day_of_month"), field="day_of_month", minimum=1, maximum=31)
+    day_of_month = _as_int(
+        args.get("day_of_month"), field="day_of_month", minimum=1, maximum=31
+    )
     days_of_week = _parse_days_of_week(args.get("days_of_week"))
     anchor_time = _parse_time(args.get("anchor_time"), field="anchor_time")
     is_active = _as_bool(args.get("is_active"), field="is_active", default=True)
@@ -701,9 +734,9 @@ def _tasks_update_routine(args: dict[str, Any], context: ToolContext) -> ToolRes
         routine.name = _parse_required_text(args.get("name"), field="name")
         changed = True
     if "description" in args:
-        routine.description = _parse_optional_text(
-            args.get("description"), field="description"
-        ) or ""
+        routine.description = (
+            _parse_optional_text(args.get("description"), field="description") or ""
+        )
         changed = True
     if "is_active" in args:
         routine.is_active = _as_bool(
@@ -743,22 +776,6 @@ def _tasks_update_routine(args: dict[str, Any], context: ToolContext) -> ToolRes
     )
 
 
-def _tasks_delete_routine(args: dict[str, Any], context: ToolContext) -> ToolResult:
-    _require_superuser(context)
-    routine_id = _as_int(
-        args.get("routine_id"), field="routine_id", minimum=1, required=True
-    )
-    routine = Routine.objects.filter(pk=routine_id).first()
-    if routine is None:
-        raise ValueError(f"Routine {routine_id} does not exist.")
-    routine.delete()
-    return ToolResult(
-        ok=True,
-        message="Routine deleted.",
-        data={"deleted_routine_id": routine_id},
-    )
-
-
 def _tasks_list_routine_steps(args: dict[str, Any], context: ToolContext) -> ToolResult:
     _require_superuser(context)
     routine_id = _as_int(
@@ -783,7 +800,9 @@ def _tasks_list_routine_steps(args: dict[str, Any], context: ToolContext) -> Too
     )
 
 
-def _tasks_create_routine_step(args: dict[str, Any], context: ToolContext) -> ToolResult:
+def _tasks_create_routine_step(
+    args: dict[str, Any], context: ToolContext
+) -> ToolResult:
     _require_superuser(context)
     routine_id = _as_int(
         args.get("routine_id"), field="routine_id", minimum=1, required=True
@@ -802,7 +821,9 @@ def _tasks_create_routine_step(args: dict[str, Any], context: ToolContext) -> To
         field="default_estimate_minutes",
         minimum=0,
     )
-    is_stackable = _as_bool(args.get("is_stackable"), field="is_stackable", default=False)
+    is_stackable = _as_bool(
+        args.get("is_stackable"), field="is_stackable", default=False
+    )
     is_available_away_from_home = _as_bool(
         args.get("is_available_away_from_home"),
         field="is_available_away_from_home",
@@ -837,7 +858,9 @@ def _tasks_create_routine_step(args: dict[str, Any], context: ToolContext) -> To
     )
 
 
-def _tasks_update_routine_step(args: dict[str, Any], context: ToolContext) -> ToolResult:
+def _tasks_update_routine_step(
+    args: dict[str, Any], context: ToolContext
+) -> ToolResult:
     _require_superuser(context)
     step_id = _as_int(
         args.get("routine_step_id"), field="routine_step_id", minimum=1, required=True
@@ -853,9 +876,9 @@ def _tasks_update_routine_step(args: dict[str, Any], context: ToolContext) -> To
         step.title = _parse_required_text(args.get("title"), field="title")
         changed = True
     if "description" in args:
-        step.description = _parse_optional_text(
-            args.get("description"), field="description"
-        ) or ""
+        step.description = (
+            _parse_optional_text(args.get("description"), field="description") or ""
+        )
         changed = True
     if "sort_order" in args:
         step.sort_order = _as_int(
@@ -897,7 +920,9 @@ def _tasks_update_routine_step(args: dict[str, Any], context: ToolContext) -> To
             step.save()
 
         if "default_tag_ids" in args:
-            tag_ids = _parse_int_list(args.get("default_tag_ids"), field="default_tag_ids")
+            tag_ids = _parse_int_list(
+                args.get("default_tag_ids"), field="default_tag_ids"
+            )
             tags = _load_tags(tag_ids or [])
             step.default_tags.set(tags)
             changed = True
@@ -906,22 +931,6 @@ def _tasks_update_routine_step(args: dict[str, Any], context: ToolContext) -> To
         ok=True,
         message="Routine step updated." if changed else "No changes applied.",
         data={"routine_step": _serialize_routine_step(step)},
-    )
-
-
-def _tasks_delete_routine_step(args: dict[str, Any], context: ToolContext) -> ToolResult:
-    _require_superuser(context)
-    step_id = _as_int(
-        args.get("routine_step_id"), field="routine_step_id", minimum=1, required=True
-    )
-    step = RoutineStep.objects.filter(pk=step_id).first()
-    if step is None:
-        raise ValueError(f"Routine step {step_id} does not exist.")
-    step.delete()
-    return ToolResult(
-        ok=True,
-        message="Routine step deleted.",
-        data={"deleted_routine_step_id": step_id},
     )
 
 
@@ -960,6 +969,9 @@ def _serialize_task(task: Task) -> dict[str, Any]:
         "parent_id": task.parent_id,
         "routine_id": task.routine_id,
         "routine_step_id": task.routine_step_id,
+        "is_available_away_from_home": (
+            task.routine_step.is_available_away_from_home if task.routine_step else None
+        ),
         "completed_at": timezone.localtime(task.completed_at).isoformat()
         if task.completed_at
         else None,
@@ -980,6 +992,15 @@ def _serialize_routine(routine: Routine) -> dict[str, Any]:
         "anchor_time": routine.anchor_time.isoformat() if routine.anchor_time else None,
         "step_count": routine.steps.count(),
         "total_estimate_minutes": routine.total_estimate_minutes,
+    }
+
+
+def _serialize_tag(tag: Tag) -> dict[str, Any]:
+    return {
+        "id": tag.id,
+        "name": tag.name,
+        "color": tag.color,
+        "description": tag.description,
     }
 
 
@@ -1015,6 +1036,31 @@ def _require_superuser(context: ToolContext) -> None:
         raise PermissionError("Authentication is required.")
     if not getattr(user, "is_superuser", False):
         raise PermissionError("Superuser permission is required.")
+
+
+def _resolve_away_from_home_status() -> tuple[bool | None, str]:
+    if ScheduledAwayTrip.is_active_now():
+        return True, "scheduled_trip"
+
+    last_geolocation = LastGeolocation.objects.order_by("-updated_at").first()
+    if last_geolocation and last_geolocation.is_fresh:
+        return (
+            not is_close_to_home(last_geolocation.latitude, last_geolocation.longitude),
+            "last_geolocation",
+        )
+
+    return None, "unknown"
+
+
+def _parse_tag_update_mode(value: Any, *, field: str = "tag_mode") -> str:
+    if value is None:
+        return "set"
+    if not isinstance(value, str):
+        raise ValueError(f"{field} must be a string.")
+    mode = value.strip().lower()
+    if mode not in {"set", "add", "remove"}:
+        raise ValueError(f"{field} must be one of: set, add, remove.")
+    return mode
 
 
 def _parse_required_text(value: Any, *, field: str) -> str:
@@ -1091,23 +1137,6 @@ def _parse_time(value: Any, *, field: str) -> time | None:
         raise ValueError(f"{field} must use HH:MM or HH:MM:SS format.") from exc
 
 
-def _parse_datetime(value: Any, *, field: str) -> datetime | None:
-    if value is None:
-        return None
-    if not isinstance(value, str):
-        raise ValueError(f"{field} must be an ISO datetime string.")
-    try:
-        parsed = datetime.fromisoformat(value)
-    except ValueError as exc:
-        raise ValueError(
-            f"{field} must use ISO datetime format, for example 2026-02-15T18:30:00."
-        ) from exc
-
-    if timezone.is_naive(parsed):
-        parsed = timezone.make_aware(parsed, timezone.get_current_timezone())
-    return parsed
-
-
 def _parse_int_list(value: Any, *, field: str) -> list[int] | None:
     if value is None:
         return None
@@ -1129,7 +1158,9 @@ def _parse_days_of_week(value: Any) -> list[int] | None:
 
     days: list[int] = []
     for item in value:
-        day = _as_int(item, field="days_of_week item", minimum=0, maximum=6, required=True)
+        day = _as_int(
+            item, field="days_of_week item", minimum=0, maximum=6, required=True
+        )
         days.append(day)
     return sorted(set(days))
 

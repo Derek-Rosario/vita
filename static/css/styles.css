@@ -133,6 +133,10 @@ body {
   max-height: 45vh;
 }
 
+.assistant-chat-bubble {
+  max-width: 80%;
+}
+
 .assistant-chat-message-content p:last-child {
   margin-bottom: 0;
 }

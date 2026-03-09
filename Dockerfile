@@ -22,10 +22,11 @@ ENV UV_NO_DEV=1
 # Ensure installed tools can be executed out of the box
 ENV UV_TOOL_BIN_DIR=/usr/local/bin
 
-# Install the project's dependencies using the lockfile and settings
+# Copy lockfiles first so dependency installation can be cached independently
+COPY pyproject.toml uv.lock /code/
+
+# Install the project's dependencies using the lockfile
 RUN --mount=type=cache,target=/root/.cache/uv \
-    --mount=type=bind,source=uv.lock,target=uv.lock \
-    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     uv sync --locked --no-install-project
 
 # Latest releases available at https://github.com/aptible/supercronic/releases
@@ -33,26 +34,20 @@ ENV SUPERCRONIC_URL=https://github.com/aptible/supercronic/releases/download/v0.
     SUPERCRONIC=supercronic-linux-amd64 \
     SUPERCRONIC_SHA1SUM=cd48d45c4b10f3f0bfdd3a57d054cd05ac96812b
 
-# Then, add the rest of the project source code and install it
-# Installing separately from its dependencies allows optimal layer caching
-COPY . /code
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --locked
-
-# Place executables in the environment at the front of the path
-ENV PATH="/code/.venv/bin:$PATH"
-
-# Reset the entrypoint, don't invoke `uv`
-ENTRYPOINT []
-
 RUN curl -fsSLO "$SUPERCRONIC_URL" \
  && echo "${SUPERCRONIC_SHA1SUM}  ${SUPERCRONIC}" | sha1sum -c - \
  && chmod +x "$SUPERCRONIC" \
  && mv "$SUPERCRONIC" "/usr/local/bin/${SUPERCRONIC}" \
  && ln -s "/usr/local/bin/${SUPERCRONIC}" /usr/local/bin/supercronic
 
+# Then add the rest of the project source code.
+COPY . /code
 
+# Place executables in the environment at the front of the path
 ENV PATH="/code/.venv/bin:$PATH"
+
+# Reset the entrypoint, don't invoke `uv`
+ENTRYPOINT []
 RUN mkdir -p /data
 
 ENV SECRET_KEY "non-secret-key-for-building-purposes"
@@ -61,6 +56,10 @@ ENV SELF_EMAIL "frank@example.com"
 ENV VITA_API_KEY "non-secret-api-key-for-building-purposes"
 ENV ELEVEN_LABS_API_KEY "123"
 ENV ELEVEN_LABS_VOICE_ID ""
+ENV FROM_PHONE_NUMBER "+15555550100"
+ENV TO_PHONE_NUMBER "+15555550100"
+ENV TWILIO_ACCOUNT_SID "AC00000000000000000000000000000000"
+ENV TWILIO_AUTH_TOKEN "twilio-auth-token-for-building-purposes"
 RUN ./manage.py collectstatic --noinput
 
 RUN chmod +x /code/start.sh

@@ -1,8 +1,6 @@
 {% load assistant_formatting %}
-<div data-chat-message
-     class="mb-3 d-flex {% if msg.role == 'user' %}justify-content-end{% else %}justify-content-start{% endif %}">
-    <div class="p-3 rounded-3 {% if msg.role == 'user' %}bg-primary text-white{% else %}bg-body-tertiary border{% endif %}"
-         style="max-width: 80%;">
+<div class="mb-3 d-flex {% if msg.role == 'user' %}justify-content-end{% else %}justify-content-start{% endif %}">
+    <div class="assistant-chat-bubble p-3 rounded-3 {% if msg.role == 'user' %}bg-primary text-white{% else %}bg-body-tertiary border{% endif %}">
         <div class="small text-uppercase opacity-75 mb-1">{{ msg.role }}</div>
         <div class="assistant-chat-message-content">{{ msg.content|render_chat_message:msg.role }}</div>
     </div>

@@ -1,15 +1,22 @@
 import json
 import tempfile
 from types import SimpleNamespace
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
+from asgiref.sync import async_to_sync
+from channels.testing import WebsocketCommunicator
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
+from django.conf import settings
 from django.template import Context, Template
 from django.test import SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
 
+from assistant.constants import twilio_approved_call_cache_key
 from assistant.services.chat_service import AssistantService
-from assistant.prompt import get_system_prompt
+from assistant.prompt import get_system_prompt, get_voice_system_prompt
+from core.constants import HOME_COORDINATES
+from core.models import LastGeolocation
 from assistant.services.llm import (
     ChatMessage,
     ChatRequest,
@@ -27,7 +34,7 @@ from assistant.tools import (
     ToolResult,
     get_default_registry,
 )
-from tasks.models import Comment, Routine, RoutineStep, Task, TaskStatus
+from tasks.models import Comment, Routine, RoutineStep, Tag, Task, TaskStatus
 
 
 class _FakeCompletions:
@@ -53,7 +60,9 @@ class _CapturingProvider:
 
     def chat(self, request):
         self.last_request = request
-        return ChatResponse(provider="fake", model="fake-model", content=self.response_content)
+        return ChatResponse(
+            provider="fake", model="fake-model", content=self.response_content
+        )
 
 
 class _ToolLoopProvider:
@@ -94,7 +103,9 @@ class OpenAIProviderTests(SimpleTestCase):
                     message=SimpleNamespace(content="hello from model"),
                 )
             ],
-            usage=SimpleNamespace(prompt_tokens=11, completion_tokens=7, total_tokens=18),
+            usage=SimpleNamespace(
+                prompt_tokens=11, completion_tokens=7, total_tokens=18
+            ),
         )
         fake_client = _FakeOpenAIClient(response=response)
         provider = OpenAIChatGPTProvider(
@@ -106,7 +117,6 @@ class OpenAIProviderTests(SimpleTestCase):
         result = provider.chat(
             ChatRequest(
                 messages=[ChatMessage(role="user", content="Say hi")],
-                temperature=0.2,
                 max_output_tokens=128,
             )
         )
@@ -120,7 +130,9 @@ class OpenAIProviderTests(SimpleTestCase):
             fake_client.chat.completions.kwargs["messages"],
             [{"role": "user", "content": "Say hi"}],
         )
-        self.assertEqual(fake_client.chat.completions.kwargs["max_completion_tokens"], 128)
+        self.assertEqual(
+            fake_client.chat.completions.kwargs["max_completion_tokens"], 128
+        )
 
     def test_chat_parses_tool_calls_and_sends_tool_specs(self):
         response = SimpleNamespace(
@@ -141,7 +153,9 @@ class OpenAIProviderTests(SimpleTestCase):
                     ),
                 )
             ],
-            usage=SimpleNamespace(prompt_tokens=8, completion_tokens=3, total_tokens=11),
+            usage=SimpleNamespace(
+                prompt_tokens=8, completion_tokens=3, total_tokens=11
+            ),
         )
         fake_client = _FakeOpenAIClient(response=response)
         provider = OpenAIChatGPTProvider(
@@ -166,7 +180,9 @@ class OpenAIProviderTests(SimpleTestCase):
         self.assertIsNotNone(result.tool_calls)
         self.assertEqual(result.tool_calls[0].name, "tasks_create_task")
         self.assertEqual(result.tool_calls[0].arguments["title"], "Write tests")
-        self.assertEqual(fake_client.chat.completions.kwargs["tools"][0]["type"], "function")
+        self.assertEqual(
+            fake_client.chat.completions.kwargs["tools"][0]["type"], "function"
+        )
 
 
 class ProviderFactoryTests(SimpleTestCase):
@@ -176,7 +192,9 @@ class ProviderFactoryTests(SimpleTestCase):
         OPENAI_API_KEY="test-key",
     )
     def test_factory_builds_openai_provider(self):
-        with patch("assistant.services.llm.factory.OpenAIChatGPTProvider") as provider_cls:
+        with patch(
+            "assistant.services.llm.factory.OpenAIChatGPTProvider"
+        ) as provider_cls:
             get_provider()
 
         provider_cls.assert_called_once_with(
@@ -223,7 +241,10 @@ class AssistantServiceTests(SimpleTestCase):
             ToolDefinition(
                 name="echo_tool",
                 description="Echo text",
-                input_schema={"type": "object", "properties": {"text": {"type": "string"}}},
+                input_schema={
+                    "type": "object",
+                    "properties": {"text": {"type": "string"}},
+                },
                 handler=_echo_tool_handler,
             )
         )
@@ -277,9 +298,21 @@ class AssistantPromptTests(SimpleTestCase):
     def test_prompt_falls_back_to_default(self):
         self.assertEqual(get_system_prompt(), "Default prompt")
 
+    @override_settings(
+        ASSISTANT_VOICE_SYSTEM_PROMPT="Voice override prompt",
+        ASSISTANT_VOICE_SYSTEM_PROMPT_FILE="assistant/system_prompt_voice.txt",
+        ASSISTANT_VOICE_SYSTEM_PROMPT_DEFAULT="Voice default prompt",
+    )
+    def test_voice_prompt_uses_direct_setting_override(self):
+        self.assertEqual(get_voice_system_prompt(), "Voice override prompt")
+
 
 @override_settings(
-    STORAGES={"staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"}}
+    STORAGES={
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
+        }
+    }
 )
 class AssistantChatViewTests(TestCase):
     def setUp(self):
@@ -332,6 +365,254 @@ class AssistantChatViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(self.client.session["assistant_chat_history"], [])
 
+    @override_settings(
+        TWILIO_CONVERSATION_RELAY_WS_URL="",
+        TWILIO_VALIDATE_SIGNATURES=False,
+        TO_PHONE_NUMBER="+15551234567",
+    )
+    def test_twilio_twiml_endpoint_renders_conversationrelay(self):
+        self.client.logout()
+        response = self.client.post(
+            reverse("assistant_twilio_conversation_relay_twiml"),
+            data={"From": "+15551234567", "To": "+15550001111"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "<ConversationRelay", html=False)
+        self.assertContains(
+            response,
+            'url="ws://testserver/ws/twilio/conversation-relay/"',
+            html=False,
+        )
+
+    @override_settings(
+        TWILIO_VALIDATE_SIGNATURES=False,
+        TO_PHONE_NUMBER="+15551234567",
+    )
+    def test_twilio_twiml_endpoint_allows_when_to_matches_personal_number(self):
+        self.client.logout()
+        response = self.client.post(
+            reverse("assistant_twilio_conversation_relay_twiml"),
+            data={"From": "+15550001111", "To": "+15551234567"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+    @override_settings(
+        TWILIO_VALIDATE_SIGNATURES=False,
+        TO_PHONE_NUMBER="+15551234567",
+    )
+    def test_twilio_twiml_endpoint_rejects_unknown_numbers(self):
+        self.client.logout()
+        response = self.client.post(
+            reverse("assistant_twilio_conversation_relay_twiml"),
+            data={"From": "+15559998888", "To": "+15550001111"},
+        )
+
+        self.assertEqual(response.status_code, 403)
+
+
+@override_settings(
+    TWILIO_VALIDATE_SIGNATURES=False,
+    OPENAI_API_KEY="",
+)
+class ConversationRelayConsumerTests(SimpleTestCase):
+    def test_prompt_and_interrupt_keep_history_consistent(self):
+        captured_histories: list[list[tuple[str, str]]] = []
+        responses = iter(
+            [
+                ChatResponse(
+                    provider="fake", model="fake-model", content="First answer"
+                ),
+                ChatResponse(
+                    provider="fake", model="fake-model", content="Second answer"
+                ),
+            ]
+        )
+
+        def _reply(*args, **kwargs):
+            history = kwargs.get("history", [])
+            captured_histories.append(
+                [(message.role, message.content) for message in history]
+            )
+            return next(responses)
+
+        reply_mock = Mock(side_effect=_reply)
+        service_mock = SimpleNamespace(reply=reply_mock)
+
+        with patch("assistant.consumers.AssistantService", return_value=service_mock):
+            from vita.asgi import application
+
+            async def run():
+                communicator = WebsocketCommunicator(
+                    application, "/ws/twilio/conversation-relay/"
+                )
+                connected, _ = await communicator.connect()
+                self.assertTrue(connected)
+
+                await communicator.send_json_to({"type": "setup", "callSid": "CA123"})
+                await communicator.send_json_to(
+                    {"type": "prompt", "voicePrompt": "hello there", "last": True}
+                )
+                first_message = await communicator.receive_json_from()
+                self.assertEqual(first_message["type"], "text")
+                self.assertEqual(first_message["token"], "First answer")
+                self.assertTrue(first_message["last"])
+
+                await communicator.send_json_to(
+                    {"type": "interrupt", "utteranceUntilInterrupt": "First"}
+                )
+                await communicator.send_json_to(
+                    {"type": "prompt", "voicePrompt": "follow up", "last": True}
+                )
+                second_message = await communicator.receive_json_from()
+                self.assertEqual(second_message["token"], "Second answer")
+                self.assertTrue(second_message["last"])
+
+                await communicator.disconnect()
+
+            async_to_sync(run)()
+
+        self.assertEqual(reply_mock.call_count, 2)
+        self.assertEqual(captured_histories[0], [])
+        self.assertEqual(
+            captured_histories[1],
+            [("user", "hello there"), ("assistant", "First")],
+        )
+
+    def test_prompt_streams_tokens_over_websocket(self):
+        class _FakeStreamingCompletions:
+            def __init__(self):
+                self.kwargs = None
+
+            def create(self, **kwargs):
+                self.kwargs = kwargs
+                return [
+                    SimpleNamespace(
+                        choices=[
+                            SimpleNamespace(
+                                delta=SimpleNamespace(content="Hello ", tool_calls=None)
+                            )
+                        ]
+                    ),
+                    SimpleNamespace(
+                        choices=[
+                            SimpleNamespace(
+                                delta=SimpleNamespace(content="there", tool_calls=None)
+                            )
+                        ]
+                    ),
+                ]
+
+        fake_streaming_completions = _FakeStreamingCompletions()
+        fake_openai_client = SimpleNamespace(
+            chat=SimpleNamespace(completions=fake_streaming_completions)
+        )
+        fake_service = SimpleNamespace(
+            max_tool_rounds=6,
+            _build_tool_specs=lambda: [],
+            _execute_tool_call=lambda **kwargs: {},
+        )
+
+        def _configure_openai(self):
+            self._openai_client = fake_openai_client
+            self._openai_error_type = Exception
+
+        with (
+            patch(
+                "assistant.consumers.ConversationRelayConsumer._configure_openai_streaming",
+                _configure_openai,
+            ),
+            patch("assistant.consumers.AssistantService", return_value=fake_service),
+        ):
+            from vita.asgi import application
+
+            async def run():
+                communicator = WebsocketCommunicator(
+                    application, "/ws/twilio/conversation-relay/"
+                )
+                connected, _ = await communicator.connect()
+                self.assertTrue(connected)
+
+                await communicator.send_json_to(
+                    {"type": "prompt", "voicePrompt": "Say hello", "last": True}
+                )
+
+                first = await communicator.receive_json_from()
+                second = await communicator.receive_json_from()
+                last = await communicator.receive_json_from()
+
+                self.assertEqual(first["type"], "text")
+                self.assertEqual(first["token"], "Hello ")
+                self.assertFalse(first["last"])
+                self.assertEqual(second["token"], "there")
+                self.assertFalse(second["last"])
+                self.assertEqual(last["token"], "")
+                self.assertTrue(last["last"])
+
+                await communicator.disconnect()
+
+            async_to_sync(run)()
+
+        self.assertEqual(
+            fake_streaming_completions.kwargs["model"], settings.ASSISTANT_OPENAI_MODEL
+        )
+        self.assertTrue(fake_streaming_completions.kwargs["stream"])
+
+    def test_tools_enabled_only_for_approved_twilio_call(self):
+        captured_enable_tools: list[bool] = []
+
+        def _reply(*args, **kwargs):
+            captured_enable_tools.append(bool(kwargs.get("enable_tools")))
+            return ChatResponse(provider="fake", model="fake-model", content="Done")
+
+        reply_mock = Mock(side_effect=_reply)
+        service_mock = SimpleNamespace(reply=reply_mock)
+        fake_user = SimpleNamespace(is_superuser=True)
+
+        cache.set(twilio_approved_call_cache_key("CA_APPROVED"), True, timeout=60)
+
+        with (
+            patch("assistant.consumers.AssistantService", return_value=service_mock),
+            patch(
+                "assistant.consumers.ConversationRelayConsumer._build_tool_context"
+            ) as build_tool_context_mock,
+        ):
+            build_tool_context_mock.return_value = ToolContext(user=fake_user)
+            from vita.asgi import application
+
+            async def run():
+                approved = WebsocketCommunicator(
+                    application, "/ws/twilio/conversation-relay/"
+                )
+                connected, _ = await approved.connect()
+                self.assertTrue(connected)
+                await approved.send_json_to({"type": "setup", "callSid": "CA_APPROVED"})
+                await approved.send_json_to(
+                    {"type": "prompt", "voicePrompt": "approved", "last": True}
+                )
+                await approved.receive_json_from()
+                await approved.disconnect()
+
+                unapproved = WebsocketCommunicator(
+                    application, "/ws/twilio/conversation-relay/"
+                )
+                connected, _ = await unapproved.connect()
+                self.assertTrue(connected)
+                await unapproved.send_json_to(
+                    {"type": "setup", "callSid": "CA_REJECTED"}
+                )
+                await unapproved.send_json_to(
+                    {"type": "prompt", "voicePrompt": "unapproved", "last": True}
+                )
+                await unapproved.receive_json_from()
+                await unapproved.disconnect()
+
+            async_to_sync(run)()
+
+        self.assertEqual(reply_mock.call_count, 2)
+        self.assertEqual(captured_enable_tools, [True, False])
+
 
 class TaskToolIntegrationTests(TestCase):
     def setUp(self):
@@ -354,12 +635,12 @@ class TaskToolIntegrationTests(TestCase):
         self.assertTrue(result.ok)
         self.assertTrue(Task.objects.filter(title="Created via tool").exists())
 
-    def test_tasks_find_tasks_returns_matching_tasks(self):
+    def test_tasks_list_tasks_returns_matching_tasks_when_query_provided(self):
         Task.objects.create(title="Plan Monday", status=TaskStatus.TODO)
         Task.objects.create(title="Buy groceries", status=TaskStatus.BACKLOG)
 
         registry = get_default_registry()
-        tool = registry.get("tasks_find_tasks")
+        tool = registry.get("tasks_list_tasks")
         self.assertIsNotNone(tool)
 
         result = tool.handler(
@@ -371,21 +652,147 @@ class TaskToolIntegrationTests(TestCase):
         self.assertEqual(result.data["count"], 1)
         self.assertEqual(result.data["tasks"][0]["title"], "Plan Monday")
 
-    def test_task_state_tools_move_done_comment_and_promote(self):
+    def test_tasks_list_tasks_filters_to_away_compatible_when_away(self):
+        routine = Routine.objects.create(name="Travel routine")
+        away_step = RoutineStep.objects.create(
+            routine=routine,
+            title="Walk outside",
+            is_available_away_from_home=True,
+        )
+        home_step = RoutineStep.objects.create(
+            routine=routine,
+            title="Laundry",
+            is_available_away_from_home=False,
+        )
+        Task.objects.create(
+            title="Walk in neighborhood",
+            status=TaskStatus.TODO,
+            routine=routine,
+            routine_step=away_step,
+        )
+        Task.objects.create(
+            title="Do laundry",
+            status=TaskStatus.TODO,
+            routine=routine,
+            routine_step=home_step,
+        )
+
+        LastGeolocation.objects.create(
+            latitude=HOME_COORDINATES["latitude"] + 1.0,
+            longitude=HOME_COORDINATES["longitude"] + 1.0,
+        )
+
+        registry = get_default_registry()
+        tool = registry.get("tasks_list_tasks")
+        self.assertIsNotNone(tool)
+
+        result = tool.handler({}, ToolContext(user=self.user))
+
+        self.assertTrue(result.ok)
+        self.assertEqual(result.data["count"], 1)
+        self.assertEqual(result.data["tasks"][0]["title"], "Walk in neighborhood")
+        self.assertTrue(result.data["is_away_from_home"])
+        self.assertTrue(result.data["applied_away_from_home_filter"])
+
+    def test_tasks_list_tasks_include_all_locations_overrides_away_filter(self):
+        routine = Routine.objects.create(name="Travel routine")
+        away_step = RoutineStep.objects.create(
+            routine=routine,
+            title="Walk outside",
+            is_available_away_from_home=True,
+        )
+        home_step = RoutineStep.objects.create(
+            routine=routine,
+            title="Laundry",
+            is_available_away_from_home=False,
+        )
+        Task.objects.create(
+            title="Walk in neighborhood",
+            status=TaskStatus.TODO,
+            routine=routine,
+            routine_step=away_step,
+        )
+        Task.objects.create(
+            title="Do laundry",
+            status=TaskStatus.TODO,
+            routine=routine,
+            routine_step=home_step,
+        )
+
+        LastGeolocation.objects.create(
+            latitude=HOME_COORDINATES["latitude"] + 1.0,
+            longitude=HOME_COORDINATES["longitude"] + 1.0,
+        )
+
+        registry = get_default_registry()
+        tool = registry.get("tasks_list_tasks")
+        self.assertIsNotNone(tool)
+
+        result = tool.handler(
+            {"include_all_locations": True},
+            ToolContext(user=self.user),
+        )
+
+        self.assertTrue(result.ok)
+        self.assertEqual(result.data["count"], 2)
+        self.assertTrue(result.data["is_away_from_home"])
+        self.assertFalse(result.data["applied_away_from_home_filter"])
+
+    def test_tasks_list_tasks_filters_to_away_compatible_when_away_for_query(self):
+        routine = Routine.objects.create(name="Travel routine")
+        away_step = RoutineStep.objects.create(
+            routine=routine,
+            title="Walk outside",
+            is_available_away_from_home=True,
+        )
+        home_step = RoutineStep.objects.create(
+            routine=routine,
+            title="Laundry",
+            is_available_away_from_home=False,
+        )
+        Task.objects.create(
+            title="Errand task",
+            status=TaskStatus.TODO,
+            routine=routine,
+            routine_step=away_step,
+        )
+        Task.objects.create(
+            title="Errand task home",
+            status=TaskStatus.TODO,
+            routine=routine,
+            routine_step=home_step,
+        )
+
+        LastGeolocation.objects.create(
+            latitude=HOME_COORDINATES["latitude"] + 1.0,
+            longitude=HOME_COORDINATES["longitude"] + 1.0,
+        )
+
+        registry = get_default_registry()
+        tool = registry.get("tasks_list_tasks")
+        self.assertIsNotNone(tool)
+
+        result = tool.handler(
+            {"query": "errand"},
+            ToolContext(user=self.user),
+        )
+
+        self.assertTrue(result.ok)
+        self.assertEqual(result.data["count"], 1)
+        self.assertEqual(result.data["tasks"][0]["title"], "Errand task")
+        self.assertTrue(result.data["applied_away_from_home_filter"])
+
+    def test_task_state_changes_use_update_task_tool(self):
         task = Task.objects.create(title="Draft report", status=TaskStatus.BACKLOG)
 
         registry = get_default_registry()
-        promote_tool = registry.get("tasks_promote_backlog_task")
-        move_tool = registry.get("tasks_move_task_status")
-        done_tool = registry.get("tasks_mark_task_done")
+        update_tool = registry.get("tasks_update_task")
         comment_tool = registry.get("tasks_add_comment")
-        self.assertIsNotNone(promote_tool)
-        self.assertIsNotNone(move_tool)
-        self.assertIsNotNone(done_tool)
+        self.assertIsNotNone(update_tool)
         self.assertIsNotNone(comment_tool)
 
-        promote_result = promote_tool.handler(
-            {"task_id": task.id},
+        promote_result = update_tool.handler(
+            {"task_id": task.id, "status": TaskStatus.TODO},
             ToolContext(user=self.user),
         )
         self.assertTrue(promote_result.ok)
@@ -393,7 +800,7 @@ class TaskToolIntegrationTests(TestCase):
         task.refresh_from_db()
         self.assertEqual(task.status, TaskStatus.TODO)
 
-        move_result = move_tool.handler(
+        move_result = update_tool.handler(
             {"task_id": task.id, "status": TaskStatus.IN_PROGRESS},
             ToolContext(user=self.user),
         )
@@ -402,8 +809,8 @@ class TaskToolIntegrationTests(TestCase):
         task.refresh_from_db()
         self.assertEqual(task.status, TaskStatus.IN_PROGRESS)
 
-        done_result = done_tool.handler(
-            {"task_id": task.id},
+        done_result = update_tool.handler(
+            {"task_id": task.id, "status": TaskStatus.DONE},
             ToolContext(user=self.user),
         )
         self.assertTrue(done_result.ok)
@@ -420,6 +827,74 @@ class TaskToolIntegrationTests(TestCase):
         self.assertTrue(
             Comment.objects.filter(task=task, content="Finished and verified.").exists()
         )
+
+    def test_task_tag_tools_create_and_update_task_tags_via_update_task(self):
+        task = Task.objects.create(title="Tagged task", status=TaskStatus.TODO)
+        registry = get_default_registry()
+        create_tag_tool = registry.get("tasks_create_tag")
+        list_tags_tool = registry.get("tasks_list_tags")
+        update_tool = registry.get("tasks_update_task")
+        self.assertIsNotNone(create_tag_tool)
+        self.assertIsNotNone(list_tags_tool)
+        self.assertIsNotNone(update_tool)
+
+        create_result_1 = create_tag_tool.handler(
+            {"name": "Errands", "color": "blue"},
+            ToolContext(user=self.user),
+        )
+        create_result_2 = create_tag_tool.handler(
+            {"name": "Home"},
+            ToolContext(user=self.user),
+        )
+        self.assertTrue(create_result_1.ok)
+        self.assertTrue(create_result_2.ok)
+        errands_tag_id = create_result_1.data["tag"]["id"]
+        home_tag_id = create_result_2.data["tag"]["id"]
+
+        set_result = update_tool.handler(
+            {"task_id": task.id, "tag_ids": [errands_tag_id], "tag_mode": "set"},
+            ToolContext(user=self.user),
+        )
+        self.assertTrue(set_result.ok)
+        self.assertEqual(set_result.data["tag_ids"], [errands_tag_id])
+
+        add_result = update_tool.handler(
+            {"task_id": task.id, "tag_ids": [home_tag_id], "tag_mode": "add"},
+            ToolContext(user=self.user),
+        )
+        self.assertTrue(add_result.ok)
+        self.assertCountEqual(add_result.data["tag_ids"], [errands_tag_id, home_tag_id])
+
+        remove_result = update_tool.handler(
+            {"task_id": task.id, "tag_ids": [errands_tag_id], "tag_mode": "remove"},
+            ToolContext(user=self.user),
+        )
+        self.assertTrue(remove_result.ok)
+        self.assertEqual(remove_result.data["tag_ids"], [home_tag_id])
+
+        task.refresh_from_db()
+        self.assertEqual(
+            list(task.tags.order_by("id").values_list("id", flat=True)),
+            [home_tag_id],
+        )
+        self.assertTrue(Tag.objects.filter(pk=errands_tag_id, name="Errands").exists())
+
+        list_all_result = list_tags_tool.handler({}, ToolContext(user=self.user))
+        self.assertTrue(list_all_result.ok)
+        self.assertEqual(list_all_result.data["count"], 2)
+        self.assertCountEqual(
+            [tag["name"] for tag in list_all_result.data["tags"]],
+            ["Errands", "Home"],
+        )
+
+        list_query_result = list_tags_tool.handler(
+            {"query": "home"},
+            ToolContext(user=self.user),
+        )
+        self.assertTrue(list_query_result.ok)
+        self.assertEqual(list_query_result.data["count"], 1)
+        self.assertEqual(list_query_result.data["query"], "home")
+        self.assertEqual(list_query_result.data["tags"][0]["name"], "Home")
 
     def test_routine_step_crud_tools(self):
         routine = Routine.objects.create(name="Morning")
@@ -512,9 +987,7 @@ class AssistantFormattingTemplateTests(SimpleTestCase):
         template = Template(
             "{% load assistant_formatting %}{{ text|render_chat_message:'assistant' }}"
         )
-        rendered = template.render(
-            Context({"text": "**Bold**\n\n- Item 1\n- Item 2"})
-        )
+        rendered = template.render(Context({"text": "**Bold**\n\n- Item 1\n- Item 2"}))
 
         self.assertIn("<strong>Bold</strong>", rendered)
         self.assertIn("<li>Item 1</li>", rendered)

@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 from django.db import close_old_connections
 from django.tasks import task
 from django.template.loader import render_to_string
-from django_eventstream import send_event
+from core.sse import send_event
 
 from assistant.constants import CHAT_HISTORY_SESSION_KEY
 from assistant.prompt import get_system_prompt

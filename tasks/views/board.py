@@ -1,7 +1,9 @@
 from datetime import datetime
 from datetime import timedelta
+import json
 import logging
 import random
+import re
 from typing import Dict, List
 
 from django.contrib import messages
@@ -23,6 +25,8 @@ from core.services import (
     is_close_to_home,
 )
 from core.views import HttpRequest
+from assistant.services.llm import ChatMessage, ChatRequest
+from assistant.services.llm.factory import get_provider
 from tasks.forms import TaskForm
 from tasks.models import Task, TaskStatus
 from tasks.services import (
@@ -45,6 +49,12 @@ BOARD_STATUSES = [
     (TaskStatus.BLOCKED, "Blocked"),
     (TaskStatus.DONE, "Done"),
 ]
+QUICK_ADD_LLM_PROMPT = (
+    "You enrich task metadata. Return only a JSON object with keys: "
+    "estimate_minutes (integer), priority (1-4), energy (LOW|MEDIUM|HIGH), "
+    "description (short string)."
+)
+QUICK_ADD_LOG_PREVIEW_LENGTH = 240
 
 
 def task_board(request: HttpRequest):
@@ -222,13 +232,34 @@ def move_task(request: HttpRequest):
 @require_POST
 def quick_add_task(request: HttpRequest):
     title = request.POST.get("title", "").strip()
+    logger.info(
+        "Quick-add received: user_id=%s has_at_prefix=%s title='%s'",
+        getattr(request.user, "id", None),
+        title.startswith("@"),
+        _preview_text(title),
+    )
     if not title:
         response = HttpResponse(status=204)
         add_toast(response, type="error", message="Task title cannot be empty.")
         return response
 
-    task = Task.from_text(title)
+    try:
+        task = _build_quick_add_task(title)
+    except ValueError as exc:
+        logger.warning("Quick-add rejected: reason='%s' title='%s'", exc, title)
+        response = HttpResponse(status=204)
+        add_toast(response, type="error", message=str(exc))
+        return response
     task.save()
+    logger.info(
+        "Quick-add saved: task_id=%s title='%s' priority=%s energy=%s estimate_minutes=%s description_len=%s",
+        task.id,
+        _preview_text(task.title),
+        task.priority,
+        task.energy,
+        task.estimate_minutes,
+        len(task.description or ""),
+    )
 
     response = HttpResponse(status=204)
     add_toast(
@@ -237,6 +268,179 @@ def quick_add_task(request: HttpRequest):
         message="Added task.",
     )
     return response
+
+
+def _build_quick_add_task(title: str) -> Task:
+    if not title.startswith("@"):
+        logger.info(
+            "Quick-add using default parsing (no @ prefix): title='%s'",
+            _preview_text(title),
+        )
+        return Task.from_text(title)
+
+    normalized_title = title[1:].strip()
+    logger.info(
+        "Quick-add @ task detected: raw_title='%s' normalized_title='%s'",
+        _preview_text(title),
+        _preview_text(normalized_title),
+    )
+    if not normalized_title:
+        raise ValueError("Task title cannot be empty.")
+
+    task = Task.from_text(normalized_title)
+    enrichment = _enrich_quick_add_task_with_llm(normalized_title)
+    if enrichment:
+        logger.info(
+            "Quick-add enrichment applied: title='%s' fields=%s",
+            _preview_text(normalized_title),
+            sorted(enrichment.keys()),
+        )
+        if "estimate_minutes" in enrichment:
+            task.estimate_minutes = enrichment["estimate_minutes"]
+        if "priority" in enrichment:
+            task.priority = enrichment["priority"]
+        if "energy" in enrichment:
+            task.energy = enrichment["energy"]
+        if "description" in enrichment:
+            task.description = enrichment["description"]
+    else:
+        logger.warning(
+            "Quick-add enrichment unavailable; falling back to defaults: title='%s'",
+            _preview_text(normalized_title),
+        )
+    logger.info(
+        "Quick-add @ result: title='%s' priority=%s energy=%s estimate_minutes=%s description_len=%s",
+        _preview_text(task.title),
+        task.priority,
+        task.energy,
+        task.estimate_minutes,
+        len(task.description or ""),
+    )
+    return task
+
+
+def _enrich_quick_add_task_with_llm(title: str) -> dict[str, int | str] | None:
+    try:
+        logger.info(
+            "Quick-add enrichment calling LLM for title='%s'", _preview_text(title)
+        )
+        provider = get_provider()
+        response = provider.chat(
+            ChatRequest(
+                messages=[
+                    ChatMessage(role="system", content=QUICK_ADD_LLM_PROMPT),
+                    ChatMessage(role="user", content=title),
+                ],
+                max_output_tokens=200,
+            )
+        )
+        logger.debug(
+            "Quick-add enrichment raw LLM response for '%s': %s",
+            (_preview_text(title), _preview_text(response.content)),
+        )
+        payload = _extract_json_object(response.content)
+        if payload is None:
+            logger.warning(
+                "Quick-add enrichment returned no parseable JSON for title='%s'. LLM response: %s",
+                _preview_text(title),
+                response.content,
+            )
+            return None
+        normalized = _normalize_quick_add_enrichment(payload)
+        if not normalized:
+            logger.warning(
+                "Quick-add enrichment JSON parsed but no valid fields remained for title='%s': payload=%s",
+                _preview_text(title),
+                payload,
+            )
+            return None
+        logger.info(
+            "Quick-add enrichment normalized for title='%s': %s",
+            _preview_text(title),
+            normalized,
+        )
+        return normalized
+    except Exception:  # noqa: BLE001
+        logger.exception("Quick-add LLM enrichment failed for title '%s'.", title)
+        return None
+
+
+def _extract_json_object(content: str) -> dict | None:
+    text = content.strip()
+    if not text:
+        return None
+
+    try:
+        parsed = json.loads(text)
+        return parsed if isinstance(parsed, dict) else None
+    except json.JSONDecodeError:
+        pass
+
+    fenced_match = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", text, flags=re.DOTALL)
+    if fenced_match:
+        try:
+            parsed = json.loads(fenced_match.group(1))
+            return parsed if isinstance(parsed, dict) else None
+        except json.JSONDecodeError:
+            pass
+
+    start = text.find("{")
+    end = text.rfind("}")
+    if start != -1 and end > start:
+        try:
+            parsed = json.loads(text[start : end + 1])
+            return parsed if isinstance(parsed, dict) else None
+        except json.JSONDecodeError:
+            return None
+
+    return None
+
+
+def _normalize_quick_add_enrichment(payload: dict) -> dict[str, int | str]:
+    normalized: dict[str, int | str] = {}
+
+    estimate = payload.get("estimate_minutes")
+    if estimate is not None:
+        try:
+            estimate_int = int(estimate)
+        except (TypeError, ValueError):
+            estimate_int = None
+        if estimate_int is not None and 0 <= estimate_int <= 24 * 60:
+            normalized["estimate_minutes"] = estimate_int
+
+    priority = payload.get("priority")
+    if priority is not None:
+        try:
+            priority_int = int(priority)
+        except (TypeError, ValueError):
+            priority_int = None
+        if priority_int in {choice for choice, _ in Task.Priority.choices}:
+            normalized["priority"] = priority_int
+
+    energy = payload.get("energy")
+    if isinstance(energy, str):
+        energy_value = energy.strip().upper()
+        if energy_value in {choice for choice, _ in Task.Energy.choices}:
+            normalized["energy"] = energy_value
+
+    description = payload.get("description")
+    if isinstance(description, str):
+        description_value = description.strip()
+        if description_value:
+            normalized["description"] = description_value[:280]
+
+    return normalized
+
+
+def _preview_text(
+    text: str | None, *, limit: int = QUICK_ADD_LOG_PREVIEW_LENGTH
+) -> str:
+    if not text:
+        return ""
+    compact = " ".join(text.split())
+    if len(compact) <= limit:
+        return compact
+    return f"{compact[: limit - 3]}..."
 
 
 @require_POST
